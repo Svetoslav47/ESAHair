@@ -2,7 +2,6 @@ import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState } from 'react';
 import Tooltip from '../common/Tooltip';
-import DateSelection from './DateSelection';
 import { 
   faScissors, 
   faUser, 
@@ -109,8 +108,6 @@ const BookingSteps = ({
   currentStep, 
   setCurrentStep, 
   canNavigateToStep,
-  selectedBarber,
-  onDateTimeSelect 
 }: BookingStepsProps) => {
   const [hoveredStep, setHoveredStep] = useState<number | null>(null);
 
@@ -128,22 +125,6 @@ const BookingSteps = ({
     }
   };
 
-  const renderStepContent = () => {
-    switch (currentStep) {
-      case 2: // Date & Time step
-        if (!selectedBarber) {
-          return <div>Please select a barber first</div>;
-        }
-        return (
-          <DateSelection
-            barberName={selectedBarber}
-            onDateTimeSelect={onDateTimeSelect}
-          />
-        );
-      default:
-        return null;
-    }
-  };
 
   return (
     <>
@@ -178,7 +159,6 @@ const BookingSteps = ({
           );
         })}
       </StepsContainer>
-      {renderStepContent()}
     </>
   );
 };

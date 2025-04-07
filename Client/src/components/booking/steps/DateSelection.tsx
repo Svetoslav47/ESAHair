@@ -1,18 +1,35 @@
 import styled from 'styled-components';
 import { useState } from 'react';
-import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth, startOfWeek, endOfWeek } from 'date-fns';
+import { 
+  format,
+  addMonths,
+  subMonths, 
+  startOfMonth, 
+  endOfMonth, 
+  eachDayOfInterval, 
+  isSameDay, 
+  isSameMonth, 
+  startOfWeek, 
+  endOfWeek, 
+  parse,
+  getHours
+} from 'date-fns';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 
 const Container = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 2rem;
   padding: 2rem;
   max-width: 800px;
   margin: 0 auto;
   background-color: #000;
   border-radius: 8px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
 `;
 
 const Title = styled.h2`
@@ -75,7 +92,6 @@ const DaysGrid = styled.div`
 
 const DayCell = styled.button<{ $isCurrentMonth: boolean; $isSelected: boolean; $isAvailable: boolean }>`
   aspect-ratio: 1;
-  border: none;
   background: ${({ $isSelected, $isAvailable, $isCurrentMonth }) => 
     $isSelected ? '#C19B76' : $isAvailable ? ($isCurrentMonth ? '#333' : '#1a1a1a') : '#111'};
   color: ${({ $isCurrentMonth, $isSelected }) => 
@@ -86,8 +102,7 @@ const DayCell = styled.button<{ $isCurrentMonth: boolean; $isSelected: boolean; 
   transition: all 0.2s ease;
 
   &:hover {
-    background: ${({ $isAvailable, $isCurrentMonth }) => ($isAvailable ? '#C19B76' : ($isCurrentMonth ? '#111' : '#1a1a1a'))};
-    color: ${({ $isAvailable }) => ($isAvailable ? '#000' : '#fff')};
+    border-color: #C19B76;
   }
 `;
 
@@ -138,17 +153,45 @@ const NoTimeSlotsMessage = styled.div`
 
 interface TimeSlot {
   time: string;
-  period: 'Morning' | 'Afternoon' | 'Evening';
 }
 
-// Mock data with periods
 const BARBER_AVAILABILITY: Record<string, Record<string, TimeSlot[]>> = {
-  'John Doe': {
-    '2024-04-23': [
-      { time: '10:00 - 11:00', period: 'Morning' },
-      { time: '12:00 - 13:00', period: 'Afternoon' },
-      { time: '13:00 - 14:00', period: 'Afternoon' },
-      { time: '18:00 - 19:00', period: 'Evening' }
+  'Lucky': {
+    '2025-03-31': [
+      { time: '10:00 - 11:00'},
+      { time: '12:00 - 13:00'},
+      { time: '13:00 - 14:00'},
+      { time: '18:00 - 19:00'}
+    ],
+    '2025-04-07': [
+      { time: '10:00 - 11:00'},
+      { time: '12:00 - 13:00'},
+      { time: '13:00 - 14:00'},
+      { time: '18:00 - 19:00'}
+    ],
+    '2025-04-08': [
+      { time: '10:00 - 11:00'},
+      { time: '12:00 - 13:00'},
+      { time: '13:00 - 14:00'},
+      { time: '18:00 - 19:00'}
+    ],
+    '2025-04-09': [
+      { time: '10:00 - 11:00'},
+      { time: '12:00 - 13:00'},
+      { time: '13:00 - 14:00'},
+      { time: '18:00 - 19:00'}
+    ],
+    '2025-04-10': [
+      { time: '10:00 - 11:00'},
+      { time: '12:00 - 13:00'},
+      { time: '13:00 - 14:00'},
+      { time: '18:00 - 19:00'}
+    ],
+    '2025-04-14': [
+      { time: '10:00 - 11:00'},
+      { time: '12:00 - 13:00'},
+      { time: '13:00 - 14:00'},
+      { time: '18:00 - 19:00'}
     ]
   }
 };
@@ -193,12 +236,27 @@ const DateSelection = ({ barberName, onDateTimeSelect }: DateSelectionProps) => 
     return BARBER_AVAILABILITY[barberName]?.[dateStr] || [];
   };
 
-  const availableTimeSlots = getAvailableTimeSlots();
-  const morningSlots = availableTimeSlots.filter(slot => slot.period === 'Morning');
-  const afternoonSlots = availableTimeSlots.filter(slot => slot.period === 'Afternoon');
-  const eveningSlots = availableTimeSlots.filter(slot => slot.period === 'Evening');
+  const getSlotStartHour = (slot: TimeSlot) => {
+    const startTime = slot.time.split(' - ')[0];
+    const parsed = parse(startTime, 'HH:mm', new Date());
+    return getHours(parsed);
+  };
 
-  console.log('Selected Date:', selectedDate);
+  const availableTimeSlots = getAvailableTimeSlots();
+  const morningSlots = availableTimeSlots.filter(slot => {
+    const hour = getSlotStartHour(slot);
+    return hour < 12;
+  });
+  
+  const afternoonSlots = availableTimeSlots.filter(slot => {
+    const hour = getSlotStartHour(slot);
+    return hour >= 12 && hour < 17;
+  });
+  
+  const eveningSlots = availableTimeSlots.filter(slot => {
+    const hour = getSlotStartHour(slot);
+    return hour >= 17;
+  });
 
   return (
     <>
@@ -233,7 +291,7 @@ const DateSelection = ({ barberName, onDateTimeSelect }: DateSelectionProps) => 
                   $isCurrentMonth={isSameMonth(day, currentMonth)}
                   $isSelected={selectedDate ? isSameDay(day, selectedDate) : false}
                   $isAvailable={isAvailable}
-                  onClick={() => isAvailable && handleDateSelect(day)}
+                  onClick={() => handleDateSelect(day)}
                 >
                   {format(day, 'd')}
                 </DayCell>

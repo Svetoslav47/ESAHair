@@ -84,8 +84,8 @@ interface StaffMember {
 }
 
 interface StaffSelectionProps {
-  selectedStaff?: number;
-  onSelect?: (id: number) => void;
+  selectedStaff: number;
+  onSelect: (id: number, name: string) => void;
 }
 
 const StaffSelection = ({ selectedStaff, onSelect }: StaffSelectionProps) => {
@@ -118,7 +118,7 @@ const StaffSelection = ({ selectedStaff, onSelect }: StaffSelectionProps) => {
           <StaffCard 
             key={member.id}
             $isSelected={selectedStaff === member.id}
-            onClick={() => onSelect?.(member.id)}
+            onClick={() => onSelect(member.id, member.name)}
           >
             <StaffImage src={member.image} alt={member.name} />
             <StaffName>{member.name}</StaffName>

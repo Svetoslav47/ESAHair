@@ -3,6 +3,7 @@ import BookingSteps from '../components/booking/BookingSteps';
 import StaffSelection from '../components/booking/steps/StaffSelection';
 import ServiceSelection from '../components/booking/steps/ServiceSelection';
 import { useState, useCallback } from 'react';
+import DateSelection from '../components/booking/steps/DateSelection';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -126,12 +127,12 @@ const BookAppointment = () => {
     setTimeout(() => setCurrentStep(1), 300);
   };
 
-  const handleStaffSelect = (staffId: number) => {
+  const handleStaffSelect = (staffId: number, staffName: string) => {
     setBookingState(prev => ({
       ...prev,
       staff: {
         id: staffId,
-        name: 'Staff Name' // Replace with actual staff name when available
+        name: staffName
       }
     }));
     setTimeout(() => setCurrentStep(2), 300);
@@ -164,10 +165,16 @@ const BookAppointment = () => {
         </StepContainer>
         <StepContainer $isVisible={currentStep === 1}>
           <StaffSelection 
-            selectedStaff={bookingState.staff?.id}
+            selectedStaff={bookingState.staff?.id ?? -1}
             onSelect={handleStaffSelect}
           />
         </StepContainer>
+        <StepContainer $isVisible={currentStep === 2}>
+          <DateSelection
+              barberName={bookingState.staff?.name ?? ""}
+              onDateTimeSelect={() => {}}
+          />
+          </StepContainer>
       </ContentContainer>
     </PageContainer>
   );
