@@ -2,7 +2,6 @@ import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState } from 'react';
 import Tooltip from '../common/Tooltip';
-import { BookingStep } from '../../../types/bookingStep';
 import DateSelection from './DateSelection';
 import { 
   faScissors, 
