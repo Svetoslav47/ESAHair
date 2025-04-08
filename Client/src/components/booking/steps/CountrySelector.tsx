@@ -178,7 +178,7 @@ export const processPhoneNumber = (phoneNumber: string): { country?: Country; ph
   return { phoneWithoutCode: phoneNumber };
 };
 
-const CountrySelector = ({ selectedCountry, onSelect, onPhoneInput }: CountrySelectorProps) => {
+const CountrySelector = ({ selectedCountry, onSelect }: CountrySelectorProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
