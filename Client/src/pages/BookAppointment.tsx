@@ -4,6 +4,7 @@ import StaffSelection from '../components/booking/steps/StaffSelection';
 import ServiceSelection from '../components/booking/steps/ServiceSelection';
 import { useState, useCallback, useEffect, useRef } from 'react';
 import DateSelection from '../components/booking/steps/DateSelection';
+import PersonalInfo from '../components/booking/steps/PersonalInfo';
 
 const PageContainer = styled.div`
   background-color: #000;
@@ -49,9 +50,11 @@ interface BookingState {
   staff?: { id: number; name: string };
   dateTime?: string;
   details?: {
-    name: string;
-    phone: string;
+    firstname: string;
+    lastname: string;
     email: string;
+    phone: string;
+    termsAccepted: boolean;
   };
 }
 
@@ -167,6 +170,21 @@ const BookAppointment = () => {
       dateTime: `${date.toISOString().split('T')[0]} ${time}`
     }));
   };
+
+  const handleDetailsSubmit = (details: { 
+    firstname: string; 
+    lastname: string; 
+    email: string; 
+    phone: string;
+    termsAccepted: boolean;
+  }) => {
+    setBookingState(prev => ({
+      ...prev,
+      details
+    }));
+    setTimeout(() => setCurrentStep(4), 100);
+  };
+
   return (
     <PageContainer>
       <Title>Book an Appointment</Title>
@@ -194,10 +212,15 @@ const BookAppointment = () => {
         </StepContainer>
         <StepContainer $isVisible={currentStep === 2}>
           <DateSelection
-              barberName={bookingState.staff?.name ?? ""}
-              onDateTimeSelect={() => {}}
+            barberName={bookingState.staff?.name ?? ""}
+            onDateTimeSelect={handleDateTimeSelect}
           />
-          </StepContainer>
+        </StepContainer>
+        <StepContainer $isVisible={currentStep === 3}>
+          <PersonalInfo
+            onDetailsSubmit={handleDetailsSubmit}
+          />
+        </StepContainer>
       </ContentContainer>
     </PageContainer>
   );
