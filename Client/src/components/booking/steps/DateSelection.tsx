@@ -10,9 +10,7 @@ import {
   isSameDay, 
   isSameMonth, 
   startOfWeek, 
-  endOfWeek, 
-  parse,
-  getHours
+  endOfWeek
 } from 'date-fns';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
@@ -111,20 +109,8 @@ const TimeSlotsContainer = styled.div`
   border-radius: 8px;
   padding: 1rem;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-`;
-
-const TimeSlotSection = styled.div`
-  margin-bottom: 1rem;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-`;
-
-const SectionTitle = styled.h4`
-  color: #C19B76;
-  font-size: 1.1rem;
-  margin-bottom: 0.5rem;
+  max-height: 400px;
+  overflow-y: auto;
 `;
 
 const TimeSlotButton = styled.button<{ $isSelected: boolean }>`
@@ -159,9 +145,39 @@ const BARBER_AVAILABILITY: Record<string, Record<string, TimeSlot[]>> = {
   'Lucky': {
     '2025-03-31': [
       { time: '10:00 - 11:00'},
+      { time: '10:15 - 11:15'},
+      { time: '10:30 - 11:30'},
+      { time: '10:45 - 11:45'},
+      { time: '11:00 - 12:00'},
+      { time: '11:15 - 12:15'},
+      { time: '11:30 - 12:30'},
+      { time: '11:45 - 12:45'},
       { time: '12:00 - 13:00'},
+      { time: '12:15 - 13:15'},
+      { time: '12:30 - 13:30'},
+      { time: '12:45 - 13:45'},
       { time: '13:00 - 14:00'},
-      { time: '18:00 - 19:00'}
+      { time: '13:15 - 14:15'},
+      { time: '13:30 - 14:30'},
+      { time: '13:45 - 14:45'},
+      { time: '14:00 - 15:00'},
+      { time: '14:15 - 15:15'},
+      { time: '14:30 - 15:30'},
+      { time: '14:45 - 15:45'},
+      { time: '15:00 - 16:00'},
+      { time: '15:15 - 16:15'},
+      { time: '15:30 - 16:30'},
+      { time: '15:45 - 16:45'},
+      { time: '16:00 - 17:00'},
+      { time: '16:15 - 17:15'},
+      { time: '16:30 - 17:30'},
+      { time: '16:45 - 17:45'},
+      { time: '17:00 - 18:00'},
+      { time: '17:15 - 18:15'},
+      { time: '17:30 - 18:30'},
+      { time: '17:45 - 18:45'},
+      { time: '18:00 - 19:00'},
+      
     ],
     '2025-04-07': [
       { time: '10:00 - 11:00'},
@@ -236,27 +252,7 @@ const DateSelection = ({ barberName, onDateTimeSelect }: DateSelectionProps) => 
     return BARBER_AVAILABILITY[barberName]?.[dateStr] || [];
   };
 
-  const getSlotStartHour = (slot: TimeSlot) => {
-    const startTime = slot.time.split(' - ')[0];
-    const parsed = parse(startTime, 'HH:mm', new Date());
-    return getHours(parsed);
-  };
-
   const availableTimeSlots = getAvailableTimeSlots();
-  const morningSlots = availableTimeSlots.filter(slot => {
-    const hour = getSlotStartHour(slot);
-    return hour < 12;
-  });
-  
-  const afternoonSlots = availableTimeSlots.filter(slot => {
-    const hour = getSlotStartHour(slot);
-    return hour >= 12 && hour < 17;
-  });
-  
-  const eveningSlots = availableTimeSlots.filter(slot => {
-    const hour = getSlotStartHour(slot);
-    return hour >= 17;
-  });
 
   return (
     <>
@@ -304,50 +300,15 @@ const DateSelection = ({ barberName, onDateTimeSelect }: DateSelectionProps) => 
           {selectedDate ? (
             availableTimeSlots.length > 0 ? (
               <>
-                {morningSlots.length > 0 && (
-                  <TimeSlotSection>
-                    <SectionTitle>Morning</SectionTitle>
-                    {morningSlots.map(slot => (
-                      <TimeSlotButton
-                        key={slot.time}
-                        $isSelected={selectedTime === slot.time}
-                        onClick={() => handleTimeSelect(slot.time)}
-                      >
-                        {slot.time}
-                      </TimeSlotButton>
-                    ))}
-                  </TimeSlotSection>
-                )}
-
-                {afternoonSlots.length > 0 && (
-                  <TimeSlotSection>
-                    <SectionTitle>Afternoon</SectionTitle>
-                    {afternoonSlots.map(slot => (
-                      <TimeSlotButton
-                        key={slot.time}
-                        $isSelected={selectedTime === slot.time}
-                        onClick={() => handleTimeSelect(slot.time)}
-                      >
-                        {slot.time}
-                      </TimeSlotButton>
-                    ))}
-                  </TimeSlotSection>
-                )}
-
-                {eveningSlots.length > 0 && (
-                  <TimeSlotSection>
-                    <SectionTitle>Evening</SectionTitle>
-                    {eveningSlots.map(slot => (
-                      <TimeSlotButton
-                        key={slot.time}
-                        $isSelected={selectedTime === slot.time}
-                        onClick={() => handleTimeSelect(slot.time)}
-                      >
-                        {slot.time}
-                      </TimeSlotButton>
-                    ))}
-                  </TimeSlotSection>
-                )}
+                {availableTimeSlots.map(slot => (
+                  <TimeSlotButton
+                    key={slot.time}
+                    $isSelected={selectedTime === slot.time}
+                    onClick={() => handleTimeSelect(slot.time)}
+                  >
+                    {slot.time}
+                  </TimeSlotButton>
+                ))}
               </>
             ) : (
               <NoTimeSlotsMessage>

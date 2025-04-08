@@ -2,11 +2,10 @@ import styled from 'styled-components';
 import BookingSteps from '../components/booking/BookingSteps';
 import StaffSelection from '../components/booking/steps/StaffSelection';
 import ServiceSelection from '../components/booking/steps/ServiceSelection';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import DateSelection from '../components/booking/steps/DateSelection';
 
 const PageContainer = styled.div`
-  min-height: 100vh;
   background-color: #000;
   display: flex;
   flex-direction: column;
@@ -91,6 +90,8 @@ const BookAppointment = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [bookingState, setBookingState] = useState<BookingState>({});
 
+  const isUserNavigation = useRef(true);
+
   const canNavigateToStep = useCallback((step: number) => {
     switch (step) {
       case 0: // Service selection
@@ -114,6 +115,28 @@ const BookAppointment = () => {
     }
   };
 
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      if (event.state && typeof event.state.step === 'number') {
+        isUserNavigation.current = false;
+        setCurrentStep(event.state.step);
+      }
+    };
+  
+    window.addEventListener('popstate', handlePopState);
+  
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isUserNavigation.current) {
+      window.history.pushState({ step: currentStep }, '');
+    }
+    isUserNavigation.current = true;
+  }, [currentStep]);
+
   const handleServiceSelect = (service: any) => {
     setBookingState(prev => ({
       ...prev,
@@ -124,7 +147,7 @@ const BookAppointment = () => {
         price: service.price
       }
     }));
-    setTimeout(() => setCurrentStep(1), 300);
+    setTimeout(() => setCurrentStep(1), 100);
   };
 
   const handleStaffSelect = (staffId: number, staffName: string) => {
@@ -135,7 +158,7 @@ const BookAppointment = () => {
         name: staffName
       }
     }));
-    setTimeout(() => setCurrentStep(2), 300);
+    setTimeout(() => setCurrentStep(2), 100);
   };
 
   const handleDateTimeSelect = (date: Date, time: string) => {
