@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import { useState, useRef, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
+import { getCountries, getCountryCallingCode } from 'libphonenumber-js/min';
 
 const Container = styled.div`
   position: relative;
@@ -126,27 +127,13 @@ interface Country {
   flag: string;
 }
 
-// This is just a sample of countries. In a real app, you'd want to include all countries
-const countries: Country[] = [
-  { name: 'Afghanistan', code: 'AF', dialCode: '+93', flag: 'https://flagcdn.com/af.svg' },
-  { name: 'Albania', code: 'AL', dialCode: '+355', flag: 'https://flagcdn.com/al.svg' },
-  { name: 'Algeria', code: 'DZ', dialCode: '+213', flag: 'https://flagcdn.com/dz.svg' },
-  { name: 'Bulgaria', code: 'BG', dialCode: '+359', flag: 'https://flagcdn.com/bg.svg' },
-  { name: 'France', code: 'FR', dialCode: '+33', flag: 'https://flagcdn.com/fr.svg' },
-  { name: 'Germany', code: 'DE', dialCode: '+49', flag: 'https://flagcdn.com/de.svg' },
-  { name: 'Greece', code: 'GR', dialCode: '+30', flag: 'https://flagcdn.com/gr.svg' },
-  { name: 'Italy', code: 'IT', dialCode: '+39', flag: 'https://flagcdn.com/it.svg' },
-  { name: 'Romania', code: 'RO', dialCode: '+40', flag: 'https://flagcdn.com/ro.svg' },
-  { name: 'Spain', code: 'ES', dialCode: '+34', flag: 'https://flagcdn.com/es.svg' },
-  { name: 'United Kingdom', code: 'GB', dialCode: '+44', flag: 'https://flagcdn.com/gb.svg' },
-  { name: 'United States', code: 'US', dialCode: '+1', flag: 'https://flagcdn.com/us.svg' },
-];
+const countries: Country[] = getCountries().map(countryCode => ({
+  name: new Intl.DisplayNames(['en'], { type: 'region' }).of(countryCode) || countryCode,
+  code: countryCode,
+  dialCode: `+${getCountryCallingCode(countryCode)}`,
+  flag: `https://flagcdn.com/${countryCode.toLowerCase()}.svg`
+})).sort((a, b) => a.name.localeCompare(b.name));
 
-interface CountrySelectorProps {
-  selectedCountry: Country;
-  onSelect: (country: Country) => void;
-  onPhoneInput?: (phoneNumber: string) => void;
-}
 
 // Add utility function to find country by dial code
 export const findCountryByDialCode = (dialCode: string): Country | undefined => {
@@ -155,7 +142,6 @@ export const findCountryByDialCode = (dialCode: string): Country | undefined => 
   
   // Find the country with the matching dial code
   return countries.find(country => {
-    // Some countries might have multiple dial codes, so we check if the input starts with the country's dial code
     return cleanDialCode.startsWith(country.dialCode);
   });
 };
@@ -177,6 +163,12 @@ export const processPhoneNumber = (phoneNumber: string): { country?: Country; ph
 
   return { phoneWithoutCode: phoneNumber };
 };
+
+interface CountrySelectorProps {
+  selectedCountry: Country;
+  onSelect: (country: Country) => void;
+  onPhoneInput?: (phoneNumber: string) => void;
+}
 
 const CountrySelector = ({ selectedCountry, onSelect }: CountrySelectorProps) => {
   const [isOpen, setIsOpen] = useState(false);

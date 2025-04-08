@@ -207,6 +207,12 @@ const PersonalInfo = ({ onDetailsSubmit }: PersonalInfoProps) => {
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const input = e.target.value;
+    
+    // Only allow numbers, spaces, and plus sign
+    if (!/^[0-9+ ]*$/.test(input)) {
+      return;
+    }
+    
     const { country, phoneWithoutCode } = processPhoneNumber(input);
     
     if (country) {
@@ -233,7 +239,7 @@ const PersonalInfo = ({ onDetailsSubmit }: PersonalInfoProps) => {
         <InputGroup>
           <Label>
             Firstname
-            <Required>*</Required>
+            {!formData.firstname && <Required>*</Required>}
           </Label>
           <Input
             type="text"
@@ -253,7 +259,7 @@ const PersonalInfo = ({ onDetailsSubmit }: PersonalInfoProps) => {
         <InputGroup>
           <Label>
             Lastname
-            <Required>*</Required>
+            {!formData.lastname && <Required>*</Required>}
           </Label>
           <Input
             type="text"
@@ -273,7 +279,7 @@ const PersonalInfo = ({ onDetailsSubmit }: PersonalInfoProps) => {
         <InputGroup>
           <Label>
             Email Address
-            <Required>*</Required>
+            {!formData.email && <Required>*</Required>}
           </Label>
           <Input
             type="email"
@@ -293,14 +299,13 @@ const PersonalInfo = ({ onDetailsSubmit }: PersonalInfoProps) => {
         <InputGroup>
           <Label>
             Phone Number
-            <Required>*</Required>
+            {!formData.phone && <Required>*</Required>}
           </Label>
           <PhoneInputContainer>
             <CountrySelector
               selectedCountry={selectedCountry}
               onSelect={setSelectedCountry}
             />
-            
             <Input
               type="tel"
               name="phone"
