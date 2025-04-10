@@ -242,8 +242,17 @@ const DateSelection = ({ barberName, onDateTimeSelect }: DateSelectionProps) => 
   const handleTimeSelect = (time: string) => {
     setSelectedTime(time);
     if (selectedDate) {
-      onDateTimeSelect(selectedDate, time);
+      handleDateTimeSelect(selectedDate, time);
     }
+  };
+
+  const handleDateTimeSelect = (date: Date, time: string) => {
+    onDateTimeSelect(date, time);
+    // Auto-redirect to the next step after a short delay
+    setTimeout(() => {
+      // The next step is index 3 (PersonalInfo)
+      window.dispatchEvent(new CustomEvent('stepChange', { detail: 3 }));
+    }, 100);
   };
 
   const getAvailableTimeSlots = () => {

@@ -125,11 +125,19 @@ const BookAppointment = () => {
         setCurrentStep(event.state.step);
       }
     };
-  
+
+    const handleStepChange = (event: CustomEvent) => {
+      if (typeof event.detail === 'number') {
+        setCurrentStep(event.detail);
+      }
+    };
+
     window.addEventListener('popstate', handlePopState);
-  
+    window.addEventListener('stepChange', handleStepChange as EventListener);
+
     return () => {
       window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('stepChange', handleStepChange as EventListener);
     };
   }, []);
 
