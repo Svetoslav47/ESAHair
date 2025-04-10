@@ -18,29 +18,35 @@ import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons
 const Container = styled.div`
   display: flex;
   flex-direction: row;
-  gap: 2rem;
-  padding: 2rem;
-  max-width: 800px;
-  margin: 0 auto;
-  background-color: #000;
+  gap: 1.5rem;
+  padding: 1.5rem 2rem;
+  max-width: 850px;
+  margin: 2rem auto;
+  background-color: #1a1a1a;
   border-radius: 8px;
+  border: 1px solid #333;
+  color: #fff;
 
   @media (max-width: 768px) {
     flex-direction: column;
+    padding: 1rem 1.5rem;
   }
 `;
 
 const Title = styled.h2`
-  color: #C19B76;
+  color: #fff;
   text-align: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  font-size: 1.6rem;
+  font-weight: 600;
 `;
 
 const CalendarContainer = styled.div`
-  background: #000;
+  background: #111;
   border-radius: 8px;
   padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  flex: 1;
+  min-width: 300px;
 `;
 
 const CalendarHeader = styled.div`
@@ -105,12 +111,13 @@ const DayCell = styled.button<{ $isCurrentMonth: boolean; $isSelected: boolean; 
 `;
 
 const TimeSlotsContainer = styled.div`
-  background: #000;
+  background: #111;
   border-radius: 8px;
   padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   max-height: 400px;
   overflow-y: auto;
+  flex: 1;
+  min-width: 200px;
 `;
 
 const TimeSlotButton = styled.button<{ $isSelected: boolean }>`

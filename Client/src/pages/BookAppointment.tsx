@@ -37,6 +37,8 @@ const StepContainer = styled.div<{ $isVisible: boolean }>`
   left: 0;
   right: 0;
   pointer-events: ${({ $isVisible }) => ($isVisible ? 'auto' : 'none')};
+  padding: 0 1rem;
+  box-sizing: border-box;
 `;
 
 const ContentContainer = styled.div`
@@ -231,7 +233,7 @@ const BookAppointment = () => {
           />
         </StepContainer>
         <StepContainer $isVisible={currentStep === 4}>
-          <Summary />
+          <Summary bookingState={bookingState} />
         </StepContainer>
       </ContentContainer>
     </PageContainer>

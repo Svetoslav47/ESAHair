@@ -1,41 +1,32 @@
 import styled from 'styled-components';
 
 const Container = styled.div`
-  flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  background-color: #000;
+  gap: 1.5rem;
+  padding: 1.5rem 2rem;
+  max-width: 1000px;
+  margin: 2rem auto;
+  background-color: #1a1a1a;
+  border-radius: 8px;
+  border: 1px solid #333;
   color: #fff;
-  width: 100%;
-  padding: 0;
 `;
 
 const Title = styled.h2`
-  font-size: 1.5rem;
-  margin: 2rem 0;
-  text-align: center;
   color: #fff;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-top: 0;
 `;
 
 const StaffGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
   width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
-  box-sizing: border-box;
-  margin-bottom: 2rem;
-
-  @media (max-width: 1200px) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  @media (max-width: 768px) {
-    grid-template-columns: minmax(0, 1fr);
-    padding: 0 2rem;
-  }
 `;
 
 const StaffCard = styled.div<{ $isSelected?: boolean }>`
