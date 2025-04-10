@@ -5,6 +5,7 @@ import ServiceSelection from '../components/booking/steps/ServiceSelection';
 import { useState, useCallback, useEffect, useRef } from 'react';
 import DateSelection from '../components/booking/steps/DateSelection';
 import PersonalInfo from '../components/booking/steps/PersonalInfo';
+import Summary from '../components/booking/steps/Summary';
 
 const PageContainer = styled.div`
   background-color: #000;
@@ -228,6 +229,9 @@ const BookAppointment = () => {
           <PersonalInfo
             onDetailsSubmit={handleDetailsSubmit}
           />
+        </StepContainer>
+        <StepContainer $isVisible={currentStep === 4}>
+          <Summary />
         </StepContainer>
       </ContentContainer>
     </PageContainer>

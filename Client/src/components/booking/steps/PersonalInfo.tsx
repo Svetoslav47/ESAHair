@@ -111,6 +111,23 @@ const TermsLink = styled.a`
   }
 `;
 
+const SubmitButton = styled.button<{ $isDisabled: boolean }>`
+  padding: 1rem;
+  background-color: ${({ $isDisabled }) => ($isDisabled ? '#333' : '#C19B76')};
+  color: ${({ $isDisabled }) => ($isDisabled ? '#666' : '#000')};
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: ${({ $isDisabled }) => ($isDisabled ? 'not-allowed' : 'pointer')};
+  transition: all 0.2s ease;
+  margin-top: 1rem;
+
+  &:hover {
+    background-color: ${({ $isDisabled }) => ($isDisabled ? '#333' : '#D4B08C')};
+  }
+`;
+
 interface Country {
   name: string;
   code: string;
@@ -187,6 +204,17 @@ const PersonalInfo = ({ onDetailsSubmit }: PersonalInfoProps) => {
     return !Object.values(newErrors).some(error => error);
   };
 
+  const isFormValid = () => {
+    return (
+      formData.firstname.trim() !== '' &&
+      formData.lastname.trim() !== '' &&
+      formData.email.trim() !== '' &&
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) &&
+      formData.phone.trim() !== '' &&
+      formData.termsAccepted
+    );
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
@@ -194,6 +222,10 @@ const PersonalInfo = ({ onDetailsSubmit }: PersonalInfoProps) => {
         ...formData,
         phone: `${selectedCountry.dialCode} ${formData.phone}`
       });
+      // Auto-redirect to the next step after a short delay
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('stepChange', { detail: 4 }));
+      }, 100);
     }
   };
 
@@ -340,6 +372,14 @@ const PersonalInfo = ({ onDetailsSubmit }: PersonalInfoProps) => {
             {errors.terms}
           </ErrorContainer>
         )}
+
+        <SubmitButton 
+          type="submit" 
+          $isDisabled={!isFormValid()}
+          disabled={!isFormValid()}
+        >
+          Continue to Summary
+        </SubmitButton>
       </Form>
     </Container>
   );
