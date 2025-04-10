@@ -29,23 +29,18 @@ const Title = styled.h1`
 `;
 
 const StepContainer = styled.div<{ $isVisible: boolean }>`
-  opacity: ${({ $isVisible }) => ($isVisible ? 1 : 0)};
-  transform: translateY(${({ $isVisible }) => ($isVisible ? '0' : '20px')});
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  position: absolute;
+  display: ${({ $isVisible }) => ($isVisible ? 'block' : 'none')};
   width: 100%;
-  left: 0;
-  right: 0;
-  pointer-events: ${({ $isVisible }) => ($isVisible ? 'auto' : 'none')};
   padding: 0 1rem;
   box-sizing: border-box;
+  position: absolute;
+  left: 0;
+  right: 0;
 `;
 
 const ContentContainer = styled.div`
   position: relative;
   flex: 1;
-  display: flex;
-  flex-direction: column;
 `;
 
 interface BookingState {
