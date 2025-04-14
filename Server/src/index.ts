@@ -1,12 +1,20 @@
 import express, { Request, Response } from 'express';
 import { google } from 'googleapis';
 import dotenv from 'dotenv';
+import { connectDB } from './db/mongodb';
+import { CalendarService } from './services/calendarService';
+import { Barber } from './models/Barber';
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
 const port = 3000;
+
+if (!connectDB()) {
+    console.error('Failed to connect to MongoDB');
+    process.exit(1);
+}
 
 // Create OAuth2 client with proper credentials
 const oauth2Client = new google.auth.OAuth2(
@@ -21,11 +29,7 @@ oauth2Client.setCredentials({
     token_type: 'Bearer'
 });
 
-const barbers = [
-    { id: '1', name: 'Alex', email: 'svetoslav.iliev07@gmail.com', phone: '0888000001' },
-    { id: '2', name: 'Mila', email: 'mila@barbershop.com', phone: '0888000002' },
-    { id: '3', name: 'Tony', email: 'tony@barbershop.com', phone: '0888000003' },
-];
+const calendarService = new CalendarService(oauth2Client);
 
 interface AppointmentRequest {
     barberName: string;
@@ -35,10 +39,23 @@ interface AppointmentRequest {
     customerName: string;
 }
 
+app.get('/barbers', async (req: Request, res: Response): Promise<any> => {
+    const barbers = await Barber.find();
+    res.status(200).json(barbers);
+});
+
+app.post('/barbers', async (req: Request, res: Response): Promise<any> => {
+    const { name, email, phone } = req.body;
+    const barber = new Barber({ name, email, phone });
+    await barber.save();
+    res.status(201).json(barber);
+});
+
+
 app.post('/book-appointment', async (req: Request<{}, {}, AppointmentRequest>, res: Response): Promise<any> => {
     const { barberName, customerEmail, customerPhone, date, customerName } = req.body;
 
-    const barber = barbers.find((b) => b.name.toLowerCase() === barberName.toLowerCase());
+    const barber = await Barber.findOne({ name: barberName });
     if (!barber) {
         return res.status(404).json({ error: 'Barber not found' });
     }
@@ -52,24 +69,7 @@ app.post('/book-appointment', async (req: Request<{}, {}, AppointmentRequest>, r
         const startDateTime = new Date(`${datePart}T${startTime}`);
         const endDateTime = new Date(`${datePart}T${endTime}`);
 
-        const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
-
-        // Get list of calendars
-        const calendarList = await calendar.calendarList.list();
-        
-        // Find the barber's calendar by name
-        let barberCalendar = calendarList.data.items?.find(
-            cal => cal.summary?.toLowerCase() === barberName.toLowerCase()
-        );
-
-        if (!barberCalendar) {
-            const newCalendar = await calendar.calendars.insert({
-                requestBody: {
-                    summary: barberName,
-                },
-            });
-            barberCalendar = newCalendar.data;
-        }
+        const calendarId = await calendarService.getOrCreateBarberCalendar(barberName);
 
         const event = {
             summary: `Haircut with ${barber.name}`,
@@ -85,10 +85,7 @@ app.post('/book-appointment', async (req: Request<{}, {}, AppointmentRequest>, r
             attendees: [{ email: customerEmail }],
         };
 
-        const response = await calendar.events.insert({
-            calendarId: barberCalendar.id || 'primary',
-            requestBody: event
-        });
+        const response = await calendarService.createAppointment(calendarId, event);
 
         res.status(200).json({
             message: 'Appointment booked and event added!',
