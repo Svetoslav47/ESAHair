@@ -1,7 +1,7 @@
 import { TimeSlot } from "./times";
-
+import { Service } from "./service";
 export interface BookingState {
-    service?: { id: number; name: string; duration: string; price: string };
+    service?: Service;
     staff?: { id: number; name: string };
     dateTime?: TimeSlot;
     details?: {

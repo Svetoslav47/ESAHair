@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClock } from '@fortawesome/free-solid-svg-icons';
 import { Service } from '../../../../types/service';
+import { fetchServices } from '../../../services/api';
 
 const Container = styled.div`
   display: flex;
@@ -97,28 +98,55 @@ const Description = styled.p`
   color: #999;
   font-size: 0.9rem;
   margin: 0.5rem 0;
+  flex: 1;
 `;
 
-
 interface SelectServiceProps {
-  services: Service[];
   onSelect: (service: Service) => void;
-  selectedService?: number;
+  selectedService?: string;
 }
 
-const ServiceSelection: React.FC<SelectServiceProps> = ({ services, onSelect, selectedService }) => {
+const ServiceSelection: React.FC<SelectServiceProps> = ({ onSelect, selectedService }) => {
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadServices = async () => {
+      try {
+        const fetchedServices = await fetchServices();
+        setServices(fetchedServices);
+      } catch (err) {
+        setError('Failed to load services');
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadServices();
+  }, []);
+
+  if (loading) {
+    return <Container>Loading services...</Container>;
+  }
+
+  if (error) {
+    return <Container>{error}</Container>;
+  }
+
   return (
     <Container>
       <Title>Select Service</Title>
       <ServicesGrid>
         {services.map(service => (
           <ServiceCard 
-            key={service.id} 
+            key={service._id} 
             onClick={() => onSelect(service)}
-            $isSelected={selectedService === service.id}
+            $isSelected={selectedService === service._id}
           >
             <ServiceHeader>
-              <ServiceImage src="/images/service-placeholder.jpg" alt={service.name} />
+              <ServiceImage src={service.image || "/images/service-placeholder.jpg"} alt={service.name} />
               <ServiceName>{service.name}</ServiceName>
             </ServiceHeader>
             <ServiceDetails>
@@ -126,9 +154,9 @@ const ServiceSelection: React.FC<SelectServiceProps> = ({ services, onSelect, se
               <ServiceInfo>
                 <Duration>
                   <FontAwesomeIcon icon={faClock} />
-                  {service.duration}
+                  {service.duration} minutes
                 </Duration>
-                <Price>{service.price}</Price>
+                <Price>{service.price} лв.</Price>
               </ServiceInfo>
             </ServiceDetails>
           </ServiceCard>

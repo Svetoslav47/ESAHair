@@ -167,8 +167,27 @@ const Summary = ({ bookingState }: SummaryProps) => {
   };
 
   const handleFinishBooking = () => {
-    alert('Booking Finished! (Implementation needed)');
-    console.log("Final Booking State:", bookingState);
+    fetch(`http://localhost:3000/book-appointment`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        barberName: staff?.name,
+        customerEmail: details?.email,
+        customerPhone: details?.phone,
+        customerName: details?.firstname + ' ' + details?.lastname,
+        date: dateTime?.start,
+        serviceId: service?._id
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Booking successful:', data);
+    })
+    .catch(error => {
+      console.error('Error booking appointment:', error);
+    });
   };
 
   return (
@@ -209,8 +228,8 @@ const Summary = ({ bookingState }: SummaryProps) => {
         <HorizontalLine />
 
         <TotalAmountContainer>
-          <TotalLabel>Total Amount Payable</TotalLabel>
-          <TotalPrice>{service?.price || '0.00 лв'}</TotalPrice>
+          <TotalLabel>Total Amount Due</TotalLabel>
+          <TotalPrice>{service?.price || '0.00'} лв.</TotalPrice>
         </TotalAmountContainer>
       </MainContent>
 

@@ -6,6 +6,8 @@ import { connectDB } from './db/mongodb';
 import { CalendarService } from './services/calendarService';
 import { Barber } from './models/Barber';
 import { TimeSlotService } from './services/timeSlotService';
+import { Service } from './models/Service';
+import { addMinutes } from 'date-fns';
 
 dotenv.config();
 
@@ -38,8 +40,9 @@ interface AppointmentRequest {
     barberName: string;
     customerEmail: string;
     customerPhone: string;
-    date: string; // format: YYYY-MM-DD HH:MM:SS - HH:MM:SS
+    date: Date;
     customerName: string;
+    serviceId: string;
 }
 
 app.get('/barbers', async (req: Request, res: Response): Promise<any> => {
@@ -54,12 +57,29 @@ app.post('/barbers', async (req: Request, res: Response): Promise<any> => {
     res.status(201).json(barber);
 });
 
+// body: JSON.stringify({
+//     barberName: staff?.name,
+//     customerEmail: details?.email,
+//     customerPhone: details?.phone,
+//     customerName: details?.firstname + ' ' + details?.lastname,
+//     date: dateTime?.start,
+//     serviceId: service?._id
+//   })
 app.post('/book-appointment', async (req: Request<{}, {}, AppointmentRequest>, res: Response): Promise<any> => {
-    const { barberName, customerEmail, customerPhone, date, customerName } = req.body;
+    if (!req.body) {
+        return res.status(400).json({ error: 'Missing request body' });
+    }
+    
+    const { barberName, customerEmail, customerPhone, date, customerName, serviceId } = req.body;
 
     const barber = await Barber.findOne({ name: barberName });
     if (!barber) {
         return res.status(404).json({ error: 'Barber not found' });
+    }
+
+    const service = await Service.findOne({ _id: serviceId });
+    if (!service) {
+        return res.status(404).json({ error: 'Service not found' });
     }
 
     if (!customerEmail || !customerPhone || !date) {
@@ -67,21 +87,20 @@ app.post('/book-appointment', async (req: Request<{}, {}, AppointmentRequest>, r
     }
 
     try {
-        const [datePart, startTime, _, endTime] = date.split(' ');
-        const startDateTime = new Date(`${datePart}T${startTime}`);
-        const endDateTime = new Date(`${datePart}T${endTime}`);
+        const startDateTime = date;
+        const endDateTime = addMinutes(date, service.duration);
 
         const calendarId = await calendarService.getOrCreateBarberCalendar(barberName);
 
         const event = {
-            summary: `Haircut with ${barber.name}`,
+            summary: `${service.name} with ${barber.name}`,
             description: `Customer: ${customerName}, Phone: ${customerPhone}, Email: ${customerEmail}\nBarber: ${barber.name}`,
             start: {
-                dateTime: startDateTime.toISOString(),
+                dateTime: startDateTime,
                 timeZone: 'Europe/Sofia',
             },
             end: {
-                dateTime: endDateTime.toISOString(),
+                dateTime: endDateTime,
                 timeZone: 'Europe/Sofia',
             },
             attendees: [{ email: customerEmail }],
@@ -102,7 +121,13 @@ app.post('/book-appointment', async (req: Request<{}, {}, AppointmentRequest>, r
 app.get('/barber/:name/availability', async (req: Request, res: Response): Promise<any> => {
     try {
         const { name } = req.params;
-        const { procedureLength } = req.query;
+        const { serviceId } = req.query;
+
+        const service = await Service.findOne({ _id: serviceId });
+        if (!service) {
+            return res.status(404).json({ error: 'Service not found' });
+        }
+        const procedureLength = service.duration;
 
         // Find barber
         const barber = await Barber.findOne({ name });
@@ -118,13 +143,23 @@ app.get('/barber/:name/availability', async (req: Request, res: Response): Promi
             barber.startHour,
             barber.endHour,
             barber._id,
-            procedureLength ? parseInt(procedureLength as string) : undefined
+            procedureLength
         );
 
         res.status(200).json(timeSlots);
     } catch (error) {
         console.error('Error getting working hours:', error);
         res.status(500).json({ error: 'Failed to get working hours' });
+    }
+});
+
+app.get('/services', async (req: Request, res: Response): Promise<any> => {
+    try {
+        const services = await Service.find();
+        res.status(200).json(services);
+    } catch (error) {
+        console.error('Error getting services:', error);
+        res.status(500).json({ error: 'Failed to get services' });
     }
 });
 

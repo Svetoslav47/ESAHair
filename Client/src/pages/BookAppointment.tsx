@@ -45,37 +45,6 @@ const ContentContainer = styled.div`
   flex: 1;
 `;
 
-const services = [
-  { 
-    id: 1, 
-    name: 'Haircut & Beard Trim - Коса и Брада', 
-    duration: '60 m', 
-    price: '60.00 лв', 
-    description: 'Arriving more than 15mins late to your appointment will result to an additional 10lv fee!' 
-  },
-  { 
-    id: 2, 
-    name: 'Haircut - Подстригване', 
-    duration: '60 m', 
-    price: '45.00 лв', 
-    description: 'Arriving more than 15mins late to your appointment will result to an additional 10lv fee!' 
-  },
-  { 
-    id: 3, 
-    name: 'Buzz Cut - Машинка', 
-    duration: '30 m', 
-    price: '40.00 лв', 
-    description: 'Arriving more than 10mins late to your appointment will result to an additional 10lv fee!' 
-  },
-  { 
-    id: 4, 
-    name: 'Beard Trim - Оформяне на Брада', 
-    duration: '30 m', 
-    price: '30.00 лв', 
-    description: 'Arriving more than 10mins late to your appointment will result to an additional 10lv fee!' 
-  }
-];
-
 const BookAppointment = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [bookingState, setBookingState] = useState<BookingState>({});
@@ -138,12 +107,7 @@ const BookAppointment = () => {
   const handleServiceSelect = (service: Service ) => {
     setBookingState(prev => ({
       ...prev,
-      service: {
-        id: service.id,
-        name: service.name,
-        duration: service.duration,
-        price: service.price
-      }
+      service: service
     }));
     setTimeout(() => setCurrentStep(1), 100);
   };
@@ -193,9 +157,8 @@ const BookAppointment = () => {
       />
       <ContentContainer>
         <StepContainer $isVisible={currentStep === 0}>
-          <ServiceSelection 
-            services={services} 
-            selectedService={bookingState.service?.id}
+          <ServiceSelection
+            selectedService={bookingState.service?._id}
             onSelect={handleServiceSelect}
           />
         </StepContainer>
@@ -209,6 +172,7 @@ const BookAppointment = () => {
           <DateSelection
             barberName={bookingState.staff?.name ?? ""}
             onDateTimeSelect={handleDateTimeSelect}
+            serviceId={bookingState.service?._id ?? ""}
           />
         </StepContainer>
         <StepContainer $isVisible={currentStep === 3}>

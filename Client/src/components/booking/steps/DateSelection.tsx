@@ -154,9 +154,10 @@ interface BarberAvailability {
 interface DateSelectionProps {
   barberName: string;
   onDateTimeSelect: (time: TimeSlot) => void;
+  serviceId: string;
 }
 
-const DateSelection = ({ barberName, onDateTimeSelect }: DateSelectionProps) => {
+const DateSelection = ({ barberName, onDateTimeSelect, serviceId }: DateSelectionProps) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<TimeSlot | null>(null);
@@ -174,12 +175,12 @@ const DateSelection = ({ barberName, onDateTimeSelect }: DateSelectionProps) => 
 
   useEffect(() => {
     const fetchBarberAvailability = async () => {
-      const response = await fetch(`http://localhost:3000/barber/${barberName}/availability`);
+      const response = await fetch(`http://localhost:3000/barber/${barberName}/availability?serviceId=${serviceId}`);
       const data = await response.json();
       setBarberAvailability(data);
     };
     fetchBarberAvailability();
-  }, [barberName]);
+  }, [barberName, serviceId]);
 
   const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 

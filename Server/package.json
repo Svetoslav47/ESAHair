@@ -16,7 +16,9 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "create-barber": "ts-node src/utils/createBarber.ts",
-    "manage-days-off": "ts-node src/utils/manageDaysOff.ts"
+    "manage-days-off": "ts-node src/utils/manageDaysOff.ts",
+    "get-refresh-token": "ts-node src/utils/loginToGoogle.ts",
+    "create-service": "ts-node src/utils/createService.ts"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
