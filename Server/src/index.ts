@@ -1,14 +1,17 @@
 import express, { Request, Response } from 'express';
+import cors from 'cors';
 import { google } from 'googleapis';
 import dotenv from 'dotenv';
 import { connectDB } from './db/mongodb';
 import { CalendarService } from './services/calendarService';
 import { Barber } from './models/Barber';
+import { TimeSlotService } from './services/timeSlotService';
 
 dotenv.config();
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 const port = 3000;
 
 if (!connectDB()) {
@@ -50,7 +53,6 @@ app.post('/barbers', async (req: Request, res: Response): Promise<any> => {
     await barber.save();
     res.status(201).json(barber);
 });
-
 
 app.post('/book-appointment', async (req: Request<{}, {}, AppointmentRequest>, res: Response): Promise<any> => {
     const { barberName, customerEmail, customerPhone, date, customerName } = req.body;
@@ -94,6 +96,35 @@ app.post('/book-appointment', async (req: Request<{}, {}, AppointmentRequest>, r
     } catch (err: any) {
         console.error(err);
         res.status(500).json({ error: 'Failed to book appointment' });
+    }
+});
+
+app.get('/barber/:name/availability', async (req: Request, res: Response): Promise<any> => {
+    try {
+        const { name } = req.params;
+        const { procedureLength } = req.query;
+
+        // Find barber
+        const barber = await Barber.findOne({ name });
+        if (!barber) {
+            return res.status(404).json({ error: 'Barber not found' });
+        }
+
+        
+        // Generate available time slots
+        const timeSlots = await TimeSlotService.generateAvailableTimeSlots(
+            new Date(), // Start from today
+            barber.workingDays,
+            barber.startHour,
+            barber.endHour,
+            barber._id,
+            procedureLength ? parseInt(procedureLength as string) : undefined
+        );
+
+        res.status(200).json(timeSlots);
+    } catch (error) {
+        console.error('Error getting working hours:', error);
+        res.status(500).json({ error: 'Failed to get working hours' });
     }
 });
 

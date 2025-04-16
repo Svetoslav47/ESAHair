@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClock } from '@fortawesome/free-solid-svg-icons';
+import { Service } from '../../../../types/service';
 
 const Container = styled.div`
   display: flex;
@@ -98,13 +99,6 @@ const Description = styled.p`
   margin: 0.5rem 0;
 `;
 
-interface Service {
-  id: number;
-  name: string;
-  duration: string;
-  price: string;
-  description: string;
-}
 
 interface SelectServiceProps {
   services: Service[];

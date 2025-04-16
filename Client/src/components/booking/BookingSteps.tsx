@@ -9,6 +9,7 @@ import {
   faClipboardList, 
   faCheck 
 } from '@fortawesome/free-solid-svg-icons';
+import { TimeSlot } from '../../../types/times';
 
 const StepsContainer = styled.div`
   display: flex;
@@ -101,7 +102,7 @@ interface BookingStepsProps {
   setCurrentStep: (step: number) => void;
   canNavigateToStep: (step: number) => boolean;
   selectedBarber: string | null;
-  onDateTimeSelect: (date: Date, time: string) => void;
+  onDateTimeSelect: (time: TimeSlot) => void;
 }
 
 const BookingSteps = ({ 

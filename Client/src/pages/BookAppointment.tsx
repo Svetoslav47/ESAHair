@@ -6,7 +6,9 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import DateSelection from '../components/booking/steps/DateSelection';
 import PersonalInfo from '../components/booking/steps/PersonalInfo';
 import Summary from '../components/booking/steps/Summary';
-
+import { TimeSlot } from '../../types/times';
+import { Service } from '../../types/service';
+import { BookingState } from '../../types/bookingState';
 const PageContainer = styled.div`
   background-color: #000;
   display: flex;
@@ -42,19 +44,6 @@ const ContentContainer = styled.div`
   position: relative;
   flex: 1;
 `;
-
-interface BookingState {
-  service?: { id: number; name: string; duration: string; price: string };
-  staff?: { id: number; name: string };
-  dateTime?: string;
-  details?: {
-    firstname: string;
-    lastname: string;
-    email: string;
-    phone: string;
-    termsAccepted: boolean;
-  };
-}
 
 const services = [
   { 
@@ -146,7 +135,7 @@ const BookAppointment = () => {
     isUserNavigation.current = true;
   }, [currentStep]);
 
-  const handleServiceSelect = (service: any) => {
+  const handleServiceSelect = (service: Service ) => {
     setBookingState(prev => ({
       ...prev,
       service: {
@@ -170,10 +159,10 @@ const BookAppointment = () => {
     setTimeout(() => setCurrentStep(2), 100);
   };
 
-  const handleDateTimeSelect = (date: Date, time: string) => {
+  const handleDateTimeSelect = (time: TimeSlot) => {
     setBookingState(prev => ({
       ...prev,
-      dateTime: `${date.toISOString().split('T')[0]} ${time}`
+      dateTime: time
     }));
   };
 

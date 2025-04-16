@@ -15,6 +15,26 @@ const barberSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    image: {
+        type: String,
+        required: false
+    },
+    role: {
+        type: String,
+        required: true
+    },
+    startHour: { 
+        type: Number,
+        required: true
+    },
+    endHour: { 
+        type: Number,
+        required: true
+    },
+    workingDays: { // array of days of the week
+        type: [String],
+        required: true
+    },
     calendarId: {
         type: String,
         required: false

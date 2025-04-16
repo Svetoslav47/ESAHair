@@ -1,5 +1,7 @@
 import styled from 'styled-components';
-import { format, parse } from 'date-fns';
+import { format } from 'date-fns';
+import { TimeSlot } from '../../../../types/times';
+import { BookingState } from '../../../../types/bookingState';
 
 const Container = styled.div`
   display: flex;
@@ -139,18 +141,7 @@ const FinishButton = styled.button`
   }
 `;
 
-interface BookingState {
-  service?: { id: number; name: string; duration: string; price: string };
-  staff?: { id: number; name: string };
-  dateTime?: string;
-  details?: {
-    firstname: string;
-    lastname: string;
-    email: string;
-    phone: string;
-    termsAccepted: boolean;
-  };
-}
+
 
 interface SummaryProps {
   bookingState: BookingState;
@@ -159,21 +150,15 @@ interface SummaryProps {
 const Summary = ({ bookingState }: SummaryProps) => {
   const { service, staff, dateTime, details } = bookingState;
 
-  const formatDateAndTime = (dateTimeString?: string): string => {
+  const formatDateAndTime = (dateTimeString: TimeSlot | undefined): string => {
     if (!dateTimeString) return 'Not selected';
     try {
-      // Extract only the start date and time part (e.g., "2025-04-08 10:00")
-      const startDateTimePart = dateTimeString.split(' - ')[0];
+      const startDateTimePart = dateTimeString.start;
+      const endDateTimePart = dateTimeString.end;
+
+      console.log(dateTimeString);
       
-      // Parse the extracted start date and time
-      const parsedDate = parse(startDateTimePart, 'yyyy-MM-dd HH:mm', new Date());
-      
-      // Format the date and time as needed
-      return format(parsedDate, 'MMMM d, yyyy, HH:mm');
-      
-      // // Optional: If you want to display the range like "April 28, 2025, 12:00 - 13:00"
-      // const endTimePart = dateTimeString.split(' - ')[1];
-      // return `${format(parsedDate, 'MMMM d, yyyy, HH:mm')} - ${endTimePart || ''}`;
+      return format(startDateTimePart, 'MMMM d, yyyy, HH:mm') + ' - ' + format(endDateTimePart, 'HH:mm');
       
     } catch (e) {
       console.error("Error parsing date:", dateTimeString, e);

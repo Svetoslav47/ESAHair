@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   format,
   addMonths,
@@ -14,6 +14,7 @@ import {
 } from 'date-fns';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { TimeSlot } from '../../../../types/times';
 
 const Container = styled.div`
   display: flex;
@@ -144,90 +145,21 @@ const NoTimeSlotsMessage = styled.div`
   padding: 2rem;
 `;
 
-interface TimeSlot {
-  time: string;
-}
 
-const BARBER_AVAILABILITY: Record<string, Record<string, TimeSlot[]>> = {
-  'Lucky': {
-    '2025-03-31': [
-      { time: '10:00 - 11:00'},
-      { time: '10:15 - 11:15'},
-      { time: '10:30 - 11:30'},
-      { time: '10:45 - 11:45'},
-      { time: '11:00 - 12:00'},
-      { time: '11:15 - 12:15'},
-      { time: '11:30 - 12:30'},
-      { time: '11:45 - 12:45'},
-      { time: '12:00 - 13:00'},
-      { time: '12:15 - 13:15'},
-      { time: '12:30 - 13:30'},
-      { time: '12:45 - 13:45'},
-      { time: '13:00 - 14:00'},
-      { time: '13:15 - 14:15'},
-      { time: '13:30 - 14:30'},
-      { time: '13:45 - 14:45'},
-      { time: '14:00 - 15:00'},
-      { time: '14:15 - 15:15'},
-      { time: '14:30 - 15:30'},
-      { time: '14:45 - 15:45'},
-      { time: '15:00 - 16:00'},
-      { time: '15:15 - 16:15'},
-      { time: '15:30 - 16:30'},
-      { time: '15:45 - 16:45'},
-      { time: '16:00 - 17:00'},
-      { time: '16:15 - 17:15'},
-      { time: '16:30 - 17:30'},
-      { time: '16:45 - 17:45'},
-      { time: '17:00 - 18:00'},
-      { time: '17:15 - 18:15'},
-      { time: '17:30 - 18:30'},
-      { time: '17:45 - 18:45'},
-      { time: '18:00 - 19:00'},
-      
-    ],
-    '2025-04-07': [
-      { time: '10:00 - 11:00'},
-      { time: '12:00 - 13:00'},
-      { time: '13:00 - 14:00'},
-      { time: '18:00 - 19:00'}
-    ],
-    '2025-04-08': [
-      { time: '10:00 - 11:00'},
-      { time: '12:00 - 13:00'},
-      { time: '13:00 - 14:00'},
-      { time: '18:00 - 19:00'}
-    ],
-    '2025-04-09': [
-      { time: '10:00 - 11:00'},
-      { time: '12:00 - 13:00'},
-      { time: '13:00 - 14:00'},
-      { time: '18:00 - 19:00'}
-    ],
-    '2025-04-10': [
-      { time: '10:00 - 11:00'},
-      { time: '12:00 - 13:00'},
-      { time: '13:00 - 14:00'},
-      { time: '18:00 - 19:00'}
-    ],
-    '2025-04-14': [
-      { time: '10:00 - 11:00'},
-      { time: '12:00 - 13:00'},
-      { time: '13:00 - 14:00'},
-      { time: '18:00 - 19:00'}
-    ]
-  }
-};
+
+interface BarberAvailability {
+  [date: string]: TimeSlot[];
+}
 
 interface DateSelectionProps {
   barberName: string;
-  onDateTimeSelect: (date: Date, time: string) => void;
+  onDateTimeSelect: (time: TimeSlot) => void;
 }
 
 const DateSelection = ({ barberName, onDateTimeSelect }: DateSelectionProps) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [selectedTime, setSelectedTime] = useState<TimeSlot | null>(null);
 
   const handlePrevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
   const handleNextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
@@ -238,6 +170,17 @@ const DateSelection = ({ barberName, onDateTimeSelect }: DateSelectionProps) => 
   const endDate = endOfWeek(monthEnd, { weekStartsOn: 1 });
   const monthDays = eachDayOfInterval({ start: startDate, end: endDate });
 
+  const [barberAvailability, setBarberAvailability] = useState<BarberAvailability | null>(null);
+
+  useEffect(() => {
+    const fetchBarberAvailability = async () => {
+      const response = await fetch(`http://localhost:3000/barber/${barberName}/availability`);
+      const data = await response.json();
+      setBarberAvailability(data);
+    };
+    fetchBarberAvailability();
+  }, [barberName]);
+
   const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   const handleDateSelect = (date: Date) => {
@@ -246,15 +189,15 @@ const DateSelection = ({ barberName, onDateTimeSelect }: DateSelectionProps) => 
     setSelectedTime(null);
   };
 
-  const handleTimeSelect = (time: string) => {
+  const handleTimeSelect = (time: TimeSlot) => {
     setSelectedTime(time);
     if (selectedDate) {
-      handleDateTimeSelect(selectedDate, time);
+      handleDateTimeSelect(time);
     }
   };
 
-  const handleDateTimeSelect = (date: Date, time: string) => {
-    onDateTimeSelect(date, time);
+  const handleDateTimeSelect = (time: TimeSlot) => {
+    onDateTimeSelect(time);
     // Auto-redirect to the next step after a short delay
     setTimeout(() => {
       // The next step is index 3 (PersonalInfo)
@@ -262,10 +205,10 @@ const DateSelection = ({ barberName, onDateTimeSelect }: DateSelectionProps) => 
     }, 100);
   };
 
-  const getAvailableTimeSlots = () => {
+  const getAvailableTimeSlots = (): TimeSlot[] => {
     if (!selectedDate) return [];
     const dateStr = format(selectedDate, 'yyyy-MM-dd');
-    return BARBER_AVAILABILITY[barberName]?.[dateStr] || [];
+    return barberAvailability?.[dateStr] || [];
   };
 
   const availableTimeSlots = getAvailableTimeSlots();
@@ -296,7 +239,7 @@ const DateSelection = ({ barberName, onDateTimeSelect }: DateSelectionProps) => 
           <DaysGrid>
             {monthDays.map(day => {
               const dateStr = format(day, 'yyyy-MM-dd');
-              const isAvailable = !!BARBER_AVAILABILITY[barberName]?.[dateStr];
+              const isAvailable = !!barberAvailability?.[dateStr] && barberAvailability?.[dateStr].length > 0;
               return (
                 <DayCell
                   key={day.toISOString()}
@@ -316,13 +259,13 @@ const DateSelection = ({ barberName, onDateTimeSelect }: DateSelectionProps) => 
           {selectedDate ? (
             availableTimeSlots.length > 0 ? (
               <>
-                {availableTimeSlots.map(slot => (
+                {availableTimeSlots.map((slot: TimeSlot) => (
                   <TimeSlotButton
-                    key={slot.time}
-                    $isSelected={selectedTime === slot.time}
-                    onClick={() => handleTimeSelect(slot.time)}
+                    key={slot.start}
+                    $isSelected={selectedTime === slot}
+                    onClick={() => handleTimeSelect(slot)}
                   >
-                    {slot.time}
+                    { format(new Date(slot.start), 'HH:mm')} - {format(new Date(slot.end), 'HH:mm')}
                   </TimeSlotButton>
                 ))}
               </>

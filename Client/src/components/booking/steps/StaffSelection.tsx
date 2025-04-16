@@ -1,4 +1,6 @@
 import styled from 'styled-components';
+import { useEffect } from 'react';
+import { useState } from 'react';
 
 const Container = styled.div`
   display: flex;
@@ -40,6 +42,7 @@ const StaffCard = styled.div<{ $isSelected?: boolean }>`
   display: flex;
   flex-direction: column;
 
+
   &:hover {
     transform: translateY(-5px);
     border-color: #C19B76;
@@ -48,7 +51,7 @@ const StaffCard = styled.div<{ $isSelected?: boolean }>`
 
 const StaffImage = styled.img`
   width: 100%;
-  flex: 1;
+  height: 100%;
   object-fit: cover;
   border-radius: 4px;
   margin-bottom: 1rem;
@@ -59,13 +62,20 @@ const StaffName = styled.h3`
   color: #fff;
   margin-bottom: 0.5rem;
   text-align: center;
+  text-transform: capitalize;
 `;
 
 const StaffRole = styled.p`
   color: #C19B76;
   text-align: center;
   font-size: 0.9rem;
+  text-transform: capitalize;
 `;
+
+interface StaffSelectionProps {
+  selectedStaff: number;
+  onSelect: (id: number, name: string) => void;
+}
 
 interface StaffMember {
   id: number;
@@ -74,32 +84,17 @@ interface StaffMember {
   image: string;
 }
 
-interface StaffSelectionProps {
-  selectedStaff: number;
-  onSelect: (id: number, name: string) => void;
-}
-
 const StaffSelection = ({ selectedStaff, onSelect }: StaffSelectionProps) => {
-  const staff: StaffMember[] = [
-    {
-      id: 1,
-      name: 'Lucky',
-      role: 'Head Barber',
-      image: '/path/to/lucky.jpg'
-    },
-    {
-      id: 2,
-      name: 'Ivan',
-      role: 'Barber',
-      image: '/path/to/ivan.jpg'
-    },
-    {
-      id: 3,
-      name: 'Gaby',
-      role: 'Hair Braider',
-      image: '/path/to/gaby.jpg'
-    }
-  ];
+  const [staff, setStaff] = useState<StaffMember[]>([]);
+
+  useEffect(() => {
+    const fetchStaff = async () => {
+      const response = await fetch('http://localhost:3000/barbers');
+      const data = await response.json();
+      setStaff(data);
+    };
+    fetchStaff();
+  }, []);
 
   return (
     <Container>
