@@ -1,16 +1,17 @@
 import { BOOKING_CONSTANTS, TimeSlot } from '../constants/booking';
-import { addMinutes, setHours, setMinutes, eachDayOfInterval, addDays, isSameDay, startOfDay, format, isAfter } from 'date-fns';
+import { addMinutes, setHours, setMinutes, eachDayOfInterval, addDays, isSameDay, startOfDay, format, isAfter, isWithinInterval } from 'date-fns';
 import { DayOff } from '../models/DayOff';
 import { Types } from 'mongoose';
-
+import { CalendarService, BookedSlot } from './calendarService';
 
 export class TimeSlotService {
-    static generateTimeSlotsForDay(
+    static async generateTimeSlotsForDay(
         date: Date,
         startHour: number,
         endHour: number,
-        procedureLength: number = BOOKING_CONSTANTS.DEFAULT_PROCEDURE_LENGTH
-    ): TimeSlot[] {
+        procedureLength: number = BOOKING_CONSTANTS.DEFAULT_PROCEDURE_LENGTH,
+        bookedSlots: BookedSlot[],
+    ): Promise<TimeSlot[]> {
         const slots: TimeSlot[] = [];
         let dayStart = setHours(setMinutes(date, 0), startHour);
         const dayEnd = setHours(setMinutes(date, 0), endHour);
@@ -28,10 +29,21 @@ export class TimeSlotService {
         let currentSlotStart = dayStart;
 
         while (addMinutes(currentSlotStart, procedureLength) <= dayEnd) {
-            slots.push({
-                start: currentSlotStart.toISOString(),
-                end: addMinutes(currentSlotStart, procedureLength).toISOString()
-            });
+            let isSlotBooked = false;
+            if (bookedSlots) {
+                    isSlotBooked = bookedSlots.some(slot => {
+                    const slotStart = new Date(slot.start);
+                    const slotEnd = new Date(slot.end);
+                    return isWithinInterval(currentSlotStart, { start: slotStart, end: slotEnd });
+                });
+            }
+
+            if (!isSlotBooked) {
+                slots.push({
+                    start: currentSlotStart.toISOString(),
+                    end: addMinutes(currentSlotStart, procedureLength).toISOString()
+                });
+            }
 
             currentSlotStart = addMinutes(currentSlotStart, BOOKING_CONSTANTS.TIME_SLOT_INTERVAL);
         }
@@ -45,7 +57,8 @@ export class TimeSlotService {
         startHour: number,
         endHour: number,
         barberId: Types.ObjectId,
-        procedureLength: number = BOOKING_CONSTANTS.DEFAULT_PROCEDURE_LENGTH
+        procedureLength: number = BOOKING_CONSTANTS.DEFAULT_PROCEDURE_LENGTH,
+        calendarService: CalendarService
     ): Promise<Record<string, TimeSlot[]>> {
         // Create a new date object to avoid modifying the input
         const normalizedStartDate = new Date(startDate);
@@ -68,6 +81,8 @@ export class TimeSlotService {
             daysOff.map(dayOff => format(dayOff.date, 'yyyy-MM-dd'))
         );
         
+        const bookedSlots = await calendarService.getBarberAppointments(barberId, startDate, endDate);
+        console.log(bookedSlots);
         // Filter working days and reduce to a dictionary
         return dates
             .filter(date => {
@@ -75,10 +90,11 @@ export class TimeSlotService {
                 const dateStr = format(date, 'yyyy-MM-dd');
                 return workingDays.includes(dayName) && !daysOffSet.has(dateStr);
             })
-            .reduce((acc, date) => {
+            .reduce(async (accPromise, date) => {
+                const acc = await accPromise;
                 const dateKey = format(date, 'yyyy-MM-dd');
-                acc[dateKey] = this.generateTimeSlotsForDay(date, startHour, endHour, procedureLength);
+                acc[dateKey] = await this.generateTimeSlotsForDay(date, startHour, endHour, procedureLength, bookedSlots[dateKey]);
                 return acc;
-            }, {} as Record<string, TimeSlot[]>);
+            }, Promise.resolve({} as Record<string, TimeSlot[]>));
     }
 } 

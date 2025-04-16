@@ -1,5 +1,11 @@
 import { google } from 'googleapis';
 import { Barber } from '../models/Barber';
+import { endOfDay, startOfDay } from 'date-fns';
+import { Types } from 'mongoose';
+export interface BookedSlot {
+    start: string;
+    end: string;
+}
 
 export class CalendarService {
     private calendar;
@@ -49,6 +55,50 @@ export class CalendarService {
         }
 
         throw new Error('Failed to create calendar');
+    }
+
+    async getBarberAppointments(barberId: Types.ObjectId, startDate: Date, endDate: Date): Promise<Record<string, BookedSlot[]>> {
+        const barber = await Barber.findById(barberId);
+        if (!barber?.calendarId) {
+            throw new Error('Barber calendar not found');
+        }
+
+        const timeMin = startOfDay(startDate).toISOString();
+        const timeMax = endOfDay(endDate).toISOString();
+
+        try {
+            const response = await this.calendar.events.list({
+                calendarId: barber.calendarId,
+                timeMin,
+                timeMax,
+                singleEvents: true,
+                orderBy: 'startTime',
+            });
+
+            const bookingsByDate: Record<string, BookedSlot[]> = {};
+            
+            (response.data.items || [])
+                .filter(event => event.start?.dateTime && event.end?.dateTime)
+                .forEach(event => {
+                    const startDateTime = event.start!.dateTime!;
+                    const endDateTime = event.end!.dateTime!;
+                    const date = startDateTime.split('T')[0]; // Get just the date part
+                    
+                    if (!bookingsByDate[date]) {
+                        bookingsByDate[date] = [];
+                    }
+                    
+                    bookingsByDate[date].push({
+                        start: startDateTime,
+                        end: endDateTime
+                    });
+                });
+
+            return bookingsByDate;
+        } catch (error) {
+            console.error('Error fetching appointments:', error);
+            return {};
+        }
     }
 
     async createAppointment(calendarId: string, event: any) {

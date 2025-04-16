@@ -143,7 +143,8 @@ app.get('/barber/:name/availability', async (req: Request, res: Response): Promi
             barber.startHour,
             barber.endHour,
             barber._id,
-            procedureLength
+            procedureLength,
+            calendarService
         );
 
         res.status(200).json(timeSlots);
