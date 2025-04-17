@@ -12,5 +12,5 @@
       "dest": "Server/index.ts"
     }
   ],
-  "buildCommand": "npm install --prefix Server && npm install --prefix Client && npm run build --prefix Client"
+  "buildCommand": "cd Server && npm install && cd ../Client && npm install && npm run build"
 }
