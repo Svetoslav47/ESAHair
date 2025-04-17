@@ -14,7 +14,9 @@ import {
 } from 'date-fns';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
-import { TimeSlot } from '../../../../types/times';
+import { TimeSlot } from '../../../types/times';
+import { BarberAvailability } from '../../../types/barberAvailability';
+import { fetchBarberAvailability } from '../../../services/api';
 
 const Container = styled.div`
   display: flex;
@@ -40,6 +42,13 @@ const Title = styled.h2`
   margin-bottom: 1.5rem;
   font-size: 1.6rem;
   font-weight: 600;
+`;
+
+const LoadingTitle = styled.div`
+  color: #C19B76;
+  text-align: center;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
 `;
 
 const CalendarContainer = styled.div`
@@ -146,11 +155,6 @@ const NoTimeSlotsMessage = styled.div`
 `;
 
 
-
-interface BarberAvailability {
-  [date: string]: TimeSlot[];
-}
-
 interface DateSelectionProps {
   barberName: string;
   onDateTimeSelect: (time: TimeSlot) => void;
@@ -161,6 +165,7 @@ const DateSelection = ({ barberName, onDateTimeSelect, serviceId }: DateSelectio
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<TimeSlot | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const handlePrevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
   const handleNextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
@@ -174,12 +179,11 @@ const DateSelection = ({ barberName, onDateTimeSelect, serviceId }: DateSelectio
   const [barberAvailability, setBarberAvailability] = useState<BarberAvailability | null>(null);
 
   useEffect(() => {
-    const fetchBarberAvailability = async () => {
-      const response = await fetch(`http://localhost:3000/barber/${barberName}/availability?serviceId=${serviceId}`);
-      const data = await response.json();
-      setBarberAvailability(data);
-    };
-    fetchBarberAvailability();
+    if (barberName && serviceId) {
+      setBarberAvailability(null);
+      setIsLoading(true);
+      fetchBarberAvailability(barberName, serviceId).then(setBarberAvailability).finally(() => setIsLoading(false));
+    }
   }, [barberName, serviceId]);
 
   const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -217,6 +221,7 @@ const DateSelection = ({ barberName, onDateTimeSelect, serviceId }: DateSelectio
   return (
     <>
       <Title>Date & Time</Title>
+      {isLoading && <LoadingTitle>Loading available time slots...</LoadingTitle>}
       <Container>
         <CalendarContainer>
           <CalendarHeader>
@@ -248,6 +253,7 @@ const DateSelection = ({ barberName, onDateTimeSelect, serviceId }: DateSelectio
                   $isSelected={selectedDate ? isSameDay(day, selectedDate) : false}
                   $isAvailable={isAvailable}
                   onClick={() => handleDateSelect(day)}
+                  disabled={isLoading}
                 >
                   {format(day, 'd')}
                 </DayCell>
@@ -257,27 +263,25 @@ const DateSelection = ({ barberName, onDateTimeSelect, serviceId }: DateSelectio
         </CalendarContainer>
 
         <TimeSlotsContainer>
-          {selectedDate ? (
-            availableTimeSlots.length > 0 ? (
-              <>
-                {availableTimeSlots.map((slot: TimeSlot) => (
-                  <TimeSlotButton
-                    key={slot.start}
-                    $isSelected={selectedTime === slot}
-                    onClick={() => handleTimeSelect(slot)}
-                  >
-                    { format(new Date(slot.start), 'HH:mm')} - {format(new Date(slot.end), 'HH:mm')}
-                  </TimeSlotButton>
-                ))}
-              </>
-            ) : (
-              <NoTimeSlotsMessage>
-                No available time slots for this date. Please select another date.
-              </NoTimeSlotsMessage>
-            )
-          ) : (
+          {!selectedDate ? (
             <NoTimeSlotsMessage>
               Please select a date to view available time slots.
+            </NoTimeSlotsMessage>
+          ) : availableTimeSlots.length > 0 ? (
+            <>
+              {availableTimeSlots.map((slot: TimeSlot) => (
+                <TimeSlotButton
+                  key={slot.start}
+                  $isSelected={selectedTime === slot}
+                  onClick={() => handleTimeSelect(slot)}
+                >
+                  {format(new Date(slot.start), 'HH:mm')} - {format(new Date(slot.end), 'HH:mm')}
+                </TimeSlotButton>
+              ))}
+            </>
+          ) : (
+            <NoTimeSlotsMessage>
+              No available time slots for this date. Please select another date.
             </NoTimeSlotsMessage>
           )}
         </TimeSlotsContainer>

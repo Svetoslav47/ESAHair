@@ -9,7 +9,7 @@ import {
   faClipboardList, 
   faCheck 
 } from '@fortawesome/free-solid-svg-icons';
-import { TimeSlot } from '../../../types/times';
+import { TimeSlot } from '../../types/times';
 
 const StepsContainer = styled.div`
   display: flex;

@@ -6,9 +6,9 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import DateSelection from '../components/booking/steps/DateSelection';
 import PersonalInfo from '../components/booking/steps/PersonalInfo';
 import Summary from '../components/booking/steps/Summary';
-import { TimeSlot } from '../../types/times';
-import { Service } from '../../types/service';
-import { BookingState } from '../../types/bookingState';
+import { TimeSlot } from '../types/times';
+import { Service } from '../types/service';
+import { BookingState } from '../types/bookingState';
 const PageContainer = styled.div`
   background-color: #000;
   display: flex;

@@ -59,16 +59,17 @@ export class CalendarService {
 
     async getBarberAppointments(barberId: Types.ObjectId, startDate: Date, endDate: Date): Promise<Record<string, BookedSlot[]>> {
         const barber = await Barber.findById(barberId);
-        if (!barber?.calendarId) {
-            throw new Error('Barber calendar not found');
+        if (!barber) {
+            throw new Error('Barber not found');
         }
+        const calendarID = await this.getOrCreateBarberCalendar(barber.name);
 
         const timeMin = startOfDay(startDate).toISOString();
         const timeMax = endOfDay(endDate).toISOString();
 
         try {
             const response = await this.calendar.events.list({
-                calendarId: barber.calendarId,
+                calendarId: calendarID,
                 timeMin,
                 timeMax,
                 singleEvents: true,

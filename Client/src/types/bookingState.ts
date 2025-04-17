@@ -1,5 +1,5 @@
-import { TimeSlot } from "./times";
-import { Service } from "./service";
+import { TimeSlot } from "../types/times";
+import { Service } from "../types/service";
 export interface BookingState {
     service?: Service;
     staff?: { id: number; name: string };

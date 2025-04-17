@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClock } from '@fortawesome/free-solid-svg-icons';
-import { Service } from '../../../../types/service';
+import { Service } from '../../../types/service';
 import { fetchServices } from '../../../services/api';
 
 const Container = styled.div`

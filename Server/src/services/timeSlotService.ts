@@ -1,10 +1,36 @@
 import { BOOKING_CONSTANTS, TimeSlot } from '../constants/booking';
-import { addMinutes, setHours, setMinutes, eachDayOfInterval, addDays, isSameDay, startOfDay, format, isAfter, isWithinInterval } from 'date-fns';
+import { addMinutes, setHours, setMinutes, eachDayOfInterval, addDays, isSameDay, startOfDay, format, isAfter, isWithinInterval, endOfDay } from 'date-fns';
 import { DayOff } from '../models/DayOff';
 import { Types } from 'mongoose';
 import { CalendarService, BookedSlot } from './calendarService';
 
 export class TimeSlotService {
+    static isSlotBooked(slotStart: Date, bookedSlots: BookedSlot[], procedureLength: number): boolean {
+        if (!bookedSlots) {
+            return false;
+        }
+        
+        const slotEnd = addMinutes(slotStart, procedureLength);
+        return bookedSlots.some(bookedSlot => {
+            const bookedSlotStart = new Date(bookedSlot.start);
+            const bookedSlotEnd = new Date(bookedSlot.end);
+            return isWithinInterval(slotStart, { start: bookedSlotStart, end: bookedSlotEnd })
+                || isWithinInterval(slotEnd, { start: bookedSlotStart, end: bookedSlotEnd })
+                || isWithinInterval(slotStart, { start: bookedSlotEnd, end: bookedSlotEnd })
+                || isWithinInterval(bookedSlotStart, { start: slotStart, end: slotEnd })
+                || isWithinInterval(bookedSlotEnd, { start: slotStart, end: slotEnd });
+        });
+    }
+
+    static async isSlotBookedSpecificDate(slotStart: Date, procedureLength: number, calendarService: CalendarService, barberId: Types.ObjectId): Promise<boolean> {
+        const startDate = startOfDay(slotStart);
+        const endDate = endOfDay(slotStart);
+        const bookedSlots = await calendarService.getBarberAppointments(barberId, startDate, endDate);
+        const dateKey = format(slotStart, 'yyyy-MM-dd');
+        const bookedSlotsForDate = bookedSlots[dateKey];
+        return this.isSlotBooked(slotStart, bookedSlotsForDate, procedureLength);
+    }
+
     static async generateTimeSlotsForDay(
         date: Date,
         startHour: number,
@@ -31,11 +57,7 @@ export class TimeSlotService {
         while (addMinutes(currentSlotStart, procedureLength) <= dayEnd) {
             let isSlotBooked = false;
             if (bookedSlots) {
-                    isSlotBooked = bookedSlots.some(slot => {
-                    const slotStart = new Date(slot.start);
-                    const slotEnd = new Date(slot.end);
-                    return isWithinInterval(currentSlotStart, { start: slotStart, end: slotEnd });
-                });
+                isSlotBooked = this.isSlotBooked(currentSlotStart, bookedSlots, procedureLength);
             }
 
             if (!isSlotBooked) {

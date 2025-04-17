@@ -1,7 +1,10 @@
 import styled from 'styled-components';
 import { format } from 'date-fns';
-import { TimeSlot } from '../../../../types/times';
-import { BookingState } from '../../../../types/bookingState';
+import { TimeSlot } from '../../../types/times';
+import { BookingState } from '../../../types/bookingState';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { bookAppointment } from '../../../services/api';
 
 const Container = styled.div`
   display: flex;
@@ -141,7 +144,32 @@ const FinishButton = styled.button`
   }
 `;
 
+const LoadingOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
 
+const LoadingContent = styled.div`
+  background: #1a1a1a;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+  color: #fff;
+`;
+
+const LoadingText = styled.p`
+  color: #C19B76;
+  font-size: 1.2rem;
+  margin: 1rem 0;
+`;
 
 interface SummaryProps {
   bookingState: BookingState;
@@ -149,94 +177,114 @@ interface SummaryProps {
 
 const Summary = ({ bookingState }: SummaryProps) => {
   const { service, staff, dateTime, details } = bookingState;
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const formatDateAndTime = (dateTimeString: TimeSlot | undefined): string => {
     if (!dateTimeString) return 'Not selected';
     try {
       const startDateTimePart = dateTimeString.start;
       const endDateTimePart = dateTimeString.end;
-
-      console.log(dateTimeString);
-      
       return format(startDateTimePart, 'MMMM d, yyyy, HH:mm') + ' - ' + format(endDateTimePart, 'HH:mm');
-      
     } catch (e) {
       console.error("Error parsing date:", dateTimeString, e);
       return 'Invalid date/time';
     }
   };
 
-  const handleFinishBooking = () => {
-    fetch(`http://localhost:3000/book-appointment`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        barberName: staff?.name,
-        customerEmail: details?.email,
-        customerPhone: details?.phone,
-        customerName: details?.firstname + ' ' + details?.lastname,
-        date: dateTime?.start,
-        serviceId: service?._id
-      })
-    })
-    .then(response => response.json())
-    .then(data => {
-      console.log('Booking successful:', data);
-    })
-    .catch(error => {
+  const handleFinishBooking = async () => {
+    setIsLoading(true);
+    try {
+      const appointment = {
+        barberName: staff?.name || '',
+        customerEmail: details?.email || '',
+        customerPhone: details?.phone || '',
+        customerName: details?.firstname + ' ' + details?.lastname || '',
+        date: dateTime?.start || '',
+        serviceId: service?._id || ''
+      };
+      const data = await bookAppointment(appointment);
+      
+      if ('error' in data) {
+        throw new Error(data.error);
+      }
+      navigate('/thank-you', {
+        state: {
+          booking: {
+            customerName: `${details?.firstname} ${details?.lastname}`,
+            serviceName: service?.name,
+            barberName: staff?.name,
+            date: dateTime?.start,
+            price: service?.price,
+            bookingId: data.bookingId
+          }
+        }
+      });
+    } catch (error) {
       console.error('Error booking appointment:', error);
-    });
+      alert('Failed to book appointment. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <Container>
-      <TopBanner>FINISH YOUR APPOINTMENT BY CLICKING THE BUTTON BELOW.</TopBanner>
+    <>
+      {isLoading && (
+        <LoadingOverlay>
+          <LoadingContent>
+            <LoadingText>Processing your booking...</LoadingText>
+          </LoadingContent>
+        </LoadingOverlay>
+      )}
       
-      {/* <IllustrationPlaceholder /> */}
+      <Container>
+        <TopBanner>FINISH YOUR APPOINTMENT BY CLICKING THE BUTTON BELOW.</TopBanner>
+        
+        {/* <IllustrationPlaceholder /> */}
 
-      <Title>Summary</Title>
+        <Title>Summary</Title>
 
-      <DisclaimerText>
-        Missing your appointment without letting us know in advance will result in a no show fee - 50% of the price of the service you've booked. To cancel or reschedule call or message the official instagram page.
-      </DisclaimerText>
+        <DisclaimerText>
+          Missing your appointment without letting us know in advance will result in a no show fee - 50% of the price of the service you've booked. To cancel or reschedule call or message the official instagram page.
+        </DisclaimerText>
 
-      <MainContent>
-        {details && (
-          <CustomerInfo>
-            <DetailLabel>Customer</DetailLabel>
-            <CustomerName>{details.firstname} {details.lastname}</CustomerName>
-          </CustomerInfo>
-        )}
+        <MainContent>
+          {details && (
+            <CustomerInfo>
+              <DetailLabel>Customer</DetailLabel>
+              <CustomerName>{details.firstname} {details.lastname}</CustomerName>
+            </CustomerInfo>
+          )}
 
-        <DetailsGrid>
-          <DetailColumn>
-            <DetailLabel>Service</DetailLabel>
-            <DetailValue>{service?.name || 'Not selected'}</DetailValue>
-          </DetailColumn>
-          <DetailColumn>
-            <DetailLabel>Barber</DetailLabel>
-            <DetailValue>{staff?.name || 'Not selected'}</DetailValue>
-          </DetailColumn>
-          <DetailColumn>
-            <DetailLabel>Date & Time</DetailLabel>
-            <DetailValue>{formatDateAndTime(dateTime)}</DetailValue>
-          </DetailColumn>
-        </DetailsGrid>
+          <DetailsGrid>
+            <DetailColumn>
+              <DetailLabel>Service</DetailLabel>
+              <DetailValue>{service?.name || 'Not selected'}</DetailValue>
+            </DetailColumn>
+            <DetailColumn>
+              <DetailLabel>Barber</DetailLabel>
+              <DetailValue>{staff?.name || 'Not selected'}</DetailValue>
+            </DetailColumn>
+            <DetailColumn>
+              <DetailLabel>Date & Time</DetailLabel>
+              <DetailValue>{formatDateAndTime(dateTime)}</DetailValue>
+            </DetailColumn>
+          </DetailsGrid>
 
-        <HorizontalLine />
+          <HorizontalLine />
 
-        <TotalAmountContainer>
-          <TotalLabel>Total Amount Due</TotalLabel>
-          <TotalPrice>{service?.price || '0.00'} лв.</TotalPrice>
-        </TotalAmountContainer>
-      </MainContent>
+          <TotalAmountContainer>
+            <TotalLabel>Total Amount Due</TotalLabel>
+            <TotalPrice>{service?.price || '0.00'} лв.</TotalPrice>
+          </TotalAmountContainer>
+        </MainContent>
 
-      <FinishButton onClick={handleFinishBooking}>
-        Finish Booking
-      </FinishButton>
-    </Container>
+        <FinishButton onClick={handleFinishBooking} disabled={isLoading}>
+          {isLoading ? 'Processing...' : 'Finish Booking'}
+        </FinishButton>
+      </Container>
+    </>
   );
 };
 

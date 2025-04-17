@@ -1,6 +1,8 @@
 import styled from 'styled-components';
 import { useEffect } from 'react';
 import { useState } from 'react';
+import { Barber } from '../../../types/barber.ts';
+import { fetchBarbers } from '../../../services/api';
 
 const Container = styled.div`
   display: flex;
@@ -77,23 +79,11 @@ interface StaffSelectionProps {
   onSelect: (id: number, name: string) => void;
 }
 
-interface StaffMember {
-  id: number;
-  name: string;
-  role: string;
-  image: string;
-}
-
 const StaffSelection = ({ selectedStaff, onSelect }: StaffSelectionProps) => {
-  const [staff, setStaff] = useState<StaffMember[]>([]);
+  const [staff, setStaff] = useState<Barber[]>([]);
 
   useEffect(() => {
-    const fetchStaff = async () => {
-      const response = await fetch('http://localhost:3000/barbers');
-      const data = await response.json();
-      setStaff(data);
-    };
-    fetchStaff();
+    fetchBarbers().then(setStaff);
   }, []);
 
   return (
