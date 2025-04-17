@@ -31,6 +31,10 @@ const startServer = async () => {
         res.sendFile(path.join(__dirname, '../../Client/dist/index.html'));
     });
 
+    app.get("/api/test", (req, res) => {
+        res.send("Hello World");
+    });
+
     // Start server
     app.listen(port, () => {
         console.log(`Server is running at http://localhost:${port}`);
