@@ -5,6 +5,7 @@ import { Service } from '../models/Service';
 import { TimeSlotService } from '../services/timeSlotService';
 import { CalendarService } from '../services/calendarService';
 import { AppointmentRequest } from '../types/appointment.types';
+import Appointment from '../models/Appointment';
 
 export const bookAppointment = async (req: Request<{}, {}, AppointmentRequest>, res: Response, calendarService: CalendarService) => {
     if (!req.body) {
@@ -54,10 +55,33 @@ export const bookAppointment = async (req: Request<{}, {}, AppointmentRequest>, 
 
         const response = await calendarService.createAppointment(calendarId, event);
 
+        // Save appointment to MongoDB
+        const appointment = new Appointment({
+            service: service._id,
+            staff: {
+                id: barber._id,
+                name: barber.name
+            },
+            dateTime: {
+                date: new Date(date).toISOString().split('T')[0],
+                time: new Date(date).toTimeString().split(' ')[0]
+            },
+            customer: {
+                firstname: customerName.split(' ')[0],
+                lastname: customerName.split(' ').slice(1).join(' '),
+                email: customerEmail,
+                phone: customerPhone
+            },
+            status: 'confirmed'
+        });
+
+        await appointment.save();
+
         res.status(200).json({
             message: 'Appointment booked and event added!',
             calendarEvent: response.data.htmlLink,
-            bookingId: response.data.id
+            bookingId: response.data.id,
+            appointmentId: appointment._id
         });
     } catch (err: any) {
         console.error(err);
