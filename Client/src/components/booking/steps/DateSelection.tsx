@@ -22,17 +22,16 @@ const Container = styled.div`
   display: flex;
   flex-direction: row;
   gap: 1.5rem;
-  padding: 1.5rem 2rem;
-  max-width: 850px;
-  margin: 2rem auto;
-  background-color: #1a1a1a;
-  border-radius: 8px;
-  border: 1px solid #333;
+  padding: 1rem 0;
+  max-width: 100vw;
+  margin: 0 auto;
+  background: transparent;
+  border-radius: 0;
+  border: none;
   color: #fff;
-
   @media (max-width: 768px) {
     flex-direction: column;
-    padding: 1rem 1.5rem;
+    padding: 1rem 0;
   }
 `;
 
@@ -40,8 +39,10 @@ const Title = styled.h2`
   color: #fff;
   text-align: center;
   margin-bottom: 1.5rem;
-  font-size: 1.6rem;
-  font-weight: 600;
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-top: 0;
+  letter-spacing: 2px;
 `;
 
 const LoadingTitle = styled.div`
@@ -52,11 +53,12 @@ const LoadingTitle = styled.div`
 `;
 
 const CalendarContainer = styled.div`
-  background: #111;
+  background: rgba(17,17,17,0.85);
   border-radius: 8px;
   padding: 1rem;
   flex: 1;
   min-width: 300px;
+  border: none;
 `;
 
 const CalendarHeader = styled.div`
@@ -121,13 +123,14 @@ const DayCell = styled.button<{ $isCurrentMonth: boolean; $isSelected: boolean; 
 `;
 
 const TimeSlotsContainer = styled.div`
-  background: #111;
+  background: rgba(17,17,17,0.85);
   border-radius: 8px;
   padding: 1rem;
   max-height: 400px;
   overflow-y: auto;
   flex: 1;
   min-width: 200px;
+  border: none;
 `;
 
 const TimeSlotButton = styled.button<{ $isSelected: boolean }>`

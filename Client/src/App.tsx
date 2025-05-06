@@ -4,10 +4,12 @@ import { Routes, Route } from 'react-router-dom'
 import BookAppointment from './pages/BookAppointment'
 import Home from './pages/Home'
 import ThankYou from './pages/ThankYou'
+import GlobalStyle from './GlobalStyle'
 
 function App() {
   return (
     <>
+      <GlobalStyle />
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />

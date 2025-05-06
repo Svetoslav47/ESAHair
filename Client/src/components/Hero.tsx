@@ -40,7 +40,7 @@ const HeroContent = styled.div`
 const HeroImage = styled.div`
   width: 50%;
   height: 80%;
-  background-image: url('https://finest.bg/_nuxt/img/f9ae672.png');
+  background-image: url('Zaki.jpg');
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
@@ -55,6 +55,30 @@ const HeroImage = styled.div`
     right: 0;
     height: 30%;
     background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 1));
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.2) 0%,
+      transparent 20%,
+      transparent 80%,
+      rgba(0, 0, 0, 0.3) 100%
+    ),
+    linear-gradient(
+      to right,
+      rgba(0, 0, 0, 0.2) 0%,
+      transparent 20%,
+      transparent 80%,
+      rgba(0, 0, 0, 0.2) 100%
+    );
+    pointer-events: none;
   }
 
   @media (max-width: 768px) {

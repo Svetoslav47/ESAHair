@@ -9,22 +9,31 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  padding: 1.5rem 2rem;
-  max-width: 1200px;
-  margin: 2rem auto;
-  background-color: #1a1a1a;
-  border-radius: 8px;
-  border: 1px solid #333;
+  padding: 1rem 0;
+  max-width: 100vw;
+  margin: 0 auto;
+  background: transparent;
+  border-radius: 0;
+  border: none;
   color: #fff;
+`;
+
+const StepWrapper = styled.div`
+  max-width: 800px;
+  width: 100%;
+  margin: 2rem auto;
+  padding: 1.5rem 2rem;
+  background: transparent;
 `;
 
 const Title = styled.h2`
   color: #fff;
   text-align: center;
   margin-bottom: 1.5rem;
-  font-size: 1.6rem;
-  font-weight: 600;
+  font-size: 2.5rem;
+  font-weight: bold;
   margin-top: 0;
+  letter-spacing: 2px;
 `;
 
 const ServicesGrid = styled.div`
@@ -35,15 +44,15 @@ const ServicesGrid = styled.div`
 `;
 
 const ServiceCard = styled.div<{ $isSelected?: boolean }>`
-  background-color: #111;
+  background-color: rgba(17,17,17,0.85);
   border-radius: 8px;
   padding: 1.5rem;
   cursor: pointer;
   transition: all 0.3s ease;
   border: 2px solid ${({ $isSelected }) => ($isSelected ? '#C19B76' : 'transparent')};
-
+  box-shadow: none;
   &:hover {
-    transform: translateY(-5px);
+    transform: translateY(-3px);
     border-color: #C19B76;
   }
 `;
@@ -137,31 +146,33 @@ const ServiceSelection: React.FC<SelectServiceProps> = ({ onSelect, selectedServ
 
   return (
     <Container>
-      <Title>Select Service</Title>
-      <ServicesGrid>
-        {services.map(service => (
-          <ServiceCard 
-            key={service._id} 
-            onClick={() => onSelect(service)}
-            $isSelected={selectedService === service._id}
-          >
-            <ServiceHeader>
-              <ServiceImage src={service.image || "/images/service-placeholder.jpg"} alt={service.name} />
-              <ServiceName>{service.name}</ServiceName>
-            </ServiceHeader>
-            <ServiceDetails>
-              <Description>{service.description}</Description>
-              <ServiceInfo>
-                <Duration>
-                  <FontAwesomeIcon icon={faClock} />
-                  {service.duration} minutes
-                </Duration>
-                <Price>{service.price} лв.</Price>
-              </ServiceInfo>
-            </ServiceDetails>
-          </ServiceCard>
-        ))}
-      </ServicesGrid>
+      <StepWrapper>
+        <Title>Select Service</Title>
+        <ServicesGrid>
+          {services.map(service => (
+            <ServiceCard 
+              key={service._id} 
+              onClick={() => onSelect(service)}
+              $isSelected={selectedService === service._id}
+            >
+              <ServiceHeader>
+                <ServiceImage src={service.image || "/images/service-placeholder.jpg"} alt={service.name} />
+                <ServiceName>{service.name}</ServiceName>
+              </ServiceHeader>
+              <ServiceDetails>
+                <Description>{service.description}</Description>
+                <ServiceInfo>
+                  <Duration>
+                    <FontAwesomeIcon icon={faClock} />
+                    {service.duration} minutes
+                  </Duration>
+                  <Price>{service.price} лв.</Price>
+                </ServiceInfo>
+              </ServiceDetails>
+            </ServiceCard>
+          ))}
+        </ServicesGrid>
+      </StepWrapper>
     </Container>
   );
 };

@@ -8,12 +8,12 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  padding: 1.5rem 2rem;
-  max-width: 1000px;
-  margin: 2rem auto;
-  background-color: #1a1a1a;
-  border-radius: 8px;
-  border: 1px solid #333;
+  padding: 1rem 0;
+  max-width: 100vw;
+  margin: 0 auto;
+  background: transparent;
+  border-radius: 0;
+  border: none;
   color: #fff;
 `;
 
@@ -21,9 +21,10 @@ const Title = styled.h2`
   color: #fff;
   text-align: center;
   margin-bottom: 1.5rem;
-  font-size: 1.6rem;
-  font-weight: 600;
+  font-size: 2.5rem;
+  font-weight: bold;
   margin-top: 0;
+  letter-spacing: 2px;
 `;
 
 const StaffGrid = styled.div`
@@ -34,7 +35,7 @@ const StaffGrid = styled.div`
 `;
 
 const StaffCard = styled.div<{ $isSelected?: boolean }>`
-  background-color: #111;
+  background-color: rgba(17,17,17,0.85);
   border-radius: 8px;
   padding: 1rem;
   cursor: pointer;
@@ -43,10 +44,9 @@ const StaffCard = styled.div<{ $isSelected?: boolean }>`
   aspect-ratio: 3/4;
   display: flex;
   flex-direction: column;
-
-
+  box-shadow: none;
   &:hover {
-    transform: translateY(-5px);
+    transform: translateY(-3px);
     border-color: #C19B76;
   }
 `;
@@ -74,6 +74,14 @@ const StaffRole = styled.p`
   text-transform: capitalize;
 `;
 
+const StepWrapper = styled.div`
+  max-width: 800px;
+  width: 100%;
+  margin: 2rem auto;
+  padding: 1.5rem 2rem;
+  background: transparent;
+`;
+
 interface StaffSelectionProps {
   selectedStaff: number;
   onSelect: (id: number, name: string) => void;
@@ -88,20 +96,22 @@ const StaffSelection = ({ selectedStaff, onSelect }: StaffSelectionProps) => {
 
   return (
     <Container>
-      <Title>Choose Your Barber</Title>
-      <StaffGrid>
-        {staff.map((member) => (
-          <StaffCard 
-            key={member.id}
-            $isSelected={selectedStaff === member.id}
-            onClick={() => onSelect(member.id, member.name)}
-          >
-            <StaffImage src={member.image} alt={member.name} />
-            <StaffName>{member.name}</StaffName>
-            <StaffRole>{member.role}</StaffRole>
-          </StaffCard>
-        ))}
-      </StaffGrid>
+      <StepWrapper>
+        <Title>Choose Your Barber</Title>
+        <StaffGrid>
+          {staff.map((member) => (
+            <StaffCard 
+              key={member.id}
+              $isSelected={selectedStaff === member.id}
+              onClick={() => onSelect(member.id, member.name)}
+            >
+              <StaffImage src={member.image} alt={member.name} />
+              <StaffName>{member.name}</StaffName>
+              <StaffRole>{member.role}</StaffRole>
+            </StaffCard>
+          ))}
+        </StaffGrid>
+      </StepWrapper>
     </Container>
   );
 };

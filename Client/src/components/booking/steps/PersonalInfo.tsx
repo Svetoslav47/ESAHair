@@ -9,21 +9,37 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  padding: 1.5rem 2rem;
-  max-width: 700px;
-  margin: 2rem auto;
-  background-color: #1a1a1a;
-  border-radius: 8px;
-  border: 1px solid #333;
+  padding: 1rem 0;
+  margin: 0 auto;
+  background: transparent;
+  border-radius: 0;
+  border: none;
   color: #fff;
+  box-sizing: border-box;
+  max-width: 100vw;
+`;
+
+const StepWrapper = styled.div`
+  max-width: 800px;
+  width: 100%;
+  margin: 2rem auto;
+  padding: 1.5rem 2rem;
+  background: transparent;
+  box-sizing: border-box;
+  @media (max-width: 600px) {
+    padding: 1rem 0.5rem;
+    max-width: 100vw;
+  }
 `;
 
 const Title = styled.h2`
   color: #fff;
   text-align: center;
   margin-bottom: 1.5rem;
-  font-size: 1.6rem;
-  font-weight: 600;
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-top: 0;
+  letter-spacing: 2px;
 `;
 
 const Form = styled.form`
@@ -58,6 +74,8 @@ const Input = styled.input`
   color: #fff;
   font-size: 1rem;
   transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
 
   &:focus {
     outline: none;
@@ -73,6 +91,14 @@ const PhoneInputContainer = styled.div`
   display: flex;
   gap: 0.5rem;
   align-items: flex-start;
+  @media (max-width: 600px) {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  & > * {
+    min-width: 0;
+    flex: 1 1 0;
+  }
 `;
 
 const ErrorContainer = styled.div`
@@ -125,6 +151,8 @@ const SubmitButton = styled.button<{ $isDisabled: boolean }>`
   cursor: ${({ $isDisabled }) => ($isDisabled ? 'not-allowed' : 'pointer')};
   transition: all 0.2s ease;
   margin-top: 1rem;
+  width: 100%;
+  box-sizing: border-box;
 
   &:hover {
     background-color: ${({ $isDisabled }) => ($isDisabled ? '#333' : '#D4B08C')};
@@ -269,121 +297,123 @@ const PersonalInfo = ({ onDetailsSubmit }: PersonalInfoProps) => {
 
   return (
     <Container>
-      <Title>Basic Details</Title>
-      <Form onSubmit={handleSubmit}>
-        <InputGroup>
-          <Label>
-            Firstname
-            {!formData.firstname && <Required>*</Required>}
-          </Label>
-          <Input
-            type="text"
-            name="firstname"
-            value={formData.firstname}
-            onChange={handleChange}
-            placeholder="Enter your firstname"
-          />
-          {errors.firstname && (
-            <ErrorContainer>
-              <ErrorIcon icon={faExclamationCircle} />
-              {errors.firstname}
-            </ErrorContainer>
-          )}
-        </InputGroup>
-
-        <InputGroup>
-          <Label>
-            Lastname
-            {!formData.lastname && <Required>*</Required>}
-          </Label>
-          <Input
-            type="text"
-            name="lastname"
-            value={formData.lastname}
-            onChange={handleChange}
-            placeholder="Enter your lastname"
-          />
-          {errors.lastname && (
-            <ErrorContainer>
-              <ErrorIcon icon={faExclamationCircle} />
-              {errors.lastname}
-            </ErrorContainer>
-          )}
-        </InputGroup>
-
-        <InputGroup>
-          <Label>
-            Email Address
-            {!formData.email && <Required>*</Required>}
-          </Label>
-          <Input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            placeholder="Enter your email address"
-          />
-          {errors.email && (
-            <ErrorContainer>
-              <ErrorIcon icon={faExclamationCircle} />
-              {errors.email}
-            </ErrorContainer>
-          )}
-        </InputGroup>
-
-        <InputGroup>
-          <Label>
-            Phone Number
-            {!formData.phone && <Required>*</Required>}
-          </Label>
-          <PhoneInputContainer>
-            <CountrySelector
-              selectedCountry={selectedCountry}
-              onSelect={setSelectedCountry}
-            />
+      <StepWrapper>
+        <Title>Basic Details</Title>
+        <Form onSubmit={handleSubmit}>
+          <InputGroup>
+            <Label>
+              Firstname
+              {!formData.firstname && <Required>*</Required>}
+            </Label>
             <Input
-              type="tel"
-              name="phone"
-              value={formData.phone}
-              onChange={handlePhoneChange}
-              placeholder="048 123 456"
-              style={{ flex: 1 }}
+              type="text"
+              name="firstname"
+              value={formData.firstname}
+              onChange={handleChange}
+              placeholder="Enter your firstname"
             />
-          </PhoneInputContainer>
-          {errors.phone && (
+            {errors.firstname && (
+              <ErrorContainer>
+                <ErrorIcon icon={faExclamationCircle} />
+                {errors.firstname}
+              </ErrorContainer>
+            )}
+          </InputGroup>
+
+          <InputGroup>
+            <Label>
+              Lastname
+              {!formData.lastname && <Required>*</Required>}
+            </Label>
+            <Input
+              type="text"
+              name="lastname"
+              value={formData.lastname}
+              onChange={handleChange}
+              placeholder="Enter your lastname"
+            />
+            {errors.lastname && (
+              <ErrorContainer>
+                <ErrorIcon icon={faExclamationCircle} />
+                {errors.lastname}
+              </ErrorContainer>
+            )}
+          </InputGroup>
+
+          <InputGroup>
+            <Label>
+              Email Address
+              {!formData.email && <Required>*</Required>}
+            </Label>
+            <Input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Enter your email address"
+            />
+            {errors.email && (
+              <ErrorContainer>
+                <ErrorIcon icon={faExclamationCircle} />
+                {errors.email}
+              </ErrorContainer>
+            )}
+          </InputGroup>
+
+          <InputGroup>
+            <Label>
+              Phone Number
+              {!formData.phone && <Required>*</Required>}
+            </Label>
+            <PhoneInputContainer>
+              <CountrySelector
+                selectedCountry={selectedCountry}
+                onSelect={setSelectedCountry}
+              />
+              <Input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handlePhoneChange}
+                placeholder="048 123 456"
+                style={{ flex: 1 }}
+              />
+            </PhoneInputContainer>
+            {errors.phone && (
+              <ErrorContainer>
+                <ErrorIcon icon={faExclamationCircle} />
+                {errors.phone}
+              </ErrorContainer>
+            )}
+          </InputGroup>
+
+          <CheckboxGroup>
+            <Checkbox
+              type="checkbox"
+              name="termsAccepted"
+              checked={formData.termsAccepted}
+              onChange={handleChange}
+            />
+            <TermsText>
+              I agree with the <TermsLink href="#">terms & conditions</TermsLink>
+            </TermsText>
+          </CheckboxGroup>
+          {errors.terms && (
             <ErrorContainer>
               <ErrorIcon icon={faExclamationCircle} />
-              {errors.phone}
+              {errors.terms}
             </ErrorContainer>
           )}
-        </InputGroup>
 
-        <CheckboxGroup>
-          <Checkbox
-            type="checkbox"
-            name="termsAccepted"
-            checked={formData.termsAccepted}
-            onChange={handleChange}
-          />
-          <TermsText>
-            I agree with the <TermsLink href="#">terms & conditions</TermsLink>
-          </TermsText>
-        </CheckboxGroup>
-        {errors.terms && (
-          <ErrorContainer>
-            <ErrorIcon icon={faExclamationCircle} />
-            {errors.terms}
-          </ErrorContainer>
-        )}
-
-        <SubmitButton 
-          type="submit" 
-          $isDisabled={!isFormValid()}
-          disabled={!isFormValid()}
-        >
-          Continue to Summary
-        </SubmitButton>
-      </Form>
+          <SubmitButton 
+            type="submit" 
+            $isDisabled={!isFormValid()}
+            disabled={!isFormValid()}
+          >
+            Continue to Summary
+          </SubmitButton>
+        </Form>
+      </StepWrapper>
     </Container>
   );
 };

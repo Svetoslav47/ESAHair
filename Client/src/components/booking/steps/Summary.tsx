@@ -10,12 +10,12 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
-  padding: 1.5rem 2rem;
-  max-width: 850px;
-  margin: 2rem auto;
-  background-color: #1a1a1a;
-  border-radius: 8px;
-  border: 1px solid #333;
+  padding: 1rem 0;
+  max-width: 100vw;
+  margin: 0 auto;
+  background: transparent;
+  border-radius: 0;
+  border: none;
   color: #fff;
 `;
 
@@ -48,8 +48,10 @@ const Title = styled.h2`
   color: #fff;
   text-align: center;
   margin-bottom: 0.25rem;
-  font-size: 1.6rem;
-  font-weight: 600;
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-top: 0;
+  letter-spacing: 2px;
 `;
 
 const DisclaimerText = styled.p`
@@ -171,6 +173,14 @@ const LoadingText = styled.p`
   margin: 1rem 0;
 `;
 
+const StepWrapper = styled.div`
+  max-width: 800px;
+  width: 100%;
+  margin: 2rem auto;
+  padding: 1.5rem 2rem;
+  background: transparent;
+`;
+
 interface SummaryProps {
   bookingState: BookingState;
 }
@@ -239,50 +249,52 @@ const Summary = ({ bookingState }: SummaryProps) => {
       )}
       
       <Container>
-        <TopBanner>FINISH YOUR APPOINTMENT BY CLICKING THE BUTTON BELOW.</TopBanner>
-        
-        {/* <IllustrationPlaceholder /> */}
+        <StepWrapper>
+          <TopBanner>FINISH YOUR APPOINTMENT BY CLICKING THE BUTTON BELOW.</TopBanner>
+          
+          {/* <IllustrationPlaceholder /> */}
 
-        <Title>Summary</Title>
+          <Title>Summary</Title>
 
-        <DisclaimerText>
-          Missing your appointment without letting us know in advance will result in a no show fee - 50% of the price of the service you've booked. To cancel or reschedule call or message the official instagram page.
-        </DisclaimerText>
+          <DisclaimerText>
+            Missing your appointment without letting us know in advance will result in a no show fee - 50% of the price of the service you've booked. To cancel or reschedule call or message the official instagram page.
+          </DisclaimerText>
 
-        <MainContent>
-          {details && (
-            <CustomerInfo>
-              <DetailLabel>Customer</DetailLabel>
-              <CustomerName>{details.firstname} {details.lastname}</CustomerName>
-            </CustomerInfo>
-          )}
+          <MainContent>
+            {details && (
+              <CustomerInfo>
+                <DetailLabel>Customer</DetailLabel>
+                <CustomerName>{details.firstname} {details.lastname}</CustomerName>
+              </CustomerInfo>
+            )}
 
-          <DetailsGrid>
-            <DetailColumn>
-              <DetailLabel>Service</DetailLabel>
-              <DetailValue>{service?.name || 'Not selected'}</DetailValue>
-            </DetailColumn>
-            <DetailColumn>
-              <DetailLabel>Barber</DetailLabel>
-              <DetailValue>{staff?.name || 'Not selected'}</DetailValue>
-            </DetailColumn>
-            <DetailColumn>
-              <DetailLabel>Date & Time</DetailLabel>
-              <DetailValue>{formatDateAndTime(dateTime)}</DetailValue>
-            </DetailColumn>
-          </DetailsGrid>
+            <DetailsGrid>
+              <DetailColumn>
+                <DetailLabel>Service</DetailLabel>
+                <DetailValue>{service?.name || 'Not selected'}</DetailValue>
+              </DetailColumn>
+              <DetailColumn>
+                <DetailLabel>Barber</DetailLabel>
+                <DetailValue>{staff?.name || 'Not selected'}</DetailValue>
+              </DetailColumn>
+              <DetailColumn>
+                <DetailLabel>Date & Time</DetailLabel>
+                <DetailValue>{formatDateAndTime(dateTime)}</DetailValue>
+              </DetailColumn>
+            </DetailsGrid>
 
-          <HorizontalLine />
+            <HorizontalLine />
 
-          <TotalAmountContainer>
-            <TotalLabel>Total Amount Due</TotalLabel>
-            <TotalPrice>{service?.price || '0.00'} лв.</TotalPrice>
-          </TotalAmountContainer>
-        </MainContent>
+            <TotalAmountContainer>
+              <TotalLabel>Total Amount Due</TotalLabel>
+              <TotalPrice>{service?.price || '0.00'} лв.</TotalPrice>
+            </TotalAmountContainer>
+          </MainContent>
 
-        <FinishButton onClick={handleFinishBooking} disabled={isLoading}>
-          {isLoading ? 'Processing...' : 'Finish Booking'}
-        </FinishButton>
+          <FinishButton onClick={handleFinishBooking} disabled={isLoading}>
+            {isLoading ? 'Processing...' : 'Finish Booking'}
+          </FinishButton>
+        </StepWrapper>
       </Container>
     </>
   );
