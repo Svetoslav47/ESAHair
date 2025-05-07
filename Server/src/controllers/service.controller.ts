@@ -2,6 +2,14 @@ import { Request, Response } from 'express';
 import { Service } from '../models/Service';
 import { uploadServiceImageToS3 } from '../utils/s3Upload';
 
+interface ServiceUpdateData {
+    name?: string;
+    description?: string;
+    duration?: number;
+    price?: number;
+    image?: string;
+}
+
 export const getServices = async (req: Request, res: Response) => {
     try {
         const services = await Service.find();
@@ -40,7 +48,7 @@ export const updateService = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         const { name, description, length, price } = req.body;
-        let updateData: any = { name, description, duration: length, price };
+        const updateData: ServiceUpdateData = { name, description, duration: length, price };
         if (req.file) {
             updateData.image = await uploadServiceImageToS3(req.file.buffer, req.file.originalname, req.file.mimetype);
         }

@@ -212,9 +212,16 @@ interface Saloon {
   name: string;
 }
 
+interface Appointment {
+  _id: string;
+  staff: { id: string; name: string };
+  dateTime: { date: string; time: string };
+}
+
 const Barbers: React.FC = () => {
   const [barbers, setBarbers] = useState<Barber[]>([]);
   const [saloons, setSaloons] = useState<Saloon[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editBarber, setEditBarber] = useState<Barber | null>(null);
   const [name, setName] = useState('');
@@ -241,9 +248,19 @@ const Barbers: React.FC = () => {
     }
   };
 
+  const fetchAppointments = async () => {
+    try {
+      const res = await axios.get('/api/appointments');
+      setAppointments(res.data);
+    } catch {
+      setError('Failed to fetch appointments');
+    }
+  };
+
   useEffect(() => {
     fetchBarbers();
     fetchSaloons();
+    fetchAppointments();
   }, []);
 
   const openAddModal = () => {
@@ -352,6 +369,11 @@ const Barbers: React.FC = () => {
     }
   };
 
+  const hasAppointmentsForDay = (barber: Barber, date: Date) => {
+    const dStr = format(date, 'yyyy-MM-dd');
+    return appointments.some(a => a.staff.id === barber._id && a.dateTime.date === dStr);
+  };
+
   return (
     <PageContainer>
       <Grid>
@@ -368,6 +390,7 @@ const Barbers: React.FC = () => {
               <DateGrid>
                 {getNextThreeDays().map((date, idx) => {
                   const assignment = getAssignmentForDate(barber, date);
+                  const disableAssignment = hasAppointmentsForDay(barber, date);
                   return (
                     <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 0 }}>
                       <DateLabel style={{ marginBottom: 2 }}>{format(date, 'EEEE')}</DateLabel>
@@ -376,12 +399,14 @@ const Barbers: React.FC = () => {
                         style={{ fontSize: '0.98rem', padding: '0.5rem', minWidth: 0 }}
                         value={assignment ? assignment.saloon._id : ''}
                         onChange={e => handleAssignmentChange(barber, date, e.target.value)}
+                        disabled={disableAssignment}
                       >
                         <option value="">Почивка</option>
                         {saloons.map(saloon => (
                           <option key={saloon._id} value={saloon._id}>{saloon.name}</option>
                         ))}
                       </SaloonSelect>
+                      {disableAssignment && <span style={{ color: '#ff4444', fontSize: '0.95rem', marginTop: 2 }}>Има записани часове</span>}
                     </div>
                   );
                 })}
@@ -395,7 +420,7 @@ const Barbers: React.FC = () => {
         ))}
       </Grid>
       <FabButton onClick={openAddModal} title="Add Barber">
-        <FontAwesomeIcon icon={faPlus} /> Add Barber
+        <FontAwesomeIcon icon={faPlus} /> Добави Фризьор
       </FabButton>
       {showModal && (
         <ModalOverlay>

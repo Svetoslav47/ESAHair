@@ -171,7 +171,7 @@ const EmbeddedBooking: React.FC = () => {
     setCurrentStep(2);
   };
 
-  const handleStaffSelect = (staffId: number, staffName: string) => {
+  const handleStaffSelect = (staffId: string, staffName: string) => {
     setBookingState(prev => ({
       ...prev,
       staff: { id: staffId, name: staffName }
@@ -215,6 +215,7 @@ const EmbeddedBooking: React.FC = () => {
     if (canNavigateToStep(currentStep + 1)) setCurrentStep(currentStep + 1);
   };
 
+  console.log(bookingState);
   return (
     <BookingContainer id="book-now">
       <BookingHeader>
@@ -257,14 +258,16 @@ const EmbeddedBooking: React.FC = () => {
         )}
         {currentStep === 2 && (
           <StaffSelection
-            selectedStaff={bookingState.staff?.id ?? -1}
+            selectedStaff={bookingState.staff?.id ?? ''}
             onSelect={handleStaffSelect}
+            saloonId={bookingState.salon?.id ?? ''}
+            date={new Date().toISOString().split('T')[0]}
           />
         )}
         {currentStep === 3 && (
           <TimeSlotSelection
             salonId={bookingState.salon?.id ?? ''}
-            staffId={bookingState.staff?.id ?? -1}
+            staffId={bookingState.staff?.id ?? ''}
             serviceId={bookingState.service?._id ?? ''}
             onTimeSlotSelect={handleDateTimeSelect}
             selectedTimeSlot={bookingState.dateTime}

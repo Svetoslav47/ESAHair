@@ -1,8 +1,7 @@
 import styled from 'styled-components';
-import { useEffect } from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Barber } from '../../../types/barber.ts';
-import { fetchBarbers } from '../../../services/api';
+import { fetchBarbersAssignedToSaloon } from '../../../services/api';
 
 const Container = styled.div`
   display: flex;
@@ -76,21 +75,33 @@ const StepWrapper = styled.div`
 `;
 
 interface StaffSelectionProps {
-  selectedStaff: number;
-  onSelect: (id: number, name: string) => void;
+  selectedStaff: string;
+  onSelect: (id: string, name: string) => void;
+  saloonId: string;
+  date: string; // ISO date string (yyyy-MM-dd)
 }
 
-const StaffSelection = ({ selectedStaff, onSelect }: StaffSelectionProps) => {
+const StaffSelection = ({ selectedStaff, onSelect, saloonId, date }: StaffSelectionProps) => {
   const [staff, setStaff] = useState<Barber[]>([]);
 
   useEffect(() => {
-    fetchBarbers().then(setStaff);
-  }, []);
+    if (saloonId && date) {
+      fetchBarbersAssignedToSaloon(saloonId, date)
+        .then((data) => {
+          setStaff(data);
+        })
+        .catch(() => {
+          setStaff([]);
+        });
+    } else {
+      setStaff([]);
+    }
+  }, [saloonId, date]);
 
   return (
     <Container>
       <StepWrapper>
-        <Title>Choose Your Barber</Title>
+        <Title>Избери Фризьор</Title>
         <StaffGrid>
           {staff.map((member) => (
             <StaffCard 

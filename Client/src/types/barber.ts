@@ -1,5 +1,5 @@
 export interface Barber {
-  id: number;
+  id: string;
   name: string;
   role: string;
   image: string;

@@ -290,7 +290,7 @@ const Services: React.FC = () => {
         ))}
       </Grid>
       <FabButton onClick={openAddModal} title="Add Service">
-        <FontAwesomeIcon icon={faPlus} /> Add Service
+        <FontAwesomeIcon icon={faPlus} /> Добави Услуга
       </FabButton>
       {showModal && (
         <ModalOverlay>

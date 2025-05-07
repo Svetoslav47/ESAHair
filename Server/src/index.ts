@@ -6,6 +6,8 @@ import { CalendarService } from './services/calendarService';
 import { setupRoutes } from './routes';
 import path from 'path';
 import dotenv from 'dotenv';
+import http from 'http';
+import { Server as SocketIOServer } from 'socket.io';
 
 dotenv.config();
 
@@ -20,20 +22,31 @@ const startServer = async () => {
     await setupDatabase();
 
     // Setup Google OAuth
-    const oauth2Client = setupGoogleAuth();
-    const calendarService = new CalendarService(oauth2Client);
+    const calendarEnabled = !!process.env.GOOGLE_CLIENT_ID && !!process.env.GOOGLE_CLIENT_SECRET && !!process.env.GOOGLE_REFRESH_TOKEN;
+    let calendarService = null;
+    if (calendarEnabled) {
+        const oauth2Client = setupGoogleAuth();
+        calendarService = new CalendarService(oauth2Client);
+    }
 
     // Setup routes
-    app.use('/api', setupRoutes(calendarService));
+    app.use('/api', setupRoutes(calendarService!, calendarEnabled));
 
     app.use(express.static(path.join(__dirname, '../../Client/dist')));
     app.get(/^\/(?!api).*/, (req, res) => {
         res.sendFile(path.join(__dirname, '../../Client/dist/index.html'));
     });
 
-    // Start server
-    app.listen(port, () => {
+    // --- SOCKET.IO SETUP ---
+    const server = http.createServer(app);
+    const io = new SocketIOServer(server, { cors: { origin: '*' } });
+    app.set('io', io);
+
+    server.listen(port, () => {
         console.log(`Server is running at http://localhost:${port}`);
+        if (!calendarEnabled) {
+            console.log('Google Calendar integration is DISABLED (missing credentials)');
+        }
     });
 };
 

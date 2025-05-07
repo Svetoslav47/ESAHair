@@ -44,7 +44,7 @@ const BurgerButton = styled.button`
   left: 20px;
   width: 40px;
   height: 40px;
-  border-radius: 50%;
+  border-radius: 10px;
   background-color: #C19B76;
   border: none;
   color: white;
@@ -125,10 +125,10 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { path: '/admin/dashboard/calendar', icon: faCalendarAlt, label: 'Calendar' },
-  { path: '/admin/dashboard/services', icon: faCut, label: 'Services' },
-  { path: '/admin/dashboard/barbers', icon: faUserTie, label: 'Barbers' },
-  { path: '/admin/dashboard/saloons', icon: faStore, label: 'Saloons' }
+  { path: '/admin/dashboard/calendar', icon: faCalendarAlt, label: 'Календар' },
+  { path: '/admin/dashboard/services', icon: faCut, label: 'Услуги' },
+  { path: '/admin/dashboard/barbers', icon: faUserTie, label: 'Фризьори' },
+  { path: '/admin/dashboard/saloons', icon: faStore, label: 'Салони' }
 ];
 
 interface AdminSidebarProps {

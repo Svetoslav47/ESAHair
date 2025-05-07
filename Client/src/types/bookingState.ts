@@ -3,7 +3,7 @@ import { Service } from "../types/service";
 export interface BookingState {
     salon?: { id: string; name: string };
     service?: Service;
-    staff?: { id: number; name: string };
+    staff?: { id: string; name: string };
     dateTime?: TimeSlot;
     details?: {
       firstname: string;

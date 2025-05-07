@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { format, addDays, isToday, isTomorrow } from 'date-fns';
+import { format } from 'date-fns';
 import { TimeSlot } from '../../../types/times';
+import { fetchTimeSlots } from '../../../services/api';
 
 const Container = styled.div`
   display: flex;
@@ -84,40 +85,34 @@ const StepWrapper = styled.div`
 
 interface TimeSlotSelectionProps {
   salonId: string;
-  staffId: number;
+  staffId: string;
   serviceId: string;
   onTimeSlotSelect: (slot: TimeSlot) => void;
   selectedTimeSlot?: TimeSlot;
 }
-
-// Mocked API: always uses server time (simulate with new Date())
-const mockFetchTimeSlots = async (_salonId: string, _staffId: number, _serviceId: string) => {
-  // Simulate server "now"
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const tomorrow = addDays(today, 1);
-  // Example slots: 10:00, 12:00, 14:00, 16:00
-  const slots = [10, 12, 14, 16].map(hour => ({
-    start: new Date(today.getFullYear(), today.getMonth(), today.getDate(), hour).toISOString(),
-    end: new Date(today.getFullYear(), today.getMonth(), today.getDate(), hour + 1).toISOString()
-  }));
-  const slotsTomorrow = [10, 12, 14, 16].map(hour => ({
-    start: new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate(), hour).toISOString(),
-    end: new Date(tomorrow.getFullYear(), tomorrow.getMonth(), tomorrow.getDate(), hour + 1).toISOString()
-  }));
-  return {
-    [format(today, 'yyyy-MM-dd')]: slots,
-    [format(tomorrow, 'yyyy-MM-dd')]: slotsTomorrow
-  };
-};
 
 const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId, serviceId, onTimeSlotSelect, selectedTimeSlot }) => {
   const [timeSlots, setTimeSlots] = useState<{ [date: string]: TimeSlot[] }>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!salonId || !staffId || !serviceId) return;
     setLoading(true);
-    mockFetchTimeSlots(salonId, staffId, serviceId).then(setTimeSlots).finally(() => setLoading(false));
+    const today = new Date();
+    const tomorrow = new Date();
+    tomorrow.setDate(today.getDate() + 1);
+    const todayStr = format(today, 'yyyy-MM-dd');
+    const tomorrowStr = format(tomorrow, 'yyyy-MM-dd');
+
+    Promise.all([
+      fetchTimeSlots(staffId, salonId, serviceId, todayStr),
+      fetchTimeSlots(staffId, salonId, serviceId, tomorrowStr)
+    ]).then(([slotsToday, slotsTomorrow]) => {
+      setTimeSlots({
+        [todayStr]: slotsToday,
+        [tomorrowStr]: slotsTomorrow
+      });
+    }).finally(() => setLoading(false));
   }, [salonId, staffId, serviceId]);
 
   if (loading) {
@@ -129,32 +124,26 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
   return (
     <Container>
       <StepWrapper>
-        <Title>Select a Time Slot</Title>
+        <Title>Избери Час</Title>
         <DaysGrid>
-          {days.map(dateStr => {
-            const dateObj = new Date(dateStr);
-            let label = format(dateObj, 'EEEE, MMM d');
-            if (isToday(dateObj)) label = 'Today';
-            else if (isTomorrow(dateObj)) label = 'Tomorrow';
-            return (
-              <DayColumn key={dateStr}>
-                <DayTitle>{label}</DayTitle>
-                {timeSlots[dateStr].length === 0 ? (
-                  <NoTimeSlotsMessage>No available slots</NoTimeSlotsMessage>
-                ) : (
-                  timeSlots[dateStr].map(slot => (
-                    <TimeSlotButton
-                      key={slot.start}
-                      $isSelected={selectedTimeSlot?.start === slot.start}
-                      onClick={() => onTimeSlotSelect(slot)}
-                    >
-                      {format(new Date(slot.start), 'HH:mm')} - {format(new Date(slot.end), 'HH:mm')}
-                    </TimeSlotButton>
-                  ))
-                )}
-              </DayColumn>
-            );
-          })}
+          {days.map(dateStr => (
+            <DayColumn key={dateStr}>
+              <DayTitle>{format(new Date(dateStr), 'EEEE, MMM d')}</DayTitle>
+              {timeSlots[dateStr].length === 0 ? (
+                <NoTimeSlotsMessage>No available slots</NoTimeSlotsMessage>
+              ) : (
+                timeSlots[dateStr].map(slot => (
+                  <TimeSlotButton
+                    key={slot.start}
+                    $isSelected={selectedTimeSlot?.start === slot.start}
+                    onClick={() => onTimeSlotSelect(slot)}
+                  >
+                    {format(new Date(slot.start), 'HH:mm')} - {format(new Date(slot.end), 'HH:mm')}
+                  </TimeSlotButton>
+                ))
+              )}
+            </DayColumn>
+          ))}
         </DaysGrid>
       </StepWrapper>
     </Container>

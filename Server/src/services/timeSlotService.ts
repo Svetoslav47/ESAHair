@@ -5,10 +5,17 @@ import { Types } from 'mongoose';
 import { CalendarService, BookedSlot } from './calendarService';
 import { Barber } from '../models/Barber';
 import { Saloon } from '../models/Saloon';
+import Appointment from '../models/Appointment';
 
 interface PopulatedSaloonAssignment {
     date: Date;
-    saloon: typeof Saloon;
+    saloon: {
+        _id: Types.ObjectId;
+        name: string;
+        address: string;
+        image?: string;
+        gmapsLink?: string;
+    };
 }
 
 export class TimeSlotService {
@@ -27,15 +34,6 @@ export class TimeSlotService {
                 || isWithinInterval(bookedSlotStart, { start: slotStart, end: slotEnd })
                 || isWithinInterval(bookedSlotEnd, { start: slotStart, end: slotEnd });
         });
-    }
-
-    static async isSlotBookedSpecificDate(slotStart: Date, procedureLength: number, calendarService: CalendarService, barberId: Types.ObjectId): Promise<boolean> {
-        const startDate = startOfDay(slotStart);
-        const endDate = endOfDay(slotStart);
-        const bookedSlots = await calendarService.getBarberAppointments(barberId, startDate, endDate);
-        const dateKey = format(slotStart, 'yyyy-MM-dd');
-        const bookedSlotsForDate = bookedSlots[dateKey];
-        return this.isSlotBooked(slotStart, bookedSlotsForDate, procedureLength);
     }
 
     static async generateTimeSlotsForDay(
@@ -86,8 +84,7 @@ export class TimeSlotService {
         startHour: number,
         endHour: number,
         barberId: Types.ObjectId,
-        procedureLength: number = BOOKING_CONSTANTS.DEFAULT_PROCEDURE_LENGTH,
-        calendarService: CalendarService
+        procedureLength: number = BOOKING_CONSTANTS.DEFAULT_PROCEDURE_LENGTH
     ): Promise<Record<string, TimeSlot[]>> {
         // Create a new date object to avoid modifying the input
         const normalizedStartDate = new Date(startDate);
@@ -110,8 +107,21 @@ export class TimeSlotService {
             daysOff.map(dayOff => format(dayOff.date, 'yyyy-MM-dd'))
         );
         
-        const bookedSlots = await calendarService.getBarberAppointments(barberId, startDate, endDate);
-        console.log(bookedSlots);
+        // Query Appointment model for booked slots
+        const appointments = await Appointment.find({
+            'staff.id': barberId,
+            'dateTime.date': { $gte: format(normalizedStartDate, 'yyyy-MM-dd'), $lte: format(endDate, 'yyyy-MM-dd') },
+            status: { $ne: 'cancelled' }
+        });
+        const bookedSlotsByDate: Record<string, BookedSlot[]> = {};
+        appointments.forEach(app => {
+            if (!bookedSlotsByDate[app.dateTime.date]) bookedSlotsByDate[app.dateTime.date] = [];
+            // Assume app.dateTime.time is in HH:mm:ss format and service duration is known
+            const start = new Date(`${app.dateTime.date}T${app.dateTime.time}`);
+            const end = new Date(start.getTime() + (procedureLength * 60000));
+            bookedSlotsByDate[app.dateTime.date].push({ start: start.toISOString(), end: end.toISOString() });
+        });
+
         // Filter working days and reduce to a dictionary
         return dates
             .filter(date => {
@@ -122,7 +132,7 @@ export class TimeSlotService {
             .reduce(async (accPromise, date) => {
                 const acc = await accPromise;
                 const dateKey = format(date, 'yyyy-MM-dd');
-                acc[dateKey] = await this.generateTimeSlotsForDay(date, startHour, endHour, procedureLength, bookedSlots[dateKey]);
+                acc[dateKey] = await this.generateTimeSlotsForDay(date, startHour, endHour, procedureLength, bookedSlotsByDate[dateKey] || []);
                 return acc;
             }, Promise.resolve({} as Record<string, TimeSlot[]>));
     }

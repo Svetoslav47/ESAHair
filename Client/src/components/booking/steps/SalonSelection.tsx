@@ -107,13 +107,13 @@ const SalonSelection: React.FC<SalonSelectionProps> = ({ selectedSalon, onSelect
   }, []);
 
   if (loading) {
-    return <Container>Loading salons...</Container>;
+    return <Container>Зареждане на салони...</Container>;
   }
 
   return (
     <Container>
       <StepWrapper>
-        <Title>Select Salon</Title>
+        <Title>Избери Салон</Title>
         <SalonsGrid>
           {salons.map(salon => (
             <SalonCard

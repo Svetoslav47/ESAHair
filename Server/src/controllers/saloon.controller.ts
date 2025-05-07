@@ -2,6 +2,13 @@ import { Request, Response } from 'express';
 import { Saloon } from '../models/Saloon';
 import { uploadBarberImageToS3 } from '../utils/s3Upload';
 
+interface SaloonUpdateData {
+    name?: string;
+    address?: string;
+    gmapsLink?: string;
+    image?: string;
+}
+
 export const getSaloons = async (req: Request, res: Response) => {
   try {
     const saloons = await Saloon.find();
@@ -32,7 +39,7 @@ export const updateSaloon = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { name, address, gmapsLink } = req.body;
-    let updateData: any = { name, address, gmapsLink };
+    const updateData: SaloonUpdateData = { name, address, gmapsLink };
     if (req.file) {
       updateData.image = await uploadBarberImageToS3(req.file.buffer, req.file.originalname, req.file.mimetype);
     }

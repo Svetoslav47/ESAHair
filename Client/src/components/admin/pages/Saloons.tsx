@@ -280,7 +280,7 @@ const Saloons: React.FC = () => {
         ))}
       </Grid>
       <FabButton onClick={openAddModal} title="Add Saloon">
-        <FontAwesomeIcon icon={faPlus} /> Add Saloon
+        <FontAwesomeIcon icon={faPlus} /> Добави Салон
       </FabButton>
       {showModal && (
         <ModalOverlay>

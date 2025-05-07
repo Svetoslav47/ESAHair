@@ -4,7 +4,7 @@ import { useNavigate, Routes, Route, Navigate } from 'react-router-dom';
 import axios, { AxiosError } from 'axios';
 import { useAuth } from '../../context/AuthContext';
 import AdminSidebar from './AdminSidebar';
-import Calendar from './pages/Calendar';
+import AdminCalendar from './pages/AdminCalendar';
 import Services from './pages/Services';
 import Barbers from './pages/Barbers';
 import Saloons from './pages/Saloons';
@@ -35,7 +35,8 @@ const Header = styled.header<{ isSidebarOpen: boolean }>`
 
 const Title = styled.h1`
   color: #fff;
-  margin: 0;
+  margin: 0 0.5em;
+
 `;
 
 const LogoutButton = styled.button`
@@ -131,28 +132,28 @@ const AdminDashboard = () => {
       <AdminSidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
       <MainContent>
         <Header isSidebarOpen={isSidebarOpen}>
-          <Title>Admin Dashboard</Title>
-          <LogoutButton onClick={handleLogout}>Logout</LogoutButton>
+          <Title>Админ Панел</Title>
+          <LogoutButton onClick={handleLogout}>Изход</LogoutButton>
         </Header>
 
         <Routes>
           <Route path="/" element={
             <DashboardGrid>
               <Card>
-                <CardTitle>Total Appointments</CardTitle>
+                <CardTitle>Общо Записани Часове</CardTitle>
                 <Stat>{stats.totalAppointments}</Stat>
               </Card>
               <Card>
-                <CardTitle>Total Barbers</CardTitle>
+                <CardTitle>Общо Фризьори</CardTitle>
                 <Stat>{stats.totalBarbers}</Stat>
               </Card>
               <Card>
-                <CardTitle>Total Services</CardTitle>
+                <CardTitle>Общо Услуги</CardTitle>
                 <Stat>{stats.totalServices}</Stat>
               </Card>
             </DashboardGrid>
           } />
-          <Route path="/calendar" element={<Calendar />} />
+          <Route path="/calendar" element={<AdminCalendar />} />
           <Route path="/services" element={<Services />} />
           <Route path="/barbers" element={<Barbers />} />
           <Route path="/saloons" element={<Saloons />} />

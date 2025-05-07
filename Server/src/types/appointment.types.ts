@@ -1,8 +1,8 @@
 export interface AppointmentRequest {
     barberName: string;
-    customerEmail: string;
+    customerEmail?: string;
     customerPhone: string;
-    date: Date;
+    date: string;
     customerName: string;
     serviceId: string;
 } 

@@ -38,7 +38,7 @@ const AppointmentSchema: Schema = new Schema({
   customer: {
     firstname: { type: String, required: true },
     lastname: { type: String, required: true },
-    email: { type: String, required: true },
+    email: { type: String, required: false },
     phone: { type: String, required: true }
   },
   status: {
@@ -48,6 +48,15 @@ const AppointmentSchema: Schema = new Schema({
   }
 }, {
   timestamps: true
+});
+
+// Add this pre-save hook to remove leading zero from customer.phone
+AppointmentSchema.pre('save', function (next) {
+  const doc = this as any;
+  if (doc.customer && typeof doc.customer.phone === 'string' && doc.customer.phone.length > 0 && doc.customer.phone[0] === '0') {
+    doc.customer.phone = doc.customer.phone.slice(1);
+  }
+  next();
 });
 
 export default mongoose.model<IAppointment>('Appointment', AppointmentSchema); 

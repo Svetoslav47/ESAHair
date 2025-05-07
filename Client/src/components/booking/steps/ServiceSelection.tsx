@@ -137,7 +137,7 @@ const ServiceSelection: React.FC<SelectServiceProps> = ({ onSelect, selectedServ
   }, []);
 
   if (loading) {
-    return <Container>Loading services...</Container>;
+    return <Container>Зареждане на услуги...</Container>;
   }
 
   if (error) {
@@ -147,7 +147,7 @@ const ServiceSelection: React.FC<SelectServiceProps> = ({ onSelect, selectedServ
   return (
     <Container>
       <StepWrapper>
-        <Title>Select Service</Title>
+        <Title>Избери Услуга</Title>
         <ServicesGrid>
           {services.map(service => (
             <ServiceCard 

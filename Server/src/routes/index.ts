@@ -8,14 +8,14 @@ import saloonRoutes from './saloon.routes';
 
 const router = Router();
 
-export const setupRoutes = (calendarService: CalendarService) => {
+export const setupRoutes = (calendarService: CalendarService, calendarEnabled: boolean) => {
     console.log('\nInitializing API routes:');
     console.log('======================');
     
     router.use('/auth', authRoutes);
-    router.use('/barbers', setupBarberRoutes(calendarService));
+    router.use('/barbers', setupBarberRoutes(calendarService, calendarEnabled));
     router.use('/services', setupServiceRoutes());
-    router.use('/appointments', setupAppointmentRoutes(calendarService));
+    router.use('/appointments', setupAppointmentRoutes(calendarService, calendarEnabled));
     router.use('/saloons', saloonRoutes);
     
     console.log('======================\n');

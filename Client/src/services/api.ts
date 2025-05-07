@@ -54,10 +54,51 @@ export const bookAppointment = async (appointment: Appointment): Promise<Booking
     return response.json();
 };
 
-export const fetchSaloons = async () => {
+// Define a Salon type for API mapping
+
+interface Salon {
+    _id: string;
+    id: string;
+    name: string;
+    image: string;
+    address: string;
+    [key: string]: unknown;
+}
+
+export const fetchSaloons = async (): Promise<Salon[]> => {
     const response = await fetch(`/api/saloons`);
     if (!response.ok) {
         throw new Error('Failed to fetch saloons');
+    }
+    const salons = await response.json();
+    return salons.map((salon: Omit<Salon, 'id'>) => ({
+        ...salon,
+        id: salon._id,
+    }));
+};
+
+export const fetchBarbersAssignedToSaloon = async (saloonId: string, date: string) => {
+    const response = await fetch(`/api/barbers/assigned?saloonId=${saloonId}&date=${date}`);
+    if (!response.ok) {
+        throw new Error('Failed to fetch barbers for saloon');
+    }
+    const barbers: Array<Omit<Barber, 'id'> & { _id: string }> = await response.json();
+    return barbers.map((barber) => ({
+        ...barber,
+        id: barber._id,
+    }));
+};
+
+export const fetchTimeSlots = async (barberId: string, saloonId: string, serviceId: string, date: string) => {
+    const response = await fetch(`/api/barbers/${barberId}/availability/day?saloonId=${saloonId}&serviceId=${serviceId}&date=${date}`);
+    if (!response.ok) throw new Error('Failed to fetch time slots');
+    return response.json(); // Should be array of { start, end }
+};
+
+export const fetchAppointments = async () => {
+    const response = await fetch(`/api/appointments`);
+    if (!response.ok) {
+        throw new Error('Failed to fetch appointments');
     }
     return response.json();
 };

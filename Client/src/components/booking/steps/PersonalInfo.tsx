@@ -170,7 +170,6 @@ interface PersonalInfoProps {
   onDetailsSubmit: (details: { 
     firstname: string; 
     lastname: string; 
-    email: string; 
     phone: string;
     termsAccepted: boolean;
   }) => void;
@@ -180,7 +179,6 @@ const PersonalInfo = ({ onDetailsSubmit }: PersonalInfoProps) => {
   const [formData, setFormData] = useState({
     firstname: '',
     lastname: '',
-    email: '',
     phone: '',
     termsAccepted: false
   });
@@ -195,7 +193,6 @@ const PersonalInfo = ({ onDetailsSubmit }: PersonalInfoProps) => {
   const [errors, setErrors] = useState({
     firstname: '',
     lastname: '',
-    email: '',
     phone: '',
     terms: ''
   });
@@ -204,7 +201,6 @@ const PersonalInfo = ({ onDetailsSubmit }: PersonalInfoProps) => {
     const newErrors = {
       firstname: '',
       lastname: '',
-      email: '',
       phone: '',
       terms: ''
     };
@@ -215,12 +211,6 @@ const PersonalInfo = ({ onDetailsSubmit }: PersonalInfoProps) => {
 
     if (!formData.lastname.trim()) {
       newErrors.lastname = 'Please enter your lastname';
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = 'Please enter your email address';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
     }
 
     if (!formData.phone.trim()) {
@@ -239,8 +229,6 @@ const PersonalInfo = ({ onDetailsSubmit }: PersonalInfoProps) => {
     return (
       formData.firstname.trim() !== '' &&
       formData.lastname.trim() !== '' &&
-      formData.email.trim() !== '' &&
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) &&
       formData.phone.trim() !== '' &&
       formData.termsAccepted
     );
@@ -302,7 +290,7 @@ const PersonalInfo = ({ onDetailsSubmit }: PersonalInfoProps) => {
         <Form onSubmit={handleSubmit}>
           <InputGroup>
             <Label>
-              Firstname
+              Име
               {!formData.firstname && <Required>*</Required>}
             </Label>
             <Input
@@ -310,7 +298,7 @@ const PersonalInfo = ({ onDetailsSubmit }: PersonalInfoProps) => {
               name="firstname"
               value={formData.firstname}
               onChange={handleChange}
-              placeholder="Enter your firstname"
+              placeholder="Въведете вашето име"
             />
             {errors.firstname && (
               <ErrorContainer>
@@ -322,7 +310,7 @@ const PersonalInfo = ({ onDetailsSubmit }: PersonalInfoProps) => {
 
           <InputGroup>
             <Label>
-              Lastname
+              Фамилия
               {!formData.lastname && <Required>*</Required>}
             </Label>
             <Input
@@ -330,7 +318,7 @@ const PersonalInfo = ({ onDetailsSubmit }: PersonalInfoProps) => {
               name="lastname"
               value={formData.lastname}
               onChange={handleChange}
-              placeholder="Enter your lastname"
+              placeholder="Въведете вашето име"
             />
             {errors.lastname && (
               <ErrorContainer>
@@ -342,27 +330,7 @@ const PersonalInfo = ({ onDetailsSubmit }: PersonalInfoProps) => {
 
           <InputGroup>
             <Label>
-              Email Address
-              {!formData.email && <Required>*</Required>}
-            </Label>
-            <Input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              placeholder="Enter your email address"
-            />
-            {errors.email && (
-              <ErrorContainer>
-                <ErrorIcon icon={faExclamationCircle} />
-                {errors.email}
-              </ErrorContainer>
-            )}
-          </InputGroup>
-
-          <InputGroup>
-            <Label>
-              Phone Number
+              Телефонен номер
               {!formData.phone && <Required>*</Required>}
             </Label>
             <PhoneInputContainer>
@@ -395,7 +363,7 @@ const PersonalInfo = ({ onDetailsSubmit }: PersonalInfoProps) => {
               onChange={handleChange}
             />
             <TermsText>
-              I agree with the <TermsLink href="/terms">terms & conditions</TermsLink>
+              Съгласен съм с <TermsLink href="/terms">условията за ползване</TermsLink>
             </TermsText>
           </CheckboxGroup>
           {errors.terms && (

@@ -1,11 +1,11 @@
-import express, { Request, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User';
 import { auth } from '../middleware/auth.middleware';
 
-const router = express.Router();
+const router = Router();
 
-// Login route
+// @ts-ignore
 router.post('/login', async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
