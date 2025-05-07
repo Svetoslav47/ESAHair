@@ -83,39 +83,64 @@ const StepWrapper = styled.div`
   background: transparent;
 `;
 
+const ErrorMessage = styled.div`
+  color: #ff6b6b;
+  text-align: center;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+  background: rgba(255, 107, 107, 0.1);
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+`;
+
 interface TimeSlotSelectionProps {
   salonId: string;
   staffId: string;
   serviceId: string;
-  onTimeSlotSelect: (slot: TimeSlot) => void;
-  selectedTimeSlot?: TimeSlot;
+  onTimeSlotSelect: (time: TimeSlot) => void;
+  selectedTimeSlot: TimeSlot | null;
 }
 
 const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId, serviceId, onTimeSlotSelect, selectedTimeSlot }) => {
   const [timeSlots, setTimeSlots] = useState<{ [date: string]: TimeSlot[] }>({});
   const [loading, setLoading] = useState(true);
+  const [errors, setErrors] = useState<{ [date: string]: string }>({});
 
   useEffect(() => {
     if (!salonId || !staffId || !serviceId) return;
     setLoading(true);
+    setErrors({});
     const today = new Date();
     const tomorrow = new Date();
     tomorrow.setDate(today.getDate() + 1);
     const todayStr = format(today, 'yyyy-MM-dd');
     const tomorrowStr = format(tomorrow, 'yyyy-MM-dd');
 
+    // Fetch slots for each day independently
+    const fetchSlotsForDay = async (date: string) => {
+      try {
+        const slots = await fetchTimeSlots(staffId, salonId, serviceId, date);
+        setTimeSlots(prev => ({
+          ...prev,
+          [date]: slots
+        }));
+      } catch (error) {
+        console.error(`Error fetching slots for ${date}:`, error);
+        setErrors(prev => ({
+          ...prev,
+          [date]: 'Failed to load time slots'
+        }));
+      }
+    };
+
+    // Fetch both days in parallel
     Promise.all([
-      fetchTimeSlots(staffId, salonId, serviceId, todayStr),
-      fetchTimeSlots(staffId, salonId, serviceId, tomorrowStr)
-    ]).then(([slotsToday, slotsTomorrow]) => {
-      setTimeSlots({
-        [todayStr]: slotsToday,
-        [tomorrowStr]: slotsTomorrow
-      });
-    }).finally(() => setLoading(false));
+      fetchSlotsForDay(todayStr),
+      fetchSlotsForDay(tomorrowStr)
+    ]).finally(() => setLoading(false));
   }, [salonId, staffId, serviceId]);
 
-  if (loading) {
+  if (loading && Object.keys(timeSlots).length === 0) {
     return <Container>Loading available time slots...</Container>;
   }
 
@@ -129,7 +154,9 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
           {days.map(dateStr => (
             <DayColumn key={dateStr}>
               <DayTitle>{format(new Date(dateStr), 'EEEE, MMM d')}</DayTitle>
-              {timeSlots[dateStr].length === 0 ? (
+              {errors[dateStr] ? (
+                <ErrorMessage>{errors[dateStr]}</ErrorMessage>
+              ) : timeSlots[dateStr].length === 0 ? (
                 <NoTimeSlotsMessage>No available slots</NoTimeSlotsMessage>
               ) : (
                 timeSlots[dateStr].map(slot => (
