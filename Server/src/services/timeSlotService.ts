@@ -52,8 +52,25 @@ export class TimeSlotService {
         });
 
         const slots: TimeSlot[] = [];
-        let dayStart = setHours(setMinutes(date, 0), startHour);
-        const dayEnd = setHours(setMinutes(date, 0), endHour);
+        // Create UTC dates for start and end of day
+        let dayStart = new Date(Date.UTC(
+            date.getUTCFullYear(),
+            date.getUTCMonth(),
+            date.getUTCDate(),
+            startHour,
+            0,
+            0,
+            0
+        ));
+        const dayEnd = new Date(Date.UTC(
+            date.getUTCFullYear(),
+            date.getUTCMonth(),
+            date.getUTCDate(),
+            endHour,
+            0,
+            0,
+            0
+        ));
 
         console.log('Day range:', {
             dayStart: dayStart.toISOString(),
@@ -80,9 +97,10 @@ export class TimeSlotService {
             }
 
             if (!isSlotBooked) {
+                const slotEnd = addMinutes(currentSlotStart, procedureLength);
                 slots.push({
                     start: currentSlotStart.toISOString(),
-                    end: addMinutes(currentSlotStart, procedureLength).toISOString()
+                    end: slotEnd.toISOString()
                 });
             }
 
