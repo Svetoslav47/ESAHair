@@ -116,26 +116,28 @@ export const assignSaloon = async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'Invalid date format' });
         }
 
-        console.log('barber.saloonAssignments:', barber.saloonAssignments);
-
-        const existingAssignmentIndex = barber.saloonAssignments.findIndex(
-            assignment => assignment.date.toISOString() === targetDate.toISOString()
+        // Remove any existing assignment for this date
+        await Barber.updateOne(
+            { _id: id },
+            { $pull: { saloonAssignments: { date: targetDate } } }
         );
-        console.log('existingAssignmentIndex:', existingAssignmentIndex);
-        if (existingAssignmentIndex !== -1) {
-            barber.saloonAssignments.splice(existingAssignmentIndex, 1);
-        }
 
+        // If saloonId is not "-1", add the new assignment
         if (saloonId !== "-1") {
-            const newAssignment: SaloonAssignment = {
+            const newAssignment = {
                 date: targetDate,
                 saloon: new mongoose.Types.ObjectId(saloonId)
             };
-            barber.saloonAssignments.addToSet(newAssignment);
+
+            await Barber.updateOne(
+                { _id: id },
+                { $push: { saloonAssignments: newAssignment } }
+            );
         }
 
-        await barber.save();
-        res.status(200).json(barber);
+        // Fetch and return the updated barber
+        const updatedBarber = await Barber.findById(id).populate('saloonAssignments.saloon');
+        res.status(200).json(updatedBarber);
     } catch (error) {
         console.error('Error assigning saloon:', error);
         if (error instanceof mongoose.Error.ValidationError) {
