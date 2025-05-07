@@ -32,7 +32,8 @@
     "manage-days-off": "ts-node src/utils/manageDaysOff.ts",
     "get-refresh-token": "ts-node src/utils/loginToGoogle.ts",
     "create-service": "ts-node src/utils/createService.ts",
-    "create-admin": "ts-node src/utils/createAdmin.ts"
+    "create-admin": "ts-node src/utils/createAdmin.ts",
+    "clear-assignments": "ts-node src/scripts/clearBarberAssignments.ts"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",

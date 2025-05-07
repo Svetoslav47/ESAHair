@@ -43,9 +43,22 @@ export class TimeSlotService {
         procedureLength: number = BOOKING_CONSTANTS.DEFAULT_PROCEDURE_LENGTH,
         bookedSlots: BookedSlot[],
     ): Promise<TimeSlot[]> {
+        console.log('Generating time slots with params:', {
+            date: date.toISOString(),
+            startHour,
+            endHour,
+            procedureLength,
+            bookedSlotsCount: bookedSlots?.length || 0
+        });
+
         const slots: TimeSlot[] = [];
         let dayStart = setHours(setMinutes(date, 0), startHour);
         const dayEnd = setHours(setMinutes(date, 0), endHour);
+
+        console.log('Day range:', {
+            dayStart: dayStart.toISOString(),
+            dayEnd: dayEnd.toISOString()
+        });
 
         const currentTime = new Date();
         if (isAfter(currentTime, dayStart)) {
@@ -55,6 +68,7 @@ export class TimeSlotService {
                 nextSlot = addMinutes(nextSlot, BOOKING_CONSTANTS.TIME_SLOT_INTERVAL);
             }
             dayStart = nextSlot;
+            console.log('Adjusted dayStart to:', dayStart.toISOString());
         }
 
         let currentSlotStart = dayStart;
@@ -75,6 +89,7 @@ export class TimeSlotService {
             currentSlotStart = addMinutes(currentSlotStart, BOOKING_CONSTANTS.TIME_SLOT_INTERVAL);
         }
 
+        console.log('Generated slots:', slots.length);
         return slots;
     }
 

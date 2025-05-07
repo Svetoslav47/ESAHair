@@ -138,7 +138,6 @@ interface TimeSlotSelectionProps {
 const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId, serviceId, onTimeSlotSelect, selectedTimeSlot }) => {
   const [timeSlots, setTimeSlots] = useState<{ [date: string]: TimeSlot[] }>({});
   const [loading, setLoading] = useState(true);
-  const [errors, setErrors] = useState<{ [date: string]: string }>({});
 
   const formatLocalTime = (utcTimeString: string) => {
     const date = parseISO(utcTimeString);
@@ -153,7 +152,6 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
   useEffect(() => {
     if (!salonId || !staffId || !serviceId) return;
     setLoading(true);
-    setErrors({});
     const today = new Date();
     const tomorrow = new Date();
     tomorrow.setDate(today.getDate() + 1);
@@ -164,15 +162,17 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
     const fetchSlotsForDay = async (date: string) => {
       try {
         const slots = await fetchTimeSlots(staffId, salonId, serviceId, date);
+        console.log(`Time slots for ${date}:`, slots);
         setTimeSlots(prev => ({
           ...prev,
           [date]: slots
         }));
       } catch (error) {
         console.error(`Error fetching slots for ${date}:`, error);
-        setErrors(prev => ({
+        // Set empty array for failed fetches instead of showing error
+        setTimeSlots(prev => ({
           ...prev,
-          [date]: 'Failed to load time slots'
+          [date]: []
         }));
       }
     };
@@ -181,7 +181,10 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
     Promise.all([
       fetchSlotsForDay(todayStr),
       fetchSlotsForDay(tomorrowStr)
-    ]).finally(() => setLoading(false));
+    ]).finally(() => {
+      setLoading(false);
+      console.log('All time slots:', timeSlots);
+    });
   }, [salonId, staffId, serviceId]);
 
   if (loading && Object.keys(timeSlots).length === 0) {
@@ -211,9 +214,7 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
             <DayColumn key={dateStr}>
               <DayTitle>{getDayTitle(dateStr)}</DayTitle>
               <TimeSlotsContainer>
-                {errors[dateStr] ? (
-                  <ErrorMessage>{errors[dateStr]}</ErrorMessage>
-                ) : timeSlots[dateStr].length === 0 ? (
+                {timeSlots[dateStr].length === 0 ? (
                   <NoTimeSlotsMessage>Няма свободни часове</NoTimeSlotsMessage>
                 ) : (
                   timeSlots[dateStr].map(slot => (
