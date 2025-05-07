@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
-import logo from '../assets/logo.png';
+import { useNavigate } from 'react-router-dom';
 
 const HeaderContainer = styled.header`
   display: flex;
@@ -14,9 +13,14 @@ const HeaderContainer = styled.header`
   width: 100%;
 `;
 
-const Logo = styled.img`
-  height: 40px;
+const LogoText = styled.div`
+  font-family: 'Montserrat', 'Arial', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #C19B76;
+  letter-spacing: 2px;
   cursor: pointer;
+  user-select: none;
 `;
 
 const Nav = styled.nav<{ $isOpen: boolean }>`
@@ -40,31 +44,13 @@ const Nav = styled.nav<{ $isOpen: boolean }>`
   }
 `;
 
-const NavLink = styled(Link)`
+const NavAnchor = styled.a`
   color: #FFFFFF;
   text-decoration: none;
   font-size: 1rem;
   text-transform: uppercase;
   font-weight: 500;
   transition: color 0.3s ease;
-
-  &:hover {
-    color: #888888;
-  }
-`;
-
-const LanguageButton = styled.button`
-  color: #FFFFFF;
-  text-decoration: none;
-  font-size: 1rem;
-  text-transform: uppercase;
-  font-weight: 500;
-  transition: color 0.3s ease;
-  background: none;
-  border: 1px solid #FFFFFF;
-  border-radius: 4px;
-  padding: 0.2rem 0.5rem;
-  cursor: pointer;
 
   &:hover {
     color: #888888;
@@ -123,31 +109,39 @@ const BurgerIcon = styled.div<{ $isOpen: boolean }>`
 `;
 
 const Header = () => {
-  const [language, setLanguage] = useState('EN');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
-  const toggleLanguage = () => {
-    setLanguage(prev => prev === 'EN' ? 'BG' : 'EN');
-  };
+  const navigate = useNavigate();
 
   const toggleMenu = () => {
     setIsMenuOpen(prev => !prev);
   };
 
+  const handleScroll = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, id: string) => {
+    e.preventDefault();
+    setIsMenuOpen(false);
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const handleLogoClick = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setIsMenuOpen(false);
+    navigate('/');
+  };
+
   return (
     <HeaderContainer>
-      <Logo src={logo} alt="Finest Barber Studio" />
+      <LogoText onClick={handleLogoClick}>Mh Zaki</LogoText>
       <BurgerButton onClick={toggleMenu} aria-label="Toggle menu">
         <BurgerIcon $isOpen={isMenuOpen} />
       </BurgerButton>
       <Nav $isOpen={isMenuOpen}>
-        <NavLink to="#services" onClick={() => setIsMenuOpen(false)}>УСЛУГИ</NavLink>
-        <NavLink to="/book-appointment" onClick={() => setIsMenuOpen(false)}>РЕЗЕРВИРАЙ</NavLink>
-        <NavLink to="#team" onClick={() => setIsMenuOpen(false)}>ЕКИП</NavLink>
-        <NavLink to="#contacts" onClick={() => setIsMenuOpen(false)}>КОНТАКТИ</NavLink>
-        <LanguageButton onClick={toggleLanguage}>
-          {language}
-        </LanguageButton>
+        <NavAnchor href="#services" onClick={e => handleScroll(e, 'services')}>УСЛУГИ</NavAnchor>
+        <NavAnchor href="#book-now" onClick={e => handleScroll(e, 'book-now')}>РЕЗЕРВИРАЙ</NavAnchor>
+        <NavAnchor href="#team" onClick={e => handleScroll(e, 'team')}>ЕКИП</NavAnchor>
+        <NavAnchor href="#contacts" onClick={e => handleScroll(e, 'contacts')}>КОНТАКТИ</NavAnchor>
       </Nav>
     </HeaderContainer>
   );

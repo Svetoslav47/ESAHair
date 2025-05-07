@@ -3,6 +3,13 @@ import { addMinutes, setHours, setMinutes, eachDayOfInterval, addDays, isSameDay
 import { DayOff } from '../models/DayOff';
 import { Types } from 'mongoose';
 import { CalendarService, BookedSlot } from './calendarService';
+import { Barber } from '../models/Barber';
+import { Saloon } from '../models/Saloon';
+
+interface PopulatedSaloonAssignment {
+    date: Date;
+    saloon: typeof Saloon;
+}
 
 export class TimeSlotService {
     static isSlotBooked(slotStart: Date, bookedSlots: BookedSlot[], procedureLength: number): boolean {
@@ -118,5 +125,72 @@ export class TimeSlotService {
                 acc[dateKey] = await this.generateTimeSlotsForDay(date, startHour, endHour, procedureLength, bookedSlots[dateKey]);
                 return acc;
             }, Promise.resolve({} as Record<string, TimeSlot[]>));
+    }
+
+    static async getAvailableSlots(
+        barberId: string,
+        startDate: Date,
+        endDate: Date,
+        calendarService: CalendarService
+    ) {
+        const barber = await Barber.findById(barberId).populate<{ saloonAssignments: PopulatedSaloonAssignment[] }>('saloonAssignments.saloon');
+        if (!barber) {
+            throw new Error('Barber not found');
+        }
+
+        if (!barber.isActive) {
+            return [];
+        }
+
+        const availableSlots: { date: string; time: string; saloon: string }[] = [];
+        const currentDate = new Date();
+
+        // Only allow booking for today and tomorrow
+        const bookingStartDate = startOfDay(currentDate);
+        const bookingEndDate = endOfDay(addMinutes(currentDate, 24 * 60));
+
+        // Get barber's assignments for the booking period
+        const assignments = barber.saloonAssignments.filter(assignment => {
+            const assignmentDate = new Date(assignment.date);
+            return isWithinInterval(assignmentDate, {
+                start: bookingStartDate,
+                end: bookingEndDate
+            });
+        });
+
+        // For each assignment, generate available time slots
+        for (const assignment of assignments) {
+            const assignmentDate = new Date(assignment.date);
+            const startHour = barber.startHour || 9;
+            const endHour = barber.endHour || 18;
+
+            // Generate 30-minute slots
+            for (let hour = startHour; hour < endHour; hour++) {
+                for (let minute = 0; minute < 60; minute += 30) {
+                    const slotTime = new Date(assignmentDate);
+                    slotTime.setHours(hour, minute, 0, 0);
+
+                    // Skip past slots
+                    if (slotTime < currentDate) continue;
+
+                    // Check if slot is available in calendar
+                    const isAvailable = await calendarService.isSlotAvailable(
+                        new Types.ObjectId(barberId),
+                        slotTime,
+                        addMinutes(slotTime, 30)
+                    );
+
+                    if (isAvailable) {
+                        availableSlots.push({
+                            date: format(slotTime, 'yyyy-MM-dd'),
+                            time: format(slotTime, 'HH:mm'),
+                            saloon: assignment.saloon.name
+                        });
+                    }
+                }
+            }
+        }
+
+        return availableSlots;
     }
 } 

@@ -153,7 +153,7 @@ const Footer = () => {
           </Address>
         </FooterSection>
 
-        <FooterSection>
+        <FooterSection id="contacts">
           <SectionTitle>Контакти</SectionTitle>
           <ContactLink href="tel:+359890139334">
             <FontAwesomeIcon icon={faPhone} />

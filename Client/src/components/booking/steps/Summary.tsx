@@ -10,24 +10,12 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
-  padding: 1rem 0;
   max-width: 100vw;
   margin: 0 auto;
   background: transparent;
   border-radius: 0;
   border: none;
   color: #fff;
-`;
-
-const TopBanner = styled.div`
-  background-color: rgba(255, 100, 100, 0.1);
-  color: #ff8a8a;
-  padding: 0.7rem 1.5rem;
-  border-radius: 4px;
-  text-align: center;
-  font-weight: 500;
-  font-size: 0.9rem;
-  margin-bottom: 1rem;
 `;
 
 // const IllustrationPlaceholder = styled.div`
@@ -243,42 +231,38 @@ const Summary = ({ bookingState }: SummaryProps) => {
       {isLoading && (
         <LoadingOverlay>
           <LoadingContent>
-            <LoadingText>Processing your booking...</LoadingText>
+            <LoadingText>Обработване на вашата резервация...</LoadingText>
           </LoadingContent>
         </LoadingOverlay>
       )}
       
       <Container>
         <StepWrapper>
-          <TopBanner>FINISH YOUR APPOINTMENT BY CLICKING THE BUTTON BELOW.</TopBanner>
-          
-          {/* <IllustrationPlaceholder /> */}
-
-          <Title>Summary</Title>
+          <Title>Обобщение</Title>
 
           <DisclaimerText>
-            Missing your appointment without letting us know in advance will result in a no show fee - 50% of the price of the service you've booked. To cancel or reschedule call or message the official instagram page.
+            Ако имате някакви въпроси, можете да се свържете с нас по телефон +359 890 139 334.
           </DisclaimerText>
 
           <MainContent>
             {details && (
               <CustomerInfo>
-                <DetailLabel>Customer</DetailLabel>
+                <DetailLabel>Клиент</DetailLabel>
                 <CustomerName>{details.firstname} {details.lastname}</CustomerName>
               </CustomerInfo>
             )}
 
             <DetailsGrid>
               <DetailColumn>
-                <DetailLabel>Service</DetailLabel>
-                <DetailValue>{service?.name || 'Not selected'}</DetailValue>
+                <DetailLabel>Услуга</DetailLabel>
+                <DetailValue>{service?.name || 'Не е избрана'}</DetailValue>
               </DetailColumn>
               <DetailColumn>
-                <DetailLabel>Barber</DetailLabel>
-                <DetailValue>{staff?.name || 'Not selected'}</DetailValue>
+                <DetailLabel>Фризьор</DetailLabel>
+                <DetailValue>{staff?.name || 'Не е избран'}</DetailValue>
               </DetailColumn>
               <DetailColumn>
-                <DetailLabel>Date & Time</DetailLabel>
+                <DetailLabel>Дата и час</DetailLabel>
                 <DetailValue>{formatDateAndTime(dateTime)}</DetailValue>
               </DetailColumn>
             </DetailsGrid>
@@ -286,13 +270,13 @@ const Summary = ({ bookingState }: SummaryProps) => {
             <HorizontalLine />
 
             <TotalAmountContainer>
-              <TotalLabel>Total Amount Due</TotalLabel>
+              <TotalLabel>Сума за плащане</TotalLabel>
               <TotalPrice>{service?.price || '0.00'} лв.</TotalPrice>
             </TotalAmountContainer>
           </MainContent>
 
           <FinishButton onClick={handleFinishBooking} disabled={isLoading}>
-            {isLoading ? 'Processing...' : 'Finish Booking'}
+            {isLoading ? 'Обработване...' : 'Завърши резервация'}
           </FinishButton>
         </StepWrapper>
       </Container>

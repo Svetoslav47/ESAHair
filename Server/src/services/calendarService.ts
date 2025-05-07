@@ -1,6 +1,6 @@
 import { google } from 'googleapis';
 import { Barber } from '../models/Barber';
-import { endOfDay, startOfDay } from 'date-fns';
+import { endOfDay, startOfDay, addMinutes } from 'date-fns';
 import { Types } from 'mongoose';
 export interface BookedSlot {
     start: string;
@@ -107,5 +107,32 @@ export class CalendarService {
             calendarId,
             requestBody: event
         });
+    }
+
+    async isSlotAvailable(barberId: Types.ObjectId, startTime: Date, endTime: Date): Promise<boolean> {
+        const barber = await Barber.findById(barberId);
+        if (!barber) {
+            throw new Error('Barber not found');
+        }
+
+        const calendarId = await this.getOrCreateBarberCalendar(barber.name);
+        const timeMin = startTime.toISOString();
+        const timeMax = endTime.toISOString();
+
+        try {
+            const response = await this.calendar.events.list({
+                calendarId,
+                timeMin,
+                timeMax,
+                singleEvents: true,
+                orderBy: 'startTime',
+            });
+
+            // If there are any events in this time slot, it's not available
+            return !response.data.items || response.data.items.length === 0;
+        } catch (error) {
+            console.error('Error checking slot availability:', error);
+            return false;
+        }
     }
 } 

@@ -53,3 +53,11 @@ export const bookAppointment = async (appointment: Appointment): Promise<Booking
     }
     return response.json();
 };
+
+export const fetchSaloons = async () => {
+    const response = await fetch(`/api/saloons`);
+    if (!response.ok) {
+        throw new Error('Failed to fetch saloons');
+    }
+    return response.json();
+};

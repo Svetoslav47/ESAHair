@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import { fetchSaloons } from '../../../services/api';
 
 const Container = styled.div`
   display: flex;
@@ -89,22 +90,20 @@ interface SalonSelectionProps {
   onSelect: (salon: Salon) => void;
 }
 
-const mockSalons: Salon[] = [
-  { id: '1', name: 'Finest Barber Sofia', image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=800&q=80', address: 'ul. "Cherkovna" 20, Poduyane, Sofia' },
-  { id: '2', name: 'Finest Barber Plovdiv', image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80', address: 'bul. "Bulgaria" 15, Plovdiv' },
-  { id: '3', name: 'Finest Barber Varna', image: 'https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80', address: 'ul. "Primorski" 5, Varna' },
-];
-
 const SalonSelection: React.FC<SalonSelectionProps> = ({ selectedSalon, onSelect }) => {
   const [salons, setSalons] = useState<Salon[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setSalons(mockSalons);
-      setLoading(false);
-    }, 500);
+    fetchSaloons()
+      .then(data => {
+        setSalons(data);
+        setLoading(false);
+      })
+      .catch(() => {
+        setSalons([]);
+        setLoading(false);
+      });
   }, []);
 
   if (loading) {

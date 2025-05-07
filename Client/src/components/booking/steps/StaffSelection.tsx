@@ -67,13 +67,6 @@ const StaffName = styled.h3`
   text-transform: capitalize;
 `;
 
-const StaffRole = styled.p`
-  color: #C19B76;
-  text-align: center;
-  font-size: 0.9rem;
-  text-transform: capitalize;
-`;
-
 const StepWrapper = styled.div`
   max-width: 800px;
   width: 100%;
@@ -107,7 +100,6 @@ const StaffSelection = ({ selectedStaff, onSelect }: StaffSelectionProps) => {
             >
               <StaffImage src={member.image} alt={member.name} />
               <StaffName>{member.name}</StaffName>
-              <StaffRole>{member.role}</StaffRole>
             </StaffCard>
           ))}
         </StaffGrid>

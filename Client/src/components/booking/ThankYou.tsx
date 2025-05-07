@@ -114,45 +114,41 @@ const ThankYou = ({ booking }: { booking: BookingConfirmation }) => {
       </SuccessIcon>
       
       <div>
-        <Title>Thank You!</Title>
-        <Subtitle>Your appointment has been confirmed</Subtitle>
+        <Title>Благодарим Ви!</Title>
+        <Subtitle>Вашата резервация е потвърдена</Subtitle>
       </div>
 
       <BookingDetails>
         <DetailRow>
-          <DetailLabel>Booking Reference</DetailLabel>
-          <DetailValue>{booking.bookingId}</DetailValue>
-        </DetailRow>
-        <DetailRow>
-          <DetailLabel>Customer Name</DetailLabel>
+          <DetailLabel>Име на клиент</DetailLabel>
           <DetailValue>{booking.customerName}</DetailValue>
         </DetailRow>
         <DetailRow>
-          <DetailLabel>Service</DetailLabel>
+          <DetailLabel>Услуга</DetailLabel>
           <DetailValue>{booking.serviceName}</DetailValue>
         </DetailRow>
         <DetailRow>
-          <DetailLabel>Barber</DetailLabel>
+          <DetailLabel>Фризьор</DetailLabel>
           <DetailValue>{booking.barberName}</DetailValue>
         </DetailRow>
         <DetailRow>
-          <DetailLabel>Date & Time</DetailLabel>
+          <DetailLabel>Дата и час</DetailLabel>
           <DetailValue>{format(new Date(booking.date), 'MMMM d, yyyy, HH:mm')}</DetailValue>
         </DetailRow>
         <DetailRow>
-          <DetailLabel>Price</DetailLabel>
+          <DetailLabel>Сума</DetailLabel>
           <DetailValue>{booking.price} лв.</DetailValue>
         </DetailRow>
       </BookingDetails>
 
       <Message>
-        A confirmation email has been sent to your email address. If you need to cancel or reschedule your appointment, 
-        please contact us through our official Instagram page or give us a call at least 24 hours before your appointment.
+        Потвърждение на резервацията е изпратено на вашият имейл. Ако трябва да отмените или пренаредите вашата резервация, 
+        моля, свържете се с нас чрез официалния Instagram страница или по телефона.
       </Message>
 
       <ReturnButton onClick={() => navigate('/')}>
         <FontAwesomeIcon icon={faHome} />
-        Back to Home
+        Към началната страница
       </ReturnButton>
     </Container>
   );

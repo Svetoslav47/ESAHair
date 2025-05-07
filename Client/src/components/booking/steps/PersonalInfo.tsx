@@ -395,7 +395,7 @@ const PersonalInfo = ({ onDetailsSubmit }: PersonalInfoProps) => {
               onChange={handleChange}
             />
             <TermsText>
-              I agree with the <TermsLink href="#">terms & conditions</TermsLink>
+              I agree with the <TermsLink href="/terms">terms & conditions</TermsLink>
             </TermsText>
           </CheckboxGroup>
           {errors.terms && (

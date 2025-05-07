@@ -52,6 +52,14 @@ const StepsContainer = styled.div`
   padding: 0.5rem 0 0.5rem 0;
   background: transparent;
   border-bottom: none;
+  flex-wrap: wrap;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  width: 100%;
 `;
 
 const Step = styled.div<{ $isActive?: boolean; $isPast?: boolean; $isDisabled?: boolean }>`
@@ -65,6 +73,8 @@ const Step = styled.div<{ $isActive?: boolean; $isPast?: boolean; $isDisabled?: 
   font-weight: 500;
   transition: color 0.3s ease;
   white-space: nowrap;
+  flex-shrink: 0;
+  padding: 0 0.5rem;
 `;
 
 const StepIcon = styled.div<{ $isActive?: boolean; $isPast?: boolean; $isDisabled?: boolean }>`
@@ -121,12 +131,12 @@ const EmbeddedBooking: React.FC = () => {
   const [bookingState, setBookingState] = useState<BookingState>({});
 
   const steps = [
-    { icon: faStore, text: 'Salon' },
-    { icon: faScissors, text: 'Service' },
-    { icon: faUser, text: 'Barber' },
-    { icon: faClock, text: 'Time Slot' },
-    { icon: faClipboard, text: 'Details' },
-    { icon: faCheck, text: 'Summary' }
+    { icon: faStore, text: 'Салон' },
+    { icon: faScissors, text: 'Услуга' },
+    { icon: faUser, text: 'Фризьор' },
+    { icon: faClock, text: 'Дата и час' },
+    { icon: faClipboard, text: 'Детайли' },
+    { icon: faCheck, text: 'Потвърди' }
   ];
 
   const canNavigateToStep = (step: number) => {
@@ -206,7 +216,7 @@ const EmbeddedBooking: React.FC = () => {
   };
 
   return (
-    <BookingContainer>
+    <BookingContainer id="book-now">
       <BookingHeader>
         <Title>Запази си час</Title>
       </BookingHeader>

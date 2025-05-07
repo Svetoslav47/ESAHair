@@ -8,37 +8,58 @@ const barberSchema = new mongoose.Schema({
     },
     email: {
         type: String,
-        required: true,
-        unique: true
+        required: false,
+        unique: false,
+        sparse: true
     },
     phone: {
         type: String,
-        required: true
+        required: false,
+        sparse: true
     },
     image: {
         type: String,
-        required: false
+        required: false,
+        sparse: true
     },
     role: {
         type: String,
-        required: true
+        required: false
     },
     startHour: { 
         type: Number,
-        required: true
+        required: false
     },
     endHour: { 
         type: Number,
-        required: true
+        required: false
     },
     workingDays: { // array of days of the week
         type: [String],
-        required: true
+        required: false
     },
     calendarId: {
         type: String,
         required: false
-    }
+    },
+    isActive: {
+        type: Boolean,
+        default: true
+    },
+    saloonAssignments: [{
+        date: {
+            type: Date,
+            required: true
+        },
+        saloon: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Saloon',
+            required: true
+        }
+    }]
 });
+
+// Create a compound index to prevent duplicate assignments for the same barber on the same date
+barberSchema.index({ 'saloonAssignments.date': 1, 'saloonAssignments.saloon': 1 }, { unique: true });
 
 export const Barber = mongoose.model('Barber', barberSchema); 

@@ -96,19 +96,14 @@ const HeroImage = styled.div`
   }
 `;
 
-const Logo = styled.h1`
-  font-size: 1.5rem;
-  margin-bottom: 2rem;
-  letter-spacing: 2px;
-`;
-
 const Title = styled.h2`
   font-size: 4rem;
   font-weight: bold;
   margin-bottom: 1.5rem;
   
   @media (max-width: 768px) {
-    font-size: 2.5rem;
+    font-size: 2.3rem;
+    text-wrap: nowrap;
   }
 `;
 
@@ -119,8 +114,8 @@ const Subtitle = styled.p`
   line-height: 1.6;
 
   @media (max-width: 768px) {
-    font-size: 1.1rem;
-    margin: 0 auto 2rem;
+    font-size: 1rem;
+    margin: 0 auto 4rem;
   }
 `;
 
@@ -128,7 +123,6 @@ const BookButton = styled.button`
   background-color: white;
   color: black;
   border: none;
-  padding: 1rem 2.5rem;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
@@ -138,20 +132,31 @@ const BookButton = styled.button`
     background-color: #C19B76;
     color: white;
   }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    font-size: 1.2rem;
+    justify-content: center;
+    align-items: center;
+    height: 50px;
+  }
 `;
 
 export default function Hero() {
-    const navigate = useNavigate();
   
     return (
       <HeroSection>
         <HeroContent>
-          <Logo>BARBER STUDIO</Logo>
           <Title>ДОБРЕ ДОШЛИ</Title>
           <Subtitle>
-            Запазете час в бръснарница FINEST за перфектната прическа.
+            Запазете час в бръснарница Mh Zaki за перфектната прическа.
           </Subtitle>
-          <BookButton onClick={() => navigate('/book-appointment')}>
+          <BookButton onClick={() => {
+            const bookingSection = document.getElementById('book-now');
+            if (bookingSection) {
+              bookingSection.scrollIntoView({ behavior: 'smooth' });
+            }
+          }}>
             Резервирай
           </BookButton>
         </HeroContent>
