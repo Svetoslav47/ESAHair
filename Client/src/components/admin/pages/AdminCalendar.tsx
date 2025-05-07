@@ -6,6 +6,7 @@ import { addHours, subHours, parseISO, format, parse, startOfWeek } from 'date-f
 import { enUS } from 'date-fns/locale/en-US';
 import styled from 'styled-components';
 import { io as socketIOClient } from 'socket.io-client';
+import { Barber as BaseBarber } from '../../../types/barber';
 
 const locales = {
   'en-US': enUS,
@@ -184,12 +185,10 @@ interface Salon {
   name: string; 
 }
 
-interface Barber { 
-  _id: string; 
-  id: string; 
-  name: string; 
-  saloonId?: string; 
-  saloon?: { 
+interface ExtendedBarber extends BaseBarber {
+  _id?: string;
+  saloonId?: string;
+  saloon?: {
     id: string;
     name: string;
   };
@@ -222,6 +221,7 @@ interface Appointment {
 interface Resource {
   resourceId: string;
   resourceTitle: string;
+  salonName?: string;
 }
 interface Event {
   id: string;
@@ -233,7 +233,7 @@ interface Event {
 
 const AdminCalendar = () => {
   const [salons, setSalons] = useState<Salon[]>([]);
-  const [barbers, setBarbers] = useState<Barber[]>([]);
+  const [barbers, setBarbers] = useState<ExtendedBarber[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [selectedSalon, setSelectedSalon] = useState('');
   const [selectedBarber, setSelectedBarber] = useState('');
@@ -259,15 +259,25 @@ const AdminCalendar = () => {
   const [adding, setAdding] = useState(false);
 
   useEffect(() => {
-    fetchSaloons().then(setSalons);
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    fetchBarbers().then(setBarbers);
-    fetchServices().then(setServices);
+    const loadInitialData = async () => {
+      const [salonsData, barbersData, servicesData] = await Promise.all([
+        fetchSaloons(),
+        fetchBarbers(),
+        fetchServices()
+      ]);
+      setSalons(salonsData);
+      setBarbers(barbersData as ExtendedBarber[]);
+      setServices(servicesData);
+    };
+    loadInitialData();
   }, []);
 
   useEffect(() => {
-    fetchAppointments().then(setAppointments);
+    const loadAppointments = async () => {
+      const appointmentsData = await fetchAppointments();
+      setAppointments(appointmentsData);
+    };
+    loadAppointments();
   }, [selectedSalon, selectedBarber]);
 
   useEffect(() => {
@@ -292,7 +302,7 @@ const AdminCalendar = () => {
   };
 
   // Helper: get assignment for a barber on a given date and salon
-  const getAssignmentForBarberOnDateAndSalon = (b: Barber, date: string, salonId?: string) =>
+  const getAssignmentForBarberOnDateAndSalon = (b: ExtendedBarber, date: string, salonId?: string) =>
     b.saloonAssignments?.find(assignment =>
       new Date(assignment.date).toISOString().split('T')[0] === date &&
       (!salonId || assignment.saloon._id === salonId)
@@ -312,7 +322,7 @@ const AdminCalendar = () => {
   useEffect(() => {
     // Filter appointments and compute resources
     let filteredAppointments = appointments;
-    let resourceList: Barber[] = [];
+    let resourceList: ExtendedBarber[] = [];
     
     if (selectedSalon) {
       // Only barbers assigned to this salon for the current date
@@ -350,10 +360,33 @@ const AdminCalendar = () => {
     });
 
     setEvents(eventsList);
-    setResources(resourceList.map(b => ({
-      resourceId: b._id || b.id,
-      resourceTitle: b.name
-    })));
+    setResources(resourceList
+      .map(b => {
+        // Find the salon assignment for the current date
+        const assignment = b.saloonAssignments?.find(a => 
+          new Date(a.date).toISOString().split('T')[0] === currentDate
+        );
+        const salonName = assignment?.saloon.name || '';
+        const resource: Resource = {
+          resourceId: b._id || b.id,
+          resourceTitle: `${b.name}${salonName ? ` - ${salonName}` : ''}`,
+          salonName: salonName // Add this for sorting
+        };
+        return resource;
+      })
+      .sort((a, b) => {
+        // Sort by salon name first, then by barber name
+        if (a.salonName && b.salonName) {
+          return a.salonName.localeCompare(b.salonName) || 
+                 a.resourceTitle.localeCompare(b.resourceTitle);
+        }
+        // If one has no salon, put it at the end
+        if (a.salonName) return -1;
+        if (b.salonName) return 1;
+        return a.resourceTitle.localeCompare(b.resourceTitle);
+      })
+      .map(({ resourceId, resourceTitle }) => ({ resourceId, resourceTitle })) // Remove salonName from final output
+    );
 
     // Compute min/max time
     let min = 8, max = 18;
@@ -365,10 +398,10 @@ const AdminCalendar = () => {
     });
     setMinTime(subHours(new Date().setHours(min, 0, 0, 0), 1));
     setMaxTime(addHours(new Date().setHours(max, 0, 0, 0), 1));
-  }, [appointments, selectedSalon, selectedBarber, currentDate]);
+  }, [appointments, selectedSalon, selectedBarber, currentDate, barbers]);
 
   // Filter barber dropdown options
-  let barberDropdownOptions: Barber[] = barbers;
+  let barberDropdownOptions: ExtendedBarber[] = barbers;
   if (selectedSalon) {
     barberDropdownOptions = getBarbersAssignedToSalonOnDate(selectedSalon, currentDate);
   } else {
