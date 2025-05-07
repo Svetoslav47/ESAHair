@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { format, parseISO, isToday, isTomorrow } from 'date-fns';
+import { format, parseISO, isToday, isTomorrow, addDays } from 'date-fns';
 import { bg } from 'date-fns/locale';
 import { TimeSlot } from '../../../types/times';
 import { fetchTimeSlots } from '../../../services/api';
@@ -139,14 +139,9 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
   const [timeSlots, setTimeSlots] = useState<{ [date: string]: TimeSlot[] }>({});
   const [loading, setLoading] = useState(true);
 
-  const formatLocalTime = (utcTimeString: string) => {
-    const date = parseISO(utcTimeString);
-    return format(date, 'HH:mm');
-  };
-
-  const formatPhoneNumber = (phone: string) => {
-    // Remove leading 0 if present
-    return phone.startsWith('0') ? phone.substring(1) : phone;
+  const formatUTCTime = (utcTimeString: string) => {
+    // Extract just the time part from the ISO string (HH:mm)
+    return utcTimeString.split('T')[1].substring(0, 5);
   };
 
   useEffect(() => {
@@ -191,45 +186,50 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
     return <Container>Loading available time slots...</Container>;
   }
 
-  // Sort dates to ensure today comes before tomorrow
-  const days = Object.keys(timeSlots).sort((a, b) => {
-    const dateA = parseISO(a);
-    const dateB = parseISO(b);
-    return dateA.getTime() - dateB.getTime();
-  });
-
-  const getDayTitle = (dateStr: string) => {
-    const date = parseISO(dateStr);
-    if (isToday(date)) return 'Днес';
-    if (isTomorrow(date)) return 'Утре';
-    return format(date, 'EEEE, MMM d', { locale: bg });
-  };
+  const today = format(new Date(), 'yyyy-MM-dd');
+  const tomorrow = format(addDays(new Date(), 1), 'yyyy-MM-dd');
 
   return (
     <Container>
       <StepWrapper>
-        <Title>Избери Час</Title>
+        <Title>Изберете час</Title>
         <DaysGrid>
-          {days.map(dateStr => (
-            <DayColumn key={dateStr}>
-              <DayTitle>{getDayTitle(dateStr)}</DayTitle>
-              <TimeSlotsContainer>
-                {timeSlots[dateStr].length === 0 ? (
-                  <NoTimeSlotsMessage>Няма свободни часове</NoTimeSlotsMessage>
-                ) : (
-                  timeSlots[dateStr].map(slot => (
-                    <TimeSlotButton
-                      key={slot.start}
-                      $isSelected={selectedTimeSlot?.start === slot.start}
-                      onClick={() => onTimeSlotSelect(slot)}
-                    >
-                      {formatPhoneNumber(formatLocalTime(slot.start))} - {formatPhoneNumber(formatLocalTime(slot.end))}
-                    </TimeSlotButton>
-                  ))
-                )}
-              </TimeSlotsContainer>
-            </DayColumn>
-          ))}
+          <DayColumn>
+            <DayTitle>Днес</DayTitle>
+            <TimeSlotsContainer>
+              {timeSlots[today]?.length > 0 ? (
+                timeSlots[today].map((slot) => (
+                  <TimeSlotButton
+                    key={slot.start}
+                    $isSelected={selectedTimeSlot?.start === slot.start}
+                    onClick={() => onTimeSlotSelect(slot)}
+                  >
+                    {formatUTCTime(slot.start)} - {formatUTCTime(slot.end)}
+                  </TimeSlotButton>
+                ))
+              ) : (
+                <NoTimeSlotsMessage>Няма свободни часове</NoTimeSlotsMessage>
+              )}
+            </TimeSlotsContainer>
+          </DayColumn>
+          <DayColumn>
+            <DayTitle>Утре</DayTitle>
+            <TimeSlotsContainer>
+              {timeSlots[tomorrow]?.length > 0 ? (
+                timeSlots[tomorrow].map((slot) => (
+                  <TimeSlotButton
+                    key={slot.start}
+                    $isSelected={selectedTimeSlot?.start === slot.start}
+                    onClick={() => onTimeSlotSelect(slot)}
+                  >
+                    {formatUTCTime(slot.start)} - {formatUTCTime(slot.end)}
+                  </TimeSlotButton>
+                ))
+              ) : (
+                <NoTimeSlotsMessage>Няма свободни часове</NoTimeSlotsMessage>
+              )}
+            </TimeSlotsContainer>
+          </DayColumn>
         </DaysGrid>
       </StepWrapper>
     </Container>
