@@ -116,22 +116,24 @@ export const assignSaloon = async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'Invalid date format' });
         }
 
-        // Remove any existing assignment for this date
+        // First remove any existing assignment for this date
         await Barber.updateOne(
             { _id: id },
             { $pull: { saloonAssignments: { date: targetDate } } }
         );
 
-        // If saloonId is not "-1", add the new assignment
+        // Then add the new assignment if saloonId is not "-1"
         if (saloonId !== "-1") {
-            const newAssignment = {
-                date: targetDate,
-                saloon: new mongoose.Types.ObjectId(saloonId)
-            };
-
             await Barber.updateOne(
                 { _id: id },
-                { $push: { saloonAssignments: newAssignment } }
+                { 
+                    $addToSet: { 
+                        saloonAssignments: {
+                            date: targetDate,
+                            saloon: new mongoose.Types.ObjectId(saloonId)
+                        }
+                    }
+                }
             );
         }
 
