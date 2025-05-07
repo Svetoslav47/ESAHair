@@ -332,7 +332,7 @@ const Barbers: React.FC = () => {
       if (saloonId === '') {
         await axios.post(`/api/barbers/${barber._id}/assign-saloon`, {
           date: date.toISOString(),
-          saloonId: null
+          saloonId: "-1"
         });
       } else {
         await axios.post(`/api/barbers/${barber._id}/assign-saloon`, {
@@ -360,12 +360,12 @@ const Barbers: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Delete this barber?')) return;
+    if (!window.confirm('Сигурен ли си, че искаш да изтриеш този фризьор?')) return;
     try {
       await axios.delete(`/api/barbers/${id}`);
       fetchBarbers();
     } catch {
-      setError('Failed to delete barber');
+      setError('Неуспешно изтриване на фризьора');
     }
   };
 
@@ -383,7 +383,7 @@ const Barbers: React.FC = () => {
             <BarberName>{barber.name}</BarberName>
             {(barber.startHour !== undefined && barber.endHour !== undefined) && (
               <div style={{ color: '#bbb', fontSize: '1.02rem', marginBottom: '1.1rem' }}>
-                Working hours: {barber.startHour}:00 - {barber.endHour}:00
+                Работно време: {barber.startHour}:00 - {barber.endHour}:00
               </div>
             )}
             <AssignmentsContainer>
@@ -413,24 +413,24 @@ const Barbers: React.FC = () => {
               </DateGrid>
             </AssignmentsContainer>
             <Actions>
-              <ActionButton onClick={() => openEditModal(barber)}>Edit</ActionButton>
-              <ActionButton onClick={() => handleDelete(barber._id)} style={{ background: '#ff4444' }}>Delete</ActionButton>
+              <ActionButton onClick={() => openEditModal(barber)}>Редактирай</ActionButton>
+              <ActionButton onClick={() => handleDelete(barber._id)} style={{ background: '#ff4444' }}>Изтрий</ActionButton>
             </Actions>
           </Card>
         ))}
       </Grid>
       <FabButton onClick={openAddModal} title="Add Barber">
-        <FontAwesomeIcon icon={faPlus} /> Добави Фризьор
+        <FontAwesomeIcon icon={faPlus} /> Добави фризьор
       </FabButton>
       {showModal && (
         <ModalOverlay>
           <Modal>
-            <ModalTitle>{editBarber ? 'Edit Barber' : 'Add Barber'}</ModalTitle>
+            <ModalTitle>{editBarber ? 'Редактиране на фризьор' : 'Добавяне на фризьор'}</ModalTitle>
             {error && <ErrorMsg>{error}</ErrorMsg>}
             <form onSubmit={handleSubmit}>
               <Input
                 type="text"
-                placeholder="Name"
+                placeholder="Име"
                 value={name}
                 onChange={e => setName(e.target.value)}
                 required
@@ -440,7 +440,7 @@ const Barbers: React.FC = () => {
                   type="number"
                   min={0}
                   max={23}
-                  placeholder="Start hour (e.g. 9)"
+                  placeholder="Начало на работа (e.g. 9)"
                   value={startHour}
                   onChange={e => setStartHour(e.target.value === '' ? '' : Math.max(0, Math.min(23, Number(e.target.value))))}
                   required
@@ -449,7 +449,7 @@ const Barbers: React.FC = () => {
                   type="number"
                   min={1}
                   max={24}
-                  placeholder="End hour (e.g. 18)"
+                  placeholder="Крайна час (e.g. 18)"
                   value={endHour}
                   onChange={e => setEndHour(e.target.value === '' ? '' : Math.max(1, Math.min(24, Number(e.target.value))))}
                   required
@@ -461,8 +461,8 @@ const Barbers: React.FC = () => {
                 onChange={handleImageChange}
               />
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
-                <ActionButton type="button" onClick={closeModal} style={{ background: '#444' }}>Cancel</ActionButton>
-                <ActionButton type="submit">Save</ActionButton>
+                <ActionButton type="button" onClick={closeModal} style={{ background: '#444' }}>Отказ</ActionButton>
+                <ActionButton type="submit">Запиши</ActionButton>
               </div>
             </form>
           </Modal>

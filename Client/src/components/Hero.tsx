@@ -149,7 +149,7 @@ export default function Hero() {
         <HeroContent>
           <Title>ДОБРЕ ДОШЛИ</Title>
           <Subtitle>
-            Запазете час в бръснарница Mh Zaki за перфектната прическа.
+            Запазете час в бръснарница Мх Заки за перфектната прическа.
           </Subtitle>
           <BookButton onClick={() => {
             const bookingSection = document.getElementById('book-now');

@@ -75,6 +75,8 @@ const ServiceName = styled.h3`
   font-size: 1.2rem;
   color: #fff;
   flex: 1;
+  text-align: center;
+  justify-content: center;
 `;
 
 const ServiceDetails = styled.div`
@@ -164,7 +166,7 @@ const ServiceSelection: React.FC<SelectServiceProps> = ({ onSelect, selectedServ
                 <ServiceInfo>
                   <Duration>
                     <FontAwesomeIcon icon={faClock} />
-                    {service.duration} minutes
+                    {service.duration} минути
                   </Duration>
                   <Price>{service.price} лв.</Price>
                 </ServiceInfo>

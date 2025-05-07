@@ -2,7 +2,7 @@ import React, { useEffect, useState, ChangeEvent, FormEvent } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faClock, faMoneyBill } from '@fortawesome/free-solid-svg-icons';
 
 const PageContainer = styled.div`
   padding: 0 40px 0 40px;
@@ -66,6 +66,15 @@ const ServiceInfo = styled.div`
   font-size: 1.08rem;
   margin-bottom: 0.7rem;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+`;
+
+const InfoIcon = styled(FontAwesomeIcon)`
+  font-size: 1rem;
+  opacity: 0.8;
 `;
 
 const Actions = styled.div`
@@ -137,10 +146,25 @@ const ModalTitle = styled.h2`
   font-size: 1.35rem;
 `;
 
+const InputWrapper = styled.div`
+  position: relative;
+  width: 100%;
+  margin-bottom: 1.2rem;
+`;
+
+const InputIcon = styled(FontAwesomeIcon)`
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  font-size: 1rem;
+`;
+
 const Input = styled.input`
   width: 100%;
   padding: 0.9rem;
-  margin-bottom: 1.2rem;
+  padding-left: 2.8rem;
   border-radius: 5px;
   border: 1px solid #444;
   background: #181818;
@@ -280,11 +304,17 @@ const Services: React.FC = () => {
             <ServiceImage src={service.image || '/default-service.png'} alt={service.name} />
             <ServiceName>{service.name}</ServiceName>
             <ServiceDesc>{service.description}</ServiceDesc>
-            <ServiceInfo>Length: {service.duration} min</ServiceInfo>
-            <ServiceInfo>Price: {service.price} лв.</ServiceInfo>
+            <ServiceInfo>
+              <InfoIcon icon={faClock} />
+              Продължителност: {service.duration} минути
+            </ServiceInfo>
+            <ServiceInfo>
+              <InfoIcon icon={faMoneyBill} />
+              Цена: {service.price} лв.
+            </ServiceInfo>
             <Actions>
-              <ActionButton onClick={() => openEditModal(service)}>Edit</ActionButton>
-              <ActionButton onClick={() => handleDelete(service._id)} style={{ background: '#ff4444' }}>Delete</ActionButton>
+              <ActionButton onClick={() => openEditModal(service)}>Редактирай</ActionButton>
+              <ActionButton onClick={() => handleDelete(service._id)} style={{ background: '#ff4444' }}>Изтрий</ActionButton>
             </Actions>
           </Card>
         ))}
@@ -295,40 +325,46 @@ const Services: React.FC = () => {
       {showModal && (
         <ModalOverlay>
           <Modal>
-            <ModalTitle>{editService ? 'Edit Service' : 'Add Service'}</ModalTitle>
+            <ModalTitle>{editService ? 'Редактиране на услуга' : 'Добавяне на услуга'}</ModalTitle>
             {error && <ErrorMsg>{error}</ErrorMsg>}
             <form onSubmit={handleSubmit}>
               <Input
                 type="text"
-                placeholder="Name"
+                placeholder="Име"
                 value={name}
                 onChange={e => setName(e.target.value)}
                 required
               />
               <TextArea
-                placeholder="Description"
+                placeholder="Описание"
                 value={description}
                 onChange={e => setDescription(e.target.value)}
                 required
               />
-              <Input
-                type="number"
-                min={1}
-                max={300}
-                placeholder="Length (minutes)"
-                value={duration}
-                onChange={e => setDuration(e.target.value === '' ? '' : Math.max(1, Math.min(300, Number(e.target.value))))}
-                required
-              />
-              <Input
-                type="number"
-                min={0}
-                max={1000}
-                placeholder="Price (лв.)"
-                value={price}
-                onChange={e => setPrice(e.target.value === '' ? '' : Math.max(0, Math.min(1000, Number(e.target.value))))}
-                required
-              />
+              <InputWrapper>
+                <InputIcon icon={faClock} />
+                <Input
+                  type="number"
+                  min={1}
+                  max={300}
+                  placeholder="Продължителност (минути)"
+                  value={duration}
+                  onChange={e => setDuration(e.target.value === '' ? '' : Math.max(1, Math.min(300, Number(e.target.value))))}
+                  required
+                />
+              </InputWrapper>
+              <InputWrapper>
+                <InputIcon icon={faMoneyBill} />
+                <Input
+                  type="number"
+                  min={0}
+                  max={1000}
+                  placeholder="Цена (лв.)"
+                  value={price}
+                  onChange={e => setPrice(e.target.value === '' ? '' : Math.max(0, Math.min(1000, Number(e.target.value))))}
+                  required
+                />
+              </InputWrapper>
               <Input
                 type="file"
                 accept="image/*"

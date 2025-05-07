@@ -273,8 +273,8 @@ const Saloons: React.FC = () => {
               </GmapsLink>
             )}
             <Actions>
-              <ActionButton onClick={() => openEditModal(saloon)}>Edit</ActionButton>
-              <ActionButton onClick={() => handleDelete(saloon._id)} style={{ background: '#ff4444' }}>Delete</ActionButton>
+              <ActionButton onClick={() => openEditModal(saloon)}>Редактирай</ActionButton>
+              <ActionButton onClick={() => handleDelete(saloon._id)} style={{ background: '#ff4444' }}>Изтрий</ActionButton>
             </Actions>
           </Card>
         ))}
@@ -285,26 +285,26 @@ const Saloons: React.FC = () => {
       {showModal && (
         <ModalOverlay>
           <Modal>
-            <ModalTitle>{editSaloon ? 'Edit Saloon' : 'Add Saloon'}</ModalTitle>
+            <ModalTitle>{editSaloon ? 'Редактиране на Салон' : 'Добавяне на Салон'}</ModalTitle>
             {error && <ErrorMsg>{error}</ErrorMsg>}
             <form onSubmit={handleSubmit}>
               <Input
                 type="text"
-                placeholder="Name"
+                placeholder="Име"
                 value={name}
                 onChange={e => setName(e.target.value)}
                 required
               />
               <Input
                 type="text"
-                placeholder="Address"
+                placeholder="Адрес"
                 value={address}
                 onChange={e => setAddress(e.target.value)}
                 required
               />
               <Input
                 type="url"
-                placeholder="Google Maps link (optional)"
+                placeholder="Линк към Google Maps (незадължителен)"
                 value={gmapsLink}
                 onChange={e => setGmapsLink(e.target.value)}
               />
@@ -314,8 +314,8 @@ const Saloons: React.FC = () => {
                 onChange={handleImageChange}
               />
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
-                <ActionButton type="button" onClick={closeModal} style={{ background: '#444' }}>Cancel</ActionButton>
-                <ActionButton type="submit">Save</ActionButton>
+                <ActionButton type="button" onClick={closeModal} style={{ background: '#444' }}>Откажи</ActionButton>
+                <ActionButton type="submit">Запази</ActionButton>
               </div>
             </form>
           </Modal>

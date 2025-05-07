@@ -171,7 +171,7 @@ const Footer = () => {
       </FooterContent>
 
       <Copyright>
-        © {new Date().getFullYear()} Mh Zaki. Всички права запазени.
+        © {new Date().getFullYear()} МХ ЗАКИ. Всички права запазени.
       </Copyright>
       <PoweredBy>
         Powered by ESA Consult

@@ -207,7 +207,11 @@ interface Appointment {
   staff: { id: string; name: string };
   customer: { firstname: string; lastname: string; phone: string };
   dateTime: { date: string; time: string };
-  service?: { duration?: number };
+  service: { 
+    _id: string;
+    name: string;
+    duration: number;
+  };
   salonId?: string;
   salon?: { 
     id: string;
@@ -305,6 +309,11 @@ const AdminCalendar = () => {
     { label: 'Утре', value: tomorrowStr },
   ];
 
+  const formatLocalTime = (utcTimeString: string) => {
+    const date = parseISO(utcTimeString);
+    return format(date, 'HH:mm');
+  };
+
   useEffect(() => {
     // Filter appointments and compute resources
     let filteredAppointments = appointments;
@@ -330,36 +339,38 @@ const AdminCalendar = () => {
       });
     }
 
+    // Convert appointments to events with local time
+    const eventsList = filteredAppointments.map(app => {
+      const startTime = parseISO(`${app.dateTime.date}T${app.dateTime.time}`);
+      const endTime = addHours(startTime, app.service.duration / 60);
+      
+      return {
+        id: app._id,
+        title: `${app.customer.firstname} ${app.customer.lastname} - ${app.service.name}`,
+        start: startTime,
+        end: endTime,
+        resourceId: app.staff.id,
+        resourceTitle: app.staff.name
+      };
+    });
+
+    setEvents(eventsList);
+    setResources(resourceList.map(b => ({
+      resourceId: b._id || b.id,
+      resourceTitle: b.name
+    })));
+
     // Compute min/max time
     let min = 8, max = 18;
     filteredAppointments.forEach(a => {
       const startHour = parseISO(a.dateTime.date + 'T' + a.dateTime.time).getHours();
-      const endHour = startHour + 1; // or use duration
+      const endHour = startHour + (a.service.duration / 60);
       if (startHour < min) min = startHour;
       if (endHour > max) max = endHour;
     });
     setMinTime(subHours(new Date().setHours(min, 0, 0, 0), 1));
     setMaxTime(addHours(new Date().setHours(max, 0, 0, 0), 1));
-
-    // Map to events and resources
-    setResources(resourceList.map(b => {
-      // Get assignment for the current date and selected salon
-      const assignment = getAssignmentForBarberOnDateAndSalon(b, currentDate, selectedSalon);
-      const salonName = assignment?.saloon?.name || 'Не е назначен';
-      return {
-        resourceId: b._id || b.id,
-        resourceTitle: `${b.name} - ${salonName}`
-      };
-    }));
-
-    setEvents(filteredAppointments.map(a => ({
-      id: a._id,
-      title: a.customer ? `${a.customer.firstname} ${a.customer.lastname} (${a.customer.phone && a.customer.phone.startsWith('0') ? a.customer.phone.slice(1) : a.customer.phone})` : 'Appointment',
-      start: parseISO(a.dateTime.date + 'T' + a.dateTime.time),
-      end: addHours(parseISO(a.dateTime.date + 'T' + a.dateTime.time), a.service?.duration ? a.service.duration / 60 : 1),
-      resourceId: a.staff.id,
-    })));
-  }, [appointments, barbers, selectedSalon, selectedBarber, currentDate]);
+  }, [appointments, selectedSalon, selectedBarber, currentDate]);
 
   // Filter barber dropdown options
   let barberDropdownOptions: Barber[] = barbers;

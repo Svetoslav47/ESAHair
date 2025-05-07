@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { format } from 'date-fns';
+import { format, parseISO, isToday, isTomorrow } from 'date-fns';
+import { bg } from 'date-fns/locale';
 import { TimeSlot } from '../../../types/times';
 import { fetchTimeSlots } from '../../../services/api';
 
@@ -92,6 +93,10 @@ const TimeSlotButton = styled.button<{ $isSelected: boolean }>`
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: clamp(0.875rem, 2vw, 1rem);
   &:hover {
     background: ${({ $isSelected }) => ($isSelected ? '#C19B76' : '#444')};
     border-color: #C19B76;
@@ -135,6 +140,16 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState<{ [date: string]: string }>({});
 
+  const formatLocalTime = (utcTimeString: string) => {
+    const date = parseISO(utcTimeString);
+    return format(date, 'HH:mm');
+  };
+
+  const formatPhoneNumber = (phone: string) => {
+    // Remove leading 0 if present
+    return phone.startsWith('0') ? phone.substring(1) : phone;
+  };
+
   useEffect(() => {
     if (!salonId || !staffId || !serviceId) return;
     setLoading(true);
@@ -173,7 +188,19 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
     return <Container>Loading available time slots...</Container>;
   }
 
-  const days = Object.keys(timeSlots);
+  // Sort dates to ensure today comes before tomorrow
+  const days = Object.keys(timeSlots).sort((a, b) => {
+    const dateA = parseISO(a);
+    const dateB = parseISO(b);
+    return dateA.getTime() - dateB.getTime();
+  });
+
+  const getDayTitle = (dateStr: string) => {
+    const date = parseISO(dateStr);
+    if (isToday(date)) return 'Днес';
+    if (isTomorrow(date)) return 'Утре';
+    return format(date, 'EEEE, MMM d', { locale: bg });
+  };
 
   return (
     <Container>
@@ -182,12 +209,12 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
         <DaysGrid>
           {days.map(dateStr => (
             <DayColumn key={dateStr}>
-              <DayTitle>{format(new Date(dateStr), 'EEEE, MMM d')}</DayTitle>
+              <DayTitle>{getDayTitle(dateStr)}</DayTitle>
               <TimeSlotsContainer>
                 {errors[dateStr] ? (
                   <ErrorMessage>{errors[dateStr]}</ErrorMessage>
                 ) : timeSlots[dateStr].length === 0 ? (
-                  <NoTimeSlotsMessage>No available slots</NoTimeSlotsMessage>
+                  <NoTimeSlotsMessage>Няма свободни часове</NoTimeSlotsMessage>
                 ) : (
                   timeSlots[dateStr].map(slot => (
                     <TimeSlotButton
@@ -195,7 +222,7 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
                       $isSelected={selectedTimeSlot?.start === slot.start}
                       onClick={() => onTimeSlotSelect(slot)}
                     >
-                      {format(new Date(slot.start), 'HH:mm')} - {format(new Date(slot.end), 'HH:mm')}
+                      {formatPhoneNumber(formatLocalTime(slot.start))} - {formatPhoneNumber(formatLocalTime(slot.end))}
                     </TimeSlotButton>
                   ))
                 )}

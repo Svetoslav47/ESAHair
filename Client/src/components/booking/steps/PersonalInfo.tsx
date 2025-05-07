@@ -92,12 +92,17 @@ const PhoneInputContainer = styled.div`
   gap: 0.5rem;
   align-items: flex-start;
   @media (max-width: 600px) {
-    flex-wrap: wrap;
+    flex-direction: column;
     gap: 0.5rem;
   }
   & > * {
     min-width: 0;
-    flex: 1 1 0;
+  }
+  & > *:first-child {
+    flex: 0 0 auto;
+  }
+  & > *:last-child {
+    flex: 1;
   }
 `;
 
@@ -259,34 +264,24 @@ const PersonalInfo = ({ onDetailsSubmit }: PersonalInfoProps) => {
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const input = e.target.value;
     
-    // Only allow numbers, spaces, and plus sign
-    if (!/^[0-9+ ]*$/.test(input)) {
+    // Only allow numbers and spaces
+    if (!/^[0-9 ]*$/.test(input)) {
       return;
     }
     
-    const { country, phoneWithoutCode } = processPhoneNumber(input);
+    // Remove leading zero if present
+    const formattedInput = input.startsWith('0') ? input.substring(1) : input;
     
-    if (country) {
-      // Update the selected country
-      setSelectedCountry(country);
-      // Update the phone input with the number without country code
-      setFormData(prev => ({
-        ...prev,
-        phone: phoneWithoutCode
-      }));
-    } else {
-      // If no country code detected, just update the phone number normally
-      setFormData(prev => ({
-        ...prev,
-        phone: input
-      }));
-    }
+    setFormData(prev => ({
+      ...prev,
+      phone: formattedInput
+    }));
   };
 
   return (
     <Container>
       <StepWrapper>
-        <Title>Basic Details</Title>
+        <Title>Основни Данни</Title>
         <Form onSubmit={handleSubmit}>
           <InputGroup>
             <Label>
@@ -343,7 +338,7 @@ const PersonalInfo = ({ onDetailsSubmit }: PersonalInfoProps) => {
                 name="phone"
                 value={formData.phone}
                 onChange={handlePhoneChange}
-                placeholder="048 123 456"
+                placeholder="48 123 456"
                 style={{ flex: 1 }}
               />
             </PhoneInputContainer>
@@ -378,7 +373,7 @@ const PersonalInfo = ({ onDetailsSubmit }: PersonalInfoProps) => {
             $isDisabled={!isFormValid()}
             disabled={!isFormValid()}
           >
-            Continue to Summary
+            Продължи
           </SubmitButton>
         </Form>
       </StepWrapper>

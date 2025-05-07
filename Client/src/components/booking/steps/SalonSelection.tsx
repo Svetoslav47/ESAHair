@@ -68,6 +68,7 @@ const SalonName = styled.h3`
   font-size: 1.2rem;
   color: #fff;
   margin: 0;
+  text-align: center;
 `;
 
 const StepWrapper = styled.div`

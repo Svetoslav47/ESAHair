@@ -108,25 +108,31 @@ export const assignSaloon = async (req: Request, res: Response) => {
             return res.status(404).json({ error: 'Barber not found' });
         }
 
-        const targetDate = new Date(date);
+        console.log('date:', date);
+        const paramDate = new Date(date);
+        console.log('paramDate:', paramDate);
+        const targetDate = new Date(paramDate.getFullYear(), paramDate.getMonth(), paramDate.getDate());
         if (isNaN(targetDate.getTime())) {
             return res.status(400).json({ error: 'Invalid date format' });
         }
 
-        // Remove any existing assignment for this date
+        console.log('barber.saloonAssignments:', barber.saloonAssignments);
+
         const existingAssignmentIndex = barber.saloonAssignments.findIndex(
             assignment => assignment.date.toISOString() === targetDate.toISOString()
         );
+        console.log('existingAssignmentIndex:', existingAssignmentIndex);
         if (existingAssignmentIndex !== -1) {
             barber.saloonAssignments.splice(existingAssignmentIndex, 1);
         }
 
-        // Add new assignment with proper ObjectId
-        const newAssignment: SaloonAssignment = {
-            date: targetDate,
-            saloon: new mongoose.Types.ObjectId(saloonId)
-        };
-        barber.saloonAssignments.addToSet(newAssignment);
+        if (saloonId !== "-1") {
+            const newAssignment: SaloonAssignment = {
+                date: targetDate,
+                saloon: new mongoose.Types.ObjectId(saloonId)
+            };
+            barber.saloonAssignments.addToSet(newAssignment);
+        }
 
         await barber.save();
         res.status(200).json(barber);
