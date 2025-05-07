@@ -133,7 +133,7 @@ const Header = () => {
 
   return (
     <HeaderContainer>
-      <LogoText onClick={handleLogoClick}>Mh Zaki</LogoText>
+      <LogoText onClick={handleLogoClick}>МХ ЗАКИ</LogoText>
       <BurgerButton onClick={toggleMenu} aria-label="Toggle menu">
         <BurgerIcon $isOpen={isMenuOpen} />
       </BurgerButton>
