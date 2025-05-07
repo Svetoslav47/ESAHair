@@ -43,6 +43,9 @@ const DayColumn = styled.div`
   border-radius: 8px;
   padding: 1rem;
   min-width: 200px;
+  max-height: 400px;
+  display: flex;
+  flex-direction: column;
 `;
 
 const DayTitle = styled.h3`
@@ -50,6 +53,32 @@ const DayTitle = styled.h3`
   font-size: 1.1rem;
   margin-bottom: 1rem;
   text-align: center;
+  flex-shrink: 0;
+`;
+
+const TimeSlotsContainer = styled.div`
+  overflow-y: auto;
+  flex: 1;
+  padding-right: 0.5rem;
+  
+  /* Scrollbar styling */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #C19B76;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #a88a6a;
+  }
 `;
 
 const TimeSlotButton = styled.button<{ $isSelected: boolean }>`
@@ -154,21 +183,23 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
           {days.map(dateStr => (
             <DayColumn key={dateStr}>
               <DayTitle>{format(new Date(dateStr), 'EEEE, MMM d')}</DayTitle>
-              {errors[dateStr] ? (
-                <ErrorMessage>{errors[dateStr]}</ErrorMessage>
-              ) : timeSlots[dateStr].length === 0 ? (
-                <NoTimeSlotsMessage>No available slots</NoTimeSlotsMessage>
-              ) : (
-                timeSlots[dateStr].map(slot => (
-                  <TimeSlotButton
-                    key={slot.start}
-                    $isSelected={selectedTimeSlot?.start === slot.start}
-                    onClick={() => onTimeSlotSelect(slot)}
-                  >
-                    {format(new Date(slot.start), 'HH:mm')} - {format(new Date(slot.end), 'HH:mm')}
-                  </TimeSlotButton>
-                ))
-              )}
+              <TimeSlotsContainer>
+                {errors[dateStr] ? (
+                  <ErrorMessage>{errors[dateStr]}</ErrorMessage>
+                ) : timeSlots[dateStr].length === 0 ? (
+                  <NoTimeSlotsMessage>No available slots</NoTimeSlotsMessage>
+                ) : (
+                  timeSlots[dateStr].map(slot => (
+                    <TimeSlotButton
+                      key={slot.start}
+                      $isSelected={selectedTimeSlot?.start === slot.start}
+                      onClick={() => onTimeSlotSelect(slot)}
+                    >
+                      {format(new Date(slot.start), 'HH:mm')} - {format(new Date(slot.end), 'HH:mm')}
+                    </TimeSlotButton>
+                  ))
+                )}
+              </TimeSlotsContainer>
             </DayColumn>
           ))}
         </DaysGrid>
