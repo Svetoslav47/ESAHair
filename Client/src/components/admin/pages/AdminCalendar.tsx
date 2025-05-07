@@ -281,7 +281,7 @@ const AdminCalendar = () => {
   }, [selectedSalon, selectedBarber]);
 
   useEffect(() => {
-    const socket = socketIOClient('http://localhost:3000');
+    const socket = socketIOClient('/');
     socket.on('appointment:new', (appointment) => {
       setAppointments(prev => [...prev, appointment]);
     });
