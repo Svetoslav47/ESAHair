@@ -309,11 +309,6 @@ const AdminCalendar = () => {
     { label: 'Утре', value: tomorrowStr },
   ];
 
-  const formatLocalTime = (utcTimeString: string) => {
-    const date = parseISO(utcTimeString);
-    return format(date, 'HH:mm');
-  };
-
   useEffect(() => {
     // Filter appointments and compute resources
     let filteredAppointments = appointments;
@@ -339,9 +334,9 @@ const AdminCalendar = () => {
       });
     }
 
-    // Convert appointments to events with local time
+    // Convert appointments to events using original time
     const eventsList = filteredAppointments.map(app => {
-      const startTime = parseISO(`${app.dateTime.date}T${app.dateTime.time}`);
+      const startTime = new Date(`${app.dateTime.date}T${app.dateTime.time}`);
       const endTime = addHours(startTime, app.service.duration / 60);
       
       return {
@@ -363,9 +358,9 @@ const AdminCalendar = () => {
     // Compute min/max time
     let min = 8, max = 18;
     filteredAppointments.forEach(a => {
-      const startHour = parseISO(a.dateTime.date + 'T' + a.dateTime.time).getHours();
-      const endHour = startHour + (a.service.duration / 60);
-      if (startHour < min) min = startHour;
+      const appointmentStartHour = new Date(`${a.dateTime.date}T${a.dateTime.time}`).getHours();
+      const endHour = appointmentStartHour + (a.service.duration / 60);
+      if (appointmentStartHour < min) min = appointmentStartHour;
       if (endHour > max) max = endHour;
     });
     setMinTime(subHours(new Date().setHours(min, 0, 0, 0), 1));
