@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 
+// services
+
 const serviceSchema = new mongoose.Schema({
     name: {
         type: String,
