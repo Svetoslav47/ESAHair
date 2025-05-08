@@ -2,7 +2,7 @@ import React, { useEffect, useState, ChangeEvent, FormEvent } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { format, addDays } from 'date-fns';
 
 const PageContainer = styled.div`
@@ -190,6 +190,18 @@ const SaloonSelect = styled.select`
   font-size: 1.08rem;
 `;
 
+const Spinner = styled.div`
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.5rem;
+  color: #C19B76;
+  animation: spin 1s linear infinite;
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+
 interface Barber {
   _id: string;
   name: string;
@@ -229,6 +241,7 @@ const Barbers: React.FC = () => {
   const [endHour, setEndHour] = useState<number | ''>('');
   const [image, setImage] = useState<File | null>(null);
   const [error, setError] = useState('');
+  const [loadingAssignments, setLoadingAssignments] = useState<{[key: string]: boolean}>({});
 
   const fetchBarbers = async () => {
     try {
@@ -328,6 +341,8 @@ const Barbers: React.FC = () => {
   };
 
   const handleAssignmentChange = async (barber: Barber, date: Date, saloonId: string) => {
+    const assignmentKey = `${barber._id}-${date.toISOString()}`;
+    setLoadingAssignments(prev => ({ ...prev, [assignmentKey]: true }));
     try {
       if (saloonId === '') {
         await axios.post(`/api/barbers/${barber._id}/assign-saloon`, {
@@ -340,9 +355,11 @@ const Barbers: React.FC = () => {
           saloonId
         });
       }
-      fetchBarbers();
+      await fetchBarbers();
     } catch {
       setError('Failed to update assignment');
+    } finally {
+      setLoadingAssignments(prev => ({ ...prev, [assignmentKey]: false }));
     }
   };
 
@@ -391,21 +408,38 @@ const Barbers: React.FC = () => {
                 {getNextThreeDays().map((date, idx) => {
                   const assignment = getAssignmentForDate(barber, date);
                   const disableAssignment = hasAppointmentsForDay(barber, date);
+                  const assignmentKey = `${barber._id}-${date.toISOString()}`;
+                  const isLoading = loadingAssignments[assignmentKey];
+                  
                   return (
                     <div key={idx} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 0 }}>
                       <DateLabel style={{ marginBottom: 2 }}>{format(date, 'EEEE')}</DateLabel>
                       <DateValue style={{ marginBottom: 4 }}>{format(date, 'MMM d')}</DateValue>
-                      <SaloonSelect
-                        style={{ fontSize: '0.98rem', padding: '0.5rem', minWidth: 0 }}
-                        value={assignment ? assignment.saloon._id : ''}
-                        onChange={e => handleAssignmentChange(barber, date, e.target.value)}
-                        disabled={disableAssignment}
-                      >
-                        <option value="">Почивка</option>
-                        {saloons.map(saloon => (
-                          <option key={saloon._id} value={saloon._id}>{saloon.name}</option>
-                        ))}
-                      </SaloonSelect>
+                      <div style={{ position: 'relative', width: '100%' }}>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                          <SaloonSelect
+                            style={{ 
+                              fontSize: '0.98rem', 
+                              padding: '0.5rem', 
+                              minWidth: 0,
+                              flex: 1
+                            }}
+                            value={assignment ? assignment.saloon._id : ''}
+                            onChange={e => handleAssignmentChange(barber, date, e.target.value)}
+                            disabled={disableAssignment || isLoading}
+                          >
+                            <option value="">Почивка</option>
+                            {saloons.map(saloon => (
+                              <option key={saloon._id} value={saloon._id}>{saloon.name}</option>
+                            ))}
+                          </SaloonSelect>
+                          {isLoading && (
+                            <Spinner>
+                              <FontAwesomeIcon icon={faSpinner} />
+                            </Spinner>
+                          )}
+                        </div>
+                      </div>
                       {disableAssignment && <span style={{ color: '#ff4444', fontSize: '0.95rem', marginTop: 2 }}>Има записани часове</span>}
                     </div>
                   );

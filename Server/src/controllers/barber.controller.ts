@@ -7,6 +7,8 @@ import { uploadBarberImageToS3 } from '../utils/s3Upload';
 import { addDays, startOfDay, endOfDay } from 'date-fns';
 import mongoose from 'mongoose';
 import { IAppointment } from '../models/Appointment';
+import { BarberAssignment } from '../models/BarberAssignment';
+import { ParsedQs } from 'qs';
 
 interface BarberUpdateData {
     name?: string;
@@ -19,15 +21,53 @@ interface BarberUpdateData {
     image?: string;
 }
 
-interface SaloonAssignment {
+interface BarberWithAssignments extends mongoose.Document {
+    _id: mongoose.Types.ObjectId;
+    name: string;
+    email?: string;
+    phone?: string;
+    image?: string;
+    role?: string;
+    startHour?: number;
+    endHour?: number;
+    workingDays?: string[];
+    calendarId?: string;
+    isActive: boolean;
+    saloonAssignments: Array<{
+        _id: mongoose.Types.ObjectId;
+        barber: mongoose.Types.ObjectId;
+        saloon: {
+            _id: mongoose.Types.ObjectId;
+            name: string;
+        };
+        date: Date;
+    }>;
+}
+
+interface Assignment {
+    _id: mongoose.Types.ObjectId;
+    barber: mongoose.Types.ObjectId;
+    saloon: {
+        _id: mongoose.Types.ObjectId;
+        name: string;
+    };
     date: Date;
-    saloon: mongoose.Types.ObjectId;
 }
 
 export const getBarbers = async (req: Request, res: Response) => {
     try {
-        const barbers = await Barber.find().populate('saloonAssignments.saloon');
-        res.status(200).json(barbers);
+        const barbers = await Barber.find();
+        const assignments = await BarberAssignment.find()
+            .populate('saloon')
+            .sort({ date: 1 });
+        
+        // Group assignments by barber
+        const barbersWithAssignments = barbers.map(barber => ({
+            ...barber.toObject(),
+            saloonAssignments: assignments.filter(a => a.barber.toString() === barber._id.toString())
+        }));
+        
+        res.status(200).json(barbersWithAssignments);
     } catch (error) {
         console.error('Error fetching barbers:', error);
         res.status(500).json({ error: 'Failed to fetch barbers' });
@@ -108,37 +148,37 @@ export const assignSaloon = async (req: Request, res: Response) => {
             return res.status(404).json({ error: 'Barber not found' });
         }
 
-        console.log('date:', date);
         const paramDate = new Date(date);
-        console.log('paramDate:', paramDate);
         const targetDate = new Date(paramDate.getFullYear(), paramDate.getMonth(), paramDate.getDate());
         if (isNaN(targetDate.getTime())) {
             return res.status(400).json({ error: 'Invalid date format' });
         }
 
-        // First remove any existing assignment for this date
-        await Barber.updateOne(
-            { _id: id },
-            { $pull: { saloonAssignments: { date: targetDate } } }
-        );
-
-        // Then add the new assignment if saloonId is not "-1"
-        if (saloonId !== "-1") {
-            await Barber.updateOne(
-                { _id: id },
-                { 
-                    $addToSet: { 
-                        saloonAssignments: {
-                            date: targetDate,
-                            saloon: new mongoose.Types.ObjectId(saloonId)
-                        }
-                    }
-                }
+        if (saloonId === "-1") {
+            // Remove assignment
+            await BarberAssignment.deleteOne({
+                barber: id,
+                date: targetDate
+            });
+        } else {
+            // Update or create assignment
+            await BarberAssignment.findOneAndUpdate(
+                { barber: id, date: targetDate },
+                { saloon: new mongoose.Types.ObjectId(saloonId) },
+                { upsert: true, new: true }
             );
         }
 
-        // Fetch and return the updated barber
-        const updatedBarber = await Barber.findById(id).populate('saloonAssignments.saloon');
+        // Fetch updated assignments
+        const assignments = await BarberAssignment.find({ barber: id })
+            .populate('saloon')
+            .sort({ date: 1 });
+
+        const updatedBarber = {
+            ...barber.toObject(),
+            saloonAssignments: assignments
+        };
+
         res.status(200).json(updatedBarber);
     } catch (error) {
         console.error('Error assigning saloon:', error);
@@ -162,7 +202,7 @@ export const getBarberAvailability = async (req: Request, res: Response, calenda
         const tomorrow = endOfDay(addDays(today, 1));
 
         // Get barber's assignments for today and tomorrow
-        const assignments = barber.saloonAssignments.filter(assignment => {
+        const assignments = (barber as unknown as BarberWithAssignments).saloonAssignments.filter(assignment => {
             const assignmentDate = new Date(assignment.date);
             return assignmentDate >= today && assignmentDate <= tomorrow;
         });
@@ -209,163 +249,84 @@ export const getBarbersAssignedToSaloon = async (req: Request, res: Response) =>
         tomorrowStart.setHours(0,0,0,0);
         const tomorrowEnd = new Date(tomorrow);
         tomorrowEnd.setHours(23,59,59,999);
-        
-        console.log('getBarbersAssignedToSaloon params:', { 
-            saloonId, 
-            date,
-            todayStart: todayStart.toISOString(),
-            todayEnd: todayEnd.toISOString(),
-            tomorrowStart: tomorrowStart.toISOString(),
-            tomorrowEnd: tomorrowEnd.toISOString()
-        });
 
-        // First, let's check if there are any barbers at all
-        const allBarbers = await Barber.find({});
-        console.log('Total barbers in system:', allBarbers.length);
-        
-        // Debug each barber's assignments in detail
-        allBarbers.forEach(barber => {
-            console.log('\nBarber:', barber.name);
-            console.log('Assignments:', JSON.stringify(barber.saloonAssignments, null, 2));
-            
-            // Check each assignment against our criteria
-            barber.saloonAssignments.forEach(assignment => {
-                const assignmentDate = new Date(assignment.date);
-                const isTodayMatch = assignmentDate >= todayStart && assignmentDate <= todayEnd;
-                const isTomorrowMatch = assignmentDate >= tomorrowStart && assignmentDate <= tomorrowEnd;
-                const isSaloonMatch = assignment.saloon.toString() === saloonId;
-                
-                console.log('Assignment check for', barber.name, ':', {
-                    assignmentDate: assignmentDate.toISOString(),
-                    assignmentSaloonId: assignment.saloon.toString(),
-                    requestedSaloonId: saloonId,
-                    isTodayMatch,
-                    isTomorrowMatch,
-                    isSaloonMatch
-                });
-            });
-        });
-
-        // Find barbers with a saloon assignment for this saloon and either today or tomorrow
-        const query = {
-            saloonAssignments: {
-                $elemMatch: {
-                    saloon: new mongoose.Types.ObjectId(saloonId as string),
-                    $or: [
-                        {
-                            date: {
-                                $gte: todayStart,
-                                $lte: todayEnd
-                            }
-                        },
-                        {
-                            date: {
-                                $gte: tomorrowStart,
-                                $lte: tomorrowEnd
-                            }
-                        }
-                    ]
-                }
+        // Find assignments for the specified saloon and dates
+        const assignments = await BarberAssignment.find({
+            saloon: saloonId,
+            date: {
+                $or: [
+                    { $gte: todayStart, $lte: todayEnd },
+                    { $gte: tomorrowStart, $lte: tomorrowEnd }
+                ]
             }
-        };
-        
-        console.log('\nMongoDB Query:', JSON.stringify(query, null, 2));
-        
-        const barbers = await Barber.find(query);
+        }).populate('barber');
 
-        console.log('\nFound barbers:', barbers.length);
-        barbers.forEach(barber => {
-            console.log('Found barber:', barber.name);
-            console.log('Their assignments:', JSON.stringify(barber.saloonAssignments, null, 2));
-        });
+        // Get unique barbers from assignments
+        const barberIds = [...new Set(assignments.map(a => a.barber._id))];
+        const barbers = await Barber.find({ _id: { $in: barberIds } });
 
-        res.status(200).json(barbers);
-        return;
+        // Add assignments to each barber
+        const barbersWithAssignments = barbers.map(barber => ({
+            ...barber.toObject(),
+            saloonAssignments: assignments.filter(a => a.barber._id.toString() === barber._id.toString())
+        }));
+
+        res.status(200).json(barbersWithAssignments);
     } catch (error) {
         console.error('Error fetching barbers for saloon:', error);
         res.status(500).json({ error: 'Failed to fetch barbers for saloon' });
-        return;
     }
 };
 
 export const getBarberDayAvailability = async (req: Request, res: Response) => {
-  try {
-    const { barberId } = req.params;
-    const { saloonId, serviceId, date } = req.query;
+    try {
+        const { barberId } = req.params;
+        const { saloonId, serviceId, date } = req.query;
 
-    console.log('getBarberDayAvailability params:', {
-      barberId,
-      saloonId,
-      serviceId,
-      date
-    });
+        if (!barberId || !saloonId || !serviceId || !date) {
+            return res.status(400).json({ error: 'Missing required parameters' });
+        }
 
-    if (!barberId || !saloonId || !serviceId || !date) {
-      return res.status(400).json({ error: 'Missing required parameters' });
-    }
+        const barber = await Barber.findById(barberId);
+        if (!barber) return res.status(404).json({ error: 'Barber not found' });
 
-    const barber = await Barber.findById(barberId);
-    if (!barber) return res.status(404).json({ error: 'Barber not found' });
-
-    console.log('Found barber:', {
-      name: barber.name,
-      assignments: barber.saloonAssignments
-    });
-
-    // Check assignment
-    const assigned = barber.saloonAssignments.some(
-      (assignment: SaloonAssignment) => {
-        const assignmentDate = assignment.date.toISOString().slice(0, 10);
-        const isMatch = assignment.saloon.toString() === saloonId && assignmentDate === date;
-        console.log('Checking assignment:', {
-          assignmentDate,
-          requestedDate: date,
-          assignmentSaloonId: assignment.saloon.toString(),
-          requestedSaloonId: saloonId,
-          isMatch
+        // Check assignment
+        const assignment = await BarberAssignment.findOne({
+            barber: barberId,
+            saloon: saloonId,
+            date: new Date(date as string)
         });
-        return isMatch;
-      }
-    );
-    
-    console.log('Is barber assigned for this date and saloon:', assigned);
-    
-    // If not assigned, return empty array instead of error
-    if (!assigned) return res.json([]);
 
-    const service = await Service.findById(serviceId);
-    if (!service) return res.status(404).json({ error: 'Service not found' });
+        if (!assignment) return res.json([]);
 
-    // Get booked slots for the day from MongoDB
-    const startOfDayDate = new Date(date + 'T00:00:00');
-    const appointments = await require('../models/Appointment').default.find({
-      'staff.id': barber._id,
-      'dateTime.date': date,
-      status: { $ne: 'cancelled' }
-    });
+        const service = await Service.findById(serviceId);
+        if (!service) return res.status(404).json({ error: 'Service not found' });
 
-    console.log('Found appointments:', appointments.length);
+        // Get booked slots for the day from MongoDB
+        const startOfDayDate = new Date(date as string + 'T00:00:00');
+        const appointments = await require('../models/Appointment').default.find({
+            'staff.id': barber._id,
+            'dateTime.date': date,
+            status: { $ne: 'cancelled' }
+        });
 
-    const bookedSlots = appointments.map((app: IAppointment) => {
-      const start = new Date(`${app.dateTime.date}T${app.dateTime.time}`);
-      const end = new Date(start.getTime() + (service.duration * 60000));
-      return { start: start.toISOString(), end: end.toISOString() };
-    });
+        const bookedSlots = appointments.map((app: IAppointment) => {
+            const start = new Date(`${app.dateTime.date}T${app.dateTime.time}`);
+            const end = new Date(start.getTime() + (service.duration * 60000));
+            return { start: start.toISOString(), end: end.toISOString() };
+        });
 
-    console.log('Booked slots:', bookedSlots);
+        const slots = await TimeSlotService.generateTimeSlotsForDay(
+            startOfDayDate,
+            barber.startHour || 9,
+            barber.endHour || 18,
+            service.duration,
+            bookedSlots
+        );
 
-    const slots = await TimeSlotService.generateTimeSlotsForDay(
-      startOfDayDate,
-      barber.startHour || 9,
-      barber.endHour || 18,
-      service.duration,
-      bookedSlots
-    );
-
-    console.log('Generated time slots:', slots.length);
-    res.json(slots);
-  } catch (err) {
-    console.error('Error in getBarberDayAvailability:', err);
-    res.status(500).json({ error: 'Failed to get availability' });
-  }
+        res.json(slots);
+    } catch (err) {
+        console.error('Error in getBarberDayAvailability:', err);
+        res.status(500).json({ error: 'Failed to get availability' });
+    }
 };

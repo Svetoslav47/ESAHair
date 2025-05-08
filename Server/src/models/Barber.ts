@@ -45,18 +45,7 @@ const barberSchema = new mongoose.Schema({
     isActive: {
         type: Boolean,
         default: true
-    },
-    saloonAssignments: [{
-        date: {
-            type: Date,
-            required: true
-        },
-        saloon: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Saloon',
-            required: true
-        }
-    }]
+    }
 });
 
 // Create a compound index to prevent duplicate assignments for the same barber on the same date
