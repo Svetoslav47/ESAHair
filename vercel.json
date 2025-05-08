@@ -12,5 +12,22 @@
       "dest": "Server/src/index.ts"
     }
   ],
-  "buildCommand": "cd Server && npm install"
+  "buildCommand": "cd Server && npm install",
+  "headers": [
+    {
+      "source": "/(.*).js",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/javascript"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }
