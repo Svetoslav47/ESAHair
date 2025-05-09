@@ -254,10 +254,8 @@ export const getBarbersAssignedToSaloon = async (req: Request, res: Response) =>
         const assignments = await BarberAssignment.find({
             saloon: saloonId,
             date: {
-                $or: [
-                    { $gte: todayStart, $lte: todayEnd },
-                    { $gte: tomorrowStart, $lte: tomorrowEnd }
-                ]
+                $gte: todayStart,
+                $lte: tomorrowEnd
             }
         }).populate('barber');
 
