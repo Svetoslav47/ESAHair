@@ -6,12 +6,6 @@
       "use": "@vercel/node"
     }
   ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "Server/src/index.ts"
-    }
-  ],
   "buildCommand": "cd Server && npm install",
   "headers": [
     {
@@ -25,6 +19,10 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "Server/src/index.ts"
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"
