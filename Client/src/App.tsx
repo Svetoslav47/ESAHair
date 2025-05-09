@@ -8,6 +8,7 @@ import Terms from './pages/Terms'
 import AdminLogin from './components/admin/AdminLogin'
 import AdminDashboard from './components/admin/AdminDashboard'
 import { AuthProvider, useAuth } from './context/AuthContext'
+import { useEffect } from 'react'
 
 // Protected Route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -19,6 +20,22 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 function App() {
+
+  useEffect(() => {
+    const checkVersion = async () => {
+      const res = await fetch('/version.txt', { cache: 'no-store' });
+      const latestVersion = await res.text();
+      if (latestVersion !== localStorage.getItem('app_version')) {
+        localStorage.setItem('app_version', latestVersion);
+        window.location.reload(); // Force reload to get new build
+      }
+    };
+  
+    checkVersion();
+    const interval = setInterval(checkVersion, 60000); // Check every minute
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <AuthProvider>
       <GlobalStyle />

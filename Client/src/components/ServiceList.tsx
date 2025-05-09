@@ -89,7 +89,7 @@ const ServiceList: React.FC = () => {
   if (loading) return null;
 
   return (
-    <Container>
+    <Container id="services">
       <Title>Услуги</Title>
       <ServicesGrid>
         {services.map(service => (
