@@ -33,18 +33,23 @@ const startServer = async () => {
     app.use('/api', setupRoutes(calendarService!, calendarEnabled));
 
     app.use(express.static(path.join(__dirname, '../../Client/dist'), {
-        extensions: ['html'],
-        fallthrough: true, // Let non-existent files continue to the next handler
+        fallthrough: true,
     }));
-    app.get(/^\/(?!api).*/, (req, res) => {
-        res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-        res.set('Pragma', 'no-cache');
-        res.set('Expires', '0');
-        res.set('Surrogate-Control', 'no-store');
     
-        res.sendFile(path.join(__dirname, '../../Client/dist/index.html'));
+    app.get('/^\/(?!api).*/', (req, res, next) => {
+        if (req.accepts('html')) {
+            // Only send index.html if it's an HTML navigation request
+            res.set({
+                'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0',
+                'Surrogate-Control': 'no-store',
+            });
+            res.sendFile(path.join(__dirname, '../../Client/dist/index.html'));
+        } else {
+            res.status(404).send('Not found');
+        }
     });
-
     // --- SOCKET.IO SETUP ---
     const server = http.createServer(app);
     const io = new SocketIOServer(server, { cors: { origin: '*' } });
