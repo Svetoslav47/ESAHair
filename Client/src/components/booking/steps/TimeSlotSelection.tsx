@@ -153,6 +153,7 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
     const fetchSlotsForDay = async (date: string) => {
       try {
         const slots = await fetchTimeSlots(staffId, salonId, serviceId, date);
+        console.log('Slots:', slots);
         setTimeSlots(prev => ({
           ...prev,
           [date]: slots

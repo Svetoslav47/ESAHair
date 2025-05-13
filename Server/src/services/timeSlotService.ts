@@ -70,7 +70,7 @@ export class TimeSlotService {
             startHour,
             0,
             0
-        ))) ? new Date().getHours() : startHour;
+        ))) ? new Date().getHours() + 3 : startHour;
 
         let dayStart = new Date(Date.UTC(
             zonedDate.getFullYear(),
