@@ -45,6 +45,7 @@ export class TimeSlotService {
         bookedSlots: BookedSlot[],
     ): Promise<TimeSlot[]> {
         const zonedDate = date
+        console.log(zonedDate)
         console.log('Generating time slots with params:', {
             date: zonedDate,
             startHour,
@@ -55,14 +56,21 @@ export class TimeSlotService {
 
         const slots: TimeSlot[] = [];
         
-        startHour = isAfter(zonedDate, new Date(Date.UTC(
+        startHour = isAfter(new Date(Date.UTC(
+            new Date().getFullYear(),
+            new Date().getMonth(),
+            new Date().getDate(),
+            new Date().getHours(),
+            0,
+            0
+        )), new Date(Date.UTC(
             zonedDate.getFullYear(),
             zonedDate.getMonth(),
             zonedDate.getDate(),
             startHour,
             0,
             0
-        ))) ? startHour : new Date().getHours();
+        ))) ? new Date().getHours() : startHour;
 
         let dayStart = new Date(Date.UTC(
             zonedDate.getFullYear(),
