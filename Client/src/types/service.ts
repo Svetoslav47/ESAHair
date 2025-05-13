@@ -5,5 +5,6 @@ export interface Service {
     image?: string;
     duration: number;
     price: number;
+    sortOrder?: number;
 }
   

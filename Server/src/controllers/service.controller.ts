@@ -8,11 +8,12 @@ interface ServiceUpdateData {
     duration?: number;
     price?: number;
     image?: string;
+    sortOrder?: number;
 }
 
 export const getServices = async (req: Request, res: Response) => {
     try {
-        const services = await Service.find();
+        const services = await Service.find().sort({ sortOrder: -1, name: 1 });
         res.status(200).json(services);
     } catch (error) {
         console.error('Error getting services:', error);
@@ -22,7 +23,7 @@ export const getServices = async (req: Request, res: Response) => {
 
 export const createService = async (req: Request, res: Response) => {
     try {
-        const { name, description, length, price } = req.body;
+        const { name, description, length, price, sortOrder } = req.body;
         let image = undefined;
         if (req.file) {
             image = await uploadServiceImageToS3(req.file.buffer, req.file.originalname, req.file.mimetype);
@@ -32,7 +33,8 @@ export const createService = async (req: Request, res: Response) => {
             description,
             duration: length,
             price,
-            image
+            image,
+            sortOrder: sortOrder || 0
         });
         await service.save();
         res.status(201).json(service);
@@ -47,8 +49,14 @@ export const createService = async (req: Request, res: Response) => {
 export const updateService = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const { name, description, length, price } = req.body;
-        const updateData: ServiceUpdateData = { name, description, duration: length, price };
+        const { name, description, length, price, sortOrder } = req.body;
+        const updateData: ServiceUpdateData = { 
+            name, 
+            description, 
+            duration: length, 
+            price,
+            sortOrder: sortOrder !== undefined ? sortOrder : undefined
+        };
         if (req.file) {
             updateData.image = await uploadServiceImageToS3(req.file.buffer, req.file.originalname, req.file.mimetype);
         }

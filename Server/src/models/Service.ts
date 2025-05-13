@@ -23,7 +23,14 @@ const serviceSchema = new mongoose.Schema({
     price: {
         type: Number,
         required: true
+    },
+    sortOrder: {
+        type: Number,
+        default: 0
     }
 });
+
+// Add a compound index for sorting
+serviceSchema.index({ sortOrder: 1, name: 1 });
 
 export const Service = mongoose.model('Service', serviceSchema); 

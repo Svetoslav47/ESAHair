@@ -2,7 +2,7 @@ import React, { useEffect, useState, ChangeEvent, FormEvent } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faClock, faMoneyBill } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faClock, faMoneyBill, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 const PageContainer = styled.div`
   padding: 0 40px 0 40px;
@@ -70,6 +70,37 @@ const ServiceInfo = styled.div`
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+`;
+
+const SortOrderInput = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.2rem;
+`;
+
+const SortOrderButton = styled.button`
+  background: #444;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.2rem;
+  &:hover {
+    background: #555;
+  }
+`;
+
+const SortOrderValue = styled.span`
+  color: #fff;
+  font-size: 1.1rem;
+  min-width: 40px;
+  text-align: center;
 `;
 
 const InfoIcon = styled(FontAwesomeIcon)`
@@ -196,6 +227,7 @@ interface Service {
   description: string;
   duration: number;
   price: number;
+  sortOrder?: number;
 }
 
 const Services: React.FC = () => {
@@ -206,13 +238,18 @@ const Services: React.FC = () => {
   const [description, setDescription] = useState('');
   const [duration, setDuration] = useState<number | ''>('');
   const [price, setPrice] = useState<number | ''>('');
+  const [sortOrder, setSortOrder] = useState<number>(0);
   const [image, setImage] = useState<File | null>(null);
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchServices = async () => {
     try {
       const res = await axios.get('/api/services');
-      setServices(res.data);
+      const sortedServices = res.data.sort((a: Service, b: Service) => 
+        (b.sortOrder || 0) - (a.sortOrder || 0)
+      );
+      setServices(sortedServices);
     } catch {
       setError('Failed to fetch services');
     }
@@ -228,6 +265,7 @@ const Services: React.FC = () => {
     setDescription('');
     setDuration('');
     setPrice('');
+    setSortOrder(0);
     setImage(null);
     setShowModal(true);
     setError('');
@@ -239,6 +277,7 @@ const Services: React.FC = () => {
     setDescription(service.description);
     setDuration(service.duration);
     setPrice(service.price);
+    setSortOrder(service.sortOrder || 0);
     setImage(null);
     setShowModal(true);
     setError('');
@@ -251,6 +290,7 @@ const Services: React.FC = () => {
     setDescription('');
     setDuration('');
     setPrice('');
+    setSortOrder(0);
     setImage(null);
     setError('');
   };
@@ -263,26 +303,30 @@ const Services: React.FC = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!name || !description || duration === '' || price === '') {
-      setError('All fields are required');
-      return;
-    }
+    setError('');
+    setIsSubmitting(true);
+
     try {
-      const formData = new FormData();
-      formData.append('name', name);
-      formData.append('description', description);
-      formData.append('length', String(duration));
-      formData.append('price', String(price));
-      if (image) formData.append('image', image);
+      const formDataToSend = new FormData();
+      formDataToSend.append('name', name);
+      formDataToSend.append('description', description);
+      formDataToSend.append('length', String(duration));
+      formDataToSend.append('price', String(price));
+      formDataToSend.append('sortOrder', String(sortOrder));
+      if (image) formDataToSend.append('image', image);
+
       if (editService) {
-        await axios.put(`/api/services/${editService._id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+        await axios.put(`/api/services/${editService._id}`, formDataToSend, { headers: { 'Content-Type': 'multipart/form-data' } });
       } else {
-        await axios.post('/api/services', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+        await axios.post('/api/services', formDataToSend, { headers: { 'Content-Type': 'multipart/form-data' } });
       }
+
       closeModal();
       fetchServices();
-    } catch {
-      setError('Failed to save service');
+    } catch (error) {
+      setError('Failed to save service. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -311,6 +355,10 @@ const Services: React.FC = () => {
             <ServiceInfo>
               <InfoIcon icon={faMoneyBill} />
               Цена: {service.price} лв.
+            </ServiceInfo>
+            <ServiceInfo>
+              <InfoIcon icon={faEdit} />
+              Приоритет за показване: {service.sortOrder || 0}
             </ServiceInfo>
             <Actions>
               <ActionButton onClick={() => openEditModal(service)}>Редактирай</ActionButton>
@@ -365,6 +413,12 @@ const Services: React.FC = () => {
                   required
                 />
               </InputWrapper>
+              <SortOrderInput>
+                <span style={{ color: '#fff' }}>Приоритет за показване (по-висок = по-важен):</span>
+                <SortOrderButton type="button" onClick={() => setSortOrder(prev => Math.max(0, prev - 1))}>-</SortOrderButton>
+                <SortOrderValue>{sortOrder}</SortOrderValue>
+                <SortOrderButton type="button" onClick={() => setSortOrder(prev => prev + 1)}>+</SortOrderButton>
+              </SortOrderInput>
               <Input
                 type="file"
                 accept="image/*"
@@ -372,7 +426,9 @@ const Services: React.FC = () => {
               />
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
                 <ActionButton type="button" onClick={closeModal} style={{ background: '#444' }}>Cancel</ActionButton>
-                <ActionButton type="submit">Save</ActionButton>
+                <ActionButton type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? 'Зареждане...' : 'Save'}
+                </ActionButton>
               </div>
             </form>
           </Modal>
