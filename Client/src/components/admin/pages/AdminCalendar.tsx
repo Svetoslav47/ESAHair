@@ -352,7 +352,7 @@ const AdminCalendar = () => {
       
       return {
         id: app._id,
-        title: `${app.customer.firstname} ${app.customer.lastname} - ${app.service.name} (${app.numberOfPeople} ${app.numberOfPeople === 1 ? 'човек' : 'хора'})`,
+        title: `${app.customer.firstname} - ${app.service.name} (${app.numberOfPeople} ${app.numberOfPeople === 1 ? 'човек' : 'хора'})`,
         start: startTime,
         end: endTime,
         resourceId: app.staff.id,

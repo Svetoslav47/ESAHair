@@ -264,7 +264,7 @@ const Summary = ({ bookingState }: SummaryProps) => {
 
           <TotalAmountContainer>
             <TotalLabel>Обща сума</TotalLabel>
-            <TotalPrice>{service?.price} лв.</TotalPrice>
+            <TotalPrice>{service?.price * numberOfPeople} лв.</TotalPrice>
           </TotalAmountContainer>
 
           <FinishButton onClick={handleFinishBooking} disabled={isLoading}>

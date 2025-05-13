@@ -174,7 +174,6 @@ interface Country {
 interface PersonalInfoProps {
   onDetailsSubmit: (details: { 
     firstname: string; 
-    lastname: string; 
     phone: string;
     termsAccepted: boolean;
   }) => void;
@@ -183,7 +182,6 @@ interface PersonalInfoProps {
 const PersonalInfo = ({ onDetailsSubmit }: PersonalInfoProps) => {
   const [formData, setFormData] = useState({
     firstname: '',
-    lastname: '',
     phone: '',
     termsAccepted: false
   });
@@ -214,10 +212,6 @@ const PersonalInfo = ({ onDetailsSubmit }: PersonalInfoProps) => {
       newErrors.firstname = 'Please enter your firstname';
     }
 
-    if (!formData.lastname.trim()) {
-      newErrors.lastname = 'Please enter your lastname';
-    }
-
     if (!formData.phone.trim()) {
       newErrors.phone = 'Please enter your phone number';
     }
@@ -233,7 +227,6 @@ const PersonalInfo = ({ onDetailsSubmit }: PersonalInfoProps) => {
   const isFormValid = () => {
     return (
       formData.firstname.trim() !== '' &&
-      formData.lastname.trim() !== '' &&
       formData.phone.trim() !== '' &&
       formData.termsAccepted
     );
@@ -299,26 +292,6 @@ const PersonalInfo = ({ onDetailsSubmit }: PersonalInfoProps) => {
               <ErrorContainer>
                 <ErrorIcon icon={faExclamationCircle} />
                 {errors.firstname}
-              </ErrorContainer>
-            )}
-          </InputGroup>
-
-          <InputGroup>
-            <Label>
-              Фамилия
-              {!formData.lastname && <Required>*</Required>}
-            </Label>
-            <Input
-              type="text"
-              name="lastname"
-              value={formData.lastname}
-              onChange={handleChange}
-              placeholder="Въведете вашето име"
-            />
-            {errors.lastname && (
-              <ErrorContainer>
-                <ErrorIcon icon={faExclamationCircle} />
-                {errors.lastname}
               </ErrorContainer>
             )}
           </InputGroup>

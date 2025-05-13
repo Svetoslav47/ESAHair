@@ -144,7 +144,7 @@ const ThankYou: React.FC<{ booking: BookingConfirmation }> = ({ booking }) => {
         </DetailRow>
         <DetailRow>
           <DetailLabel>Сума</DetailLabel>
-          <DetailValue>{booking.price} лв.</DetailValue>
+          <DetailValue>{Number(booking.price) * booking.numberOfPeople} лв.</DetailValue>
         </DetailRow>
       </BookingDetails>
 
