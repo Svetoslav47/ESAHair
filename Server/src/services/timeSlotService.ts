@@ -5,9 +5,10 @@ import { Types } from 'mongoose';
 import { CalendarService, BookedSlot } from './calendarService';
 import { Barber } from '../models/Barber';
 import { Saloon } from '../models/Saloon';
-import Appointment from '../models/Appointment';
+import Appointment, { IAppointment } from '../models/Appointment';
 import { toZonedTime } from 'date-fns-tz';
 import { start } from 'repl';
+import { Service } from '../models/Service';
 
 interface PopulatedSaloonAssignment {
     date: Date;
@@ -20,21 +21,28 @@ interface PopulatedSaloonAssignment {
     };
 }
 
+interface PopulatedAppointment extends Omit<IAppointment, 'service'> {
+    service: {
+        _id: Types.ObjectId;
+        name: string;
+        duration: number;
+    };
+}
+
 export class TimeSlotService {
     static isSlotBooked(slotStart: Date, bookedSlots: BookedSlot[], procedureLength: number): boolean {
         if (!bookedSlots) {
             return false;
         }
+
         
         const slotEnd = addMinutes(slotStart, procedureLength);
         return bookedSlots.some(bookedSlot => {
-            const bookedSlotStart = new Date(bookedSlot.start);
-            const bookedSlotEnd = new Date(bookedSlot.end);
-            return isWithinInterval(slotStart, { start: bookedSlotStart, end: bookedSlotEnd })
-                || isWithinInterval(slotEnd, { start: bookedSlotStart, end: bookedSlotEnd })
-                || isWithinInterval(slotStart, { start: bookedSlotEnd, end: bookedSlotEnd })
-                || isWithinInterval(bookedSlotStart, { start: slotStart, end: slotEnd })
-                || isWithinInterval(bookedSlotEnd, { start: slotStart, end: slotEnd });
+            let bookedSlotStart = new Date(bookedSlot.start);
+            bookedSlotStart = addHours(bookedSlotStart, 3);
+            let bookedSlotEnd = new Date(bookedSlot.end);
+            bookedSlotEnd = addHours(bookedSlotEnd, 3);
+            return slotStart < bookedSlotEnd && slotEnd > bookedSlotStart;
         });
     }
 
@@ -62,7 +70,7 @@ export class TimeSlotService {
             new Date().getFullYear(),
             new Date().getMonth(),
             new Date().getDate(),
-            new Date().getHours() + 3,
+            new Date().getHours(),
             new Date().getMinutes(),
             0
         )), new Date(Date.UTC(
@@ -76,7 +84,7 @@ export class TimeSlotService {
             zonedDate.getFullYear(),
             zonedDate.getMonth(),
             zonedDate.getDate(),
-            new Date().getHours() + 3,
+            new Date().getHours(),
             new Date().getMinutes(),
             0
         )) : new Date(Date.UTC(
@@ -101,7 +109,7 @@ export class TimeSlotService {
             new Date().getFullYear(),
             new Date().getMonth(),
             new Date().getDate(),
-            new Date().getHours() + 3,
+            new Date().getHours(),
             new Date().getMinutes(),
             0
         )), dayStart)) {
@@ -171,11 +179,11 @@ export class TimeSlotService {
         );
         
         // Query Appointment model for booked slots
-        const appointments = await Appointment.find({
+        const appointments = (await Appointment.find({
             'staff.id': barberId,
             'dateTime.date': { $gte: format(normalizedStartDate, 'yyyy-MM-dd'), $lte: format(endDate, 'yyyy-MM-dd') },
             status: { $ne: 'cancelled' }
-        });
+        }).populate('service')).map(doc => doc.toObject()) as unknown as PopulatedAppointment[];
         const bookedSlotsByDate: Record<string, BookedSlot[]> = {};
         appointments.forEach(app => {
             if (!bookedSlotsByDate[app.dateTime.date]) bookedSlotsByDate[app.dateTime.date] = [];
@@ -264,5 +272,76 @@ export class TimeSlotService {
         }
 
         return availableSlots;
+    }
+
+    async getSlotsForDay(
+        barberId: Types.ObjectId,
+        date: Date,
+        serviceId: Types.ObjectId,
+        numberOfPeople: number = 1
+    ): Promise<TimeSlot[]> {
+        const barber = await Barber.findById(barberId);
+        if (!barber) {
+            throw new Error('Barber not found');
+        }
+
+        const service = await Service.findById(serviceId);
+        if (!service) {
+            throw new Error('Service not found');
+        }
+
+        // Calculate total duration based on number of people
+        const totalDuration = service.duration * numberOfPeople;
+
+        // Get all appointments for the day
+        const appointments = await Appointment.find({
+            'staff.id': barberId,
+            'dateTime.date': date.toISOString().split('T')[0],
+            status: { $ne: 'cancelled' }
+        }).populate('service');
+
+        // Convert appointments to booked slots format
+        const bookedSlots = appointments.map(app => {
+            const populatedApp = app.toObject() as any;
+            const start = new Date(`${populatedApp.dateTime.date}T${populatedApp.dateTime.time}`);
+            const end = addMinutes(start, populatedApp.service.duration * populatedApp.numberOfPeople);
+            return { start: start.toISOString(), end: end.toISOString() };
+        });
+
+        // Get day offs
+        const dayOffs = await DayOff.find({
+            barberId,
+            date: date.toISOString().split('T')[0]
+        });
+
+        if (dayOffs.length > 0) {
+            return [];
+        }
+
+        // Get barber's working hours
+        const startHour = barber.startHour || BOOKING_CONSTANTS.DEFAULT_START_HOUR;
+        const endHour = barber.endHour || BOOKING_CONSTANTS.DEFAULT_END_HOUR;
+
+        // Generate all possible slots
+        const slots: TimeSlot[] = [];
+        let currentTime = setHours(setMinutes(date, 0), startHour);
+
+        while (currentTime.getHours() < endHour) {
+            const slotEndTime = addMinutes(currentTime, totalDuration);
+            
+            // Use the isSlotBooked method to check for overlaps
+            const isSlotBooked = TimeSlotService.isSlotBooked(currentTime, bookedSlots, totalDuration);
+
+            if (!isSlotBooked) {
+                slots.push({
+                    start: currentTime.toISOString(),
+                    end: slotEndTime.toISOString()
+                });
+            }
+
+            currentTime = addMinutes(currentTime, BOOKING_CONSTANTS.TIME_SLOT_INTERVAL);
+        }
+
+        return slots;
     }
 } 

@@ -89,8 +89,8 @@ export const fetchBarbersAssignedToSaloon = async (saloonId: string, date: strin
     }));
 };
 
-export const fetchTimeSlots = async (barberId: string, saloonId: string, serviceId: string, date: string) => {
-    const response = await fetch(`/api/barbers/${barberId}/availability/day?saloonId=${saloonId}&serviceId=${serviceId}&date=${date}`);
+export const fetchTimeSlots = async (barberId: string, saloonId: string, serviceId: string, date: string, numberOfPeople: number = 1) => {
+    const response = await fetch(`/api/barbers/${barberId}/availability/day?saloonId=${saloonId}&serviceId=${serviceId}&date=${date}&numberOfPeople=${numberOfPeople}`);
     if (!response.ok) throw new Error('Failed to fetch time slots');
     return response.json(); // Should be array of { start, end }
 };

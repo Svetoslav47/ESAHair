@@ -128,26 +128,83 @@ const ErrorMessage = styled.div`
   margin-bottom: 0.5rem;
 `;
 
+const PeopleSelector = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  justify-content: center;
+`;
+
+const PeopleLabel = styled.span`
+  color: #fff;
+  font-size: 1rem;
+`;
+
+const PeopleButton = styled.button`
+  background: #222;
+  border: 1px solid #C19B76;
+  color: #fff;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #C19B76;
+    color: #000;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
+const PeopleCount = styled.span`
+  color: #fff;
+  font-size: 1.2rem;
+  min-width: 2rem;
+  text-align: center;
+`;
+
 interface TimeSlotSelectionProps {
   salonId: string;
   staffId: string;
   serviceId: string;
-  onTimeSlotSelect: (time: TimeSlot) => void;
+  onTimeSlotSelect: (time: TimeSlot, numberOfPeople: number) => void;
   selectedTimeSlot: TimeSlot | null;
+  selectedNumberOfPeople?: number;
 }
 
 const formatTimeFromISO = (isoString: string) => {
   const time = isoString.split('T')[1].substring(0, 5);
   const [hours, minutes] = time.split(':');
-  const hour = parseInt(hours);
-  const ampm = hour >= 12 ? 'PM' : 'AM';
-  const hour12 = hour % 12 || 12;
-  return `${hour12}:${minutes} ${ampm}`;
+  return `${hours}:${minutes}`;
 };
 
-const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId, serviceId, onTimeSlotSelect, selectedTimeSlot }) => {
+const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ 
+  salonId, 
+  staffId, 
+  serviceId, 
+  onTimeSlotSelect, 
+  selectedTimeSlot,
+  selectedNumberOfPeople = 1 
+}) => {
   const [timeSlots, setTimeSlots] = useState<{ [date: string]: TimeSlot[] }>({});
   const [loading, setLoading] = useState(true);
+  const [numberOfPeople, setNumberOfPeople] = useState(selectedNumberOfPeople);
+
+  const handlePeopleChange = (change: number) => {
+    const newCount = numberOfPeople + change;
+    if (newCount >= 1 && newCount <= 3) {
+      setNumberOfPeople(newCount);
+    }
+  };
 
   useEffect(() => {
     if (!salonId || !staffId || !serviceId) return;
@@ -161,15 +218,14 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
     // Fetch slots for each day independently
     const fetchSlotsForDay = async (date: string) => {
       try {
-        const slots = await fetchTimeSlots(staffId, salonId, serviceId, date);
-        console.log('Slots:', slots);
+        const slots = await fetchTimeSlots(staffId, salonId, serviceId, date, numberOfPeople);
+        console.log('Slots for', date, 'with', numberOfPeople, 'people:', slots);
         setTimeSlots(prev => ({
           ...prev,
           [date]: slots
         }));
       } catch (error) {
         console.error(`Error fetching slots for ${date}:`, error);
-        // Set empty array for failed fetches instead of showing error
         setTimeSlots(prev => ({
           ...prev,
           [date]: []
@@ -183,9 +239,8 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
       fetchSlotsForDay(tomorrowStr)
     ]).finally(() => {
       setLoading(false);
-      console.log('All time slots:', timeSlots);
     });
-  }, [salonId, staffId, serviceId]);
+  }, [salonId, staffId, serviceId, numberOfPeople]);
 
   if (loading && Object.keys(timeSlots).length === 0) {
     return <Container>Зареждане на свободни часове...</Container>;
@@ -198,16 +253,34 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
     <Container>
       <StepWrapper>
         <Title>Изберете час</Title>
+        <PeopleSelector>
+          <PeopleLabel>Брой хора:</PeopleLabel>
+          <PeopleButton 
+            onClick={() => handlePeopleChange(-1)}
+            disabled={numberOfPeople <= 1}
+          >
+            -
+          </PeopleButton>
+          <PeopleCount>{numberOfPeople}</PeopleCount>
+          <PeopleButton 
+            onClick={() => handlePeopleChange(1)}
+            disabled={numberOfPeople >= 3}
+          >
+            +
+          </PeopleButton>
+        </PeopleSelector>
         <DaysGrid>
           <DayColumn>
             <DayTitle>Днес</DayTitle>
             <TimeSlotsContainer>
-              {timeSlots[today]?.length > 0 ? (
+              {loading ? (
+                <NoTimeSlotsMessage>зарежда</NoTimeSlotsMessage>
+              ) : timeSlots[today]?.length > 0 ? (
                 timeSlots[today].map((slot) => (
                   <TimeSlotButton
                     key={slot.start}
                     $isSelected={selectedTimeSlot?.start === slot.start}
-                    onClick={() => onTimeSlotSelect(slot)}
+                    onClick={() => onTimeSlotSelect(slot, numberOfPeople)}
                   >
                     {formatTimeFromISO(slot.start)} - {formatTimeFromISO(slot.end)}
                   </TimeSlotButton>
@@ -220,12 +293,14 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
           <DayColumn>
             <DayTitle>Утре</DayTitle>
             <TimeSlotsContainer>
-              {timeSlots[tomorrow]?.length > 0 ? (
+              {loading ? (
+                <NoTimeSlotsMessage>зарежда</NoTimeSlotsMessage>
+              ) : timeSlots[tomorrow]?.length > 0 ? (
                 timeSlots[tomorrow].map((slot) => (
                   <TimeSlotButton
                     key={slot.start}
                     $isSelected={selectedTimeSlot?.start === slot.start}
-                    onClick={() => onTimeSlotSelect(slot)}
+                    onClick={() => onTimeSlotSelect(slot, numberOfPeople)}
                   >
                     {formatTimeFromISO(slot.start)} - {formatTimeFromISO(slot.end)}
                   </TimeSlotButton>

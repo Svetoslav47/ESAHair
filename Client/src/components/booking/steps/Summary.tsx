@@ -174,7 +174,7 @@ interface SummaryProps {
 }
 
 const Summary = ({ bookingState }: SummaryProps) => {
-  const { service, staff, dateTime, details } = bookingState;
+  const { service, staff, dateTime, details, numberOfPeople = 1 } = bookingState;
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -183,7 +183,10 @@ const Summary = ({ bookingState }: SummaryProps) => {
     try {
       const startDateTimePart = dateTimeString.start;
       const endDateTimePart = dateTimeString.end;
-      return format(startDateTimePart, 'MMMM d, yyyy, HH:mm') + ' - ' + format(endDateTimePart, 'HH:mm');
+      const date = startDateTimePart.split('T')[0];
+      const startTime = startDateTimePart.split('T')[1].substring(0, 5);
+      const endTime = endDateTimePart.split('T')[1].substring(0, 5);
+      return `${date} ${startTime} - ${endTime}`;
     } catch (e) {
       console.error("Error parsing date:", dateTimeString, e);
       return 'Invalid date/time';
@@ -199,7 +202,8 @@ const Summary = ({ bookingState }: SummaryProps) => {
         customerPhone: details?.phone || '',
         customerName: details?.firstname + ' ' + details?.lastname || '',
         date: dateTime?.start || '',
-        serviceId: service?._id || ''
+        serviceId: service?._id || '',
+        numberOfPeople
       };
       const data = await bookAppointment(appointment);
       
@@ -214,7 +218,8 @@ const Summary = ({ bookingState }: SummaryProps) => {
             barberName: staff?.name,
             date: dateTime?.start,
             price: service?.price,
-            bookingId: data.bookingId
+            bookingId: data.bookingId,
+            numberOfPeople
           }
         }
       });
@@ -227,60 +232,54 @@ const Summary = ({ bookingState }: SummaryProps) => {
   };
 
   return (
-    <>
+    <Container>
+      <StepWrapper>
+        <Title>Потвърждение</Title>
+        <MainContent>
+          <CustomerInfo>
+            <DetailLabel>Клиент</DetailLabel>
+            <CustomerName>{details?.firstname} {details?.lastname}</CustomerName>
+          </CustomerInfo>
+
+          <DetailsGrid>
+            <DetailColumn>
+              <DetailLabel>Услуга</DetailLabel>
+              <DetailValue>{service?.name}</DetailValue>
+            </DetailColumn>
+            <DetailColumn>
+              <DetailLabel>Фризьор</DetailLabel>
+              <DetailValue>{staff?.name}</DetailValue>
+            </DetailColumn>
+            <DetailColumn>
+              <DetailLabel>Дата и час</DetailLabel>
+              <DetailValue>{formatDateAndTime(dateTime)}</DetailValue>
+            </DetailColumn>
+            <DetailColumn>
+              <DetailLabel>Брой хора</DetailLabel>
+              <DetailValue>{numberOfPeople}</DetailValue>
+            </DetailColumn>
+          </DetailsGrid>
+
+          <HorizontalLine />
+
+          <TotalAmountContainer>
+            <TotalLabel>Обща сума</TotalLabel>
+            <TotalPrice>{service?.price} лв.</TotalPrice>
+          </TotalAmountContainer>
+
+          <FinishButton onClick={handleFinishBooking} disabled={isLoading}>
+            {isLoading ? 'Зареждане...' : 'Завърши резервацията'}
+          </FinishButton>
+        </MainContent>
+      </StepWrapper>
       {isLoading && (
         <LoadingOverlay>
           <LoadingContent>
-            <LoadingText>Обработване на вашата резервация...</LoadingText>
+            <LoadingText>Обработка на резервацията...</LoadingText>
           </LoadingContent>
         </LoadingOverlay>
       )}
-      
-      <Container>
-        <StepWrapper>
-          <Title>Обобщение</Title>
-
-          <DisclaimerText>
-            Ако имате някакви въпроси, можете да се свържете с нас по телефон +359 890 139 334.
-          </DisclaimerText>
-
-          <MainContent>
-            {details && (
-              <CustomerInfo>
-                <DetailLabel>Клиент</DetailLabel>
-                <CustomerName>{details.firstname} {details.lastname}</CustomerName>
-              </CustomerInfo>
-            )}
-
-            <DetailsGrid>
-              <DetailColumn>
-                <DetailLabel>Услуга</DetailLabel>
-                <DetailValue>{service?.name || 'Не е избрана'}</DetailValue>
-              </DetailColumn>
-              <DetailColumn>
-                <DetailLabel>Фризьор</DetailLabel>
-                <DetailValue>{staff?.name || 'Не е избран'}</DetailValue>
-              </DetailColumn>
-              <DetailColumn>
-                <DetailLabel>Дата и час</DetailLabel>
-                <DetailValue>{formatDateAndTime(dateTime)}</DetailValue>
-              </DetailColumn>
-            </DetailsGrid>
-
-            <HorizontalLine />
-
-            <TotalAmountContainer>
-              <TotalLabel>Сума за плащане</TotalLabel>
-              <TotalPrice>{service?.price || '0.00'} лв.</TotalPrice>
-            </TotalAmountContainer>
-          </MainContent>
-
-          <FinishButton onClick={handleFinishBooking} disabled={isLoading}>
-            {isLoading ? 'Обработване...' : 'Завърши резервация'}
-          </FinishButton>
-        </StepWrapper>
-      </Container>
-    </>
+    </Container>
   );
 };
 

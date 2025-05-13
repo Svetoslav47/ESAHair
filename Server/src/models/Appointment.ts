@@ -16,6 +16,7 @@ export interface IAppointment extends Document {
     email: string;
     phone: string;
   };
+  numberOfPeople: number;
   status: 'pending' | 'confirmed' | 'cancelled';
   createdAt: Date;
   updatedAt: Date;
@@ -40,6 +41,13 @@ const AppointmentSchema: Schema = new Schema({
     lastname: { type: String, required: true },
     email: { type: String, required: false },
     phone: { type: String, required: true }
+  },
+  numberOfPeople: {
+    type: Number,
+    required: true,
+    default: 1,
+    min: 1,
+    max: 3
   },
   status: {
     type: String,

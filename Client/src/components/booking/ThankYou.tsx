@@ -102,9 +102,10 @@ interface BookingConfirmation {
   date: string;
   price: string;
   bookingId: string;
+  numberOfPeople: number;
 }
 
-const ThankYou = ({ booking }: { booking: BookingConfirmation }) => {
+const ThankYou: React.FC<{ booking: BookingConfirmation }> = ({ booking }) => {
   const navigate = useNavigate();
 
   return (
@@ -114,7 +115,7 @@ const ThankYou = ({ booking }: { booking: BookingConfirmation }) => {
       </SuccessIcon>
       
       <div>
-        <Title>Благодарим Ви!</Title>
+        <Title>Благодарим за резервацията!</Title>
         <Subtitle>Вашата резервация е потвърдена</Subtitle>
       </div>
 
@@ -133,7 +134,13 @@ const ThankYou = ({ booking }: { booking: BookingConfirmation }) => {
         </DetailRow>
         <DetailRow>
           <DetailLabel>Дата и час</DetailLabel>
-          <DetailValue>{format(new Date(booking.date), 'MMMM d, yyyy, HH:mm')}</DetailValue>
+          <DetailValue>
+            {booking.date.split('T')[0]} {booking.date.split('T')[1].substring(0, 5)}
+          </DetailValue>
+        </DetailRow>
+        <DetailRow>
+          <DetailLabel>Брой хора</DetailLabel>
+          <DetailValue>{booking.numberOfPeople}</DetailValue>
         </DetailRow>
         <DetailRow>
           <DetailLabel>Сума</DetailLabel>

@@ -179,10 +179,11 @@ const EmbeddedBooking: React.FC = () => {
     setCurrentStep(3);
   };
 
-  const handleDateTimeSelect = (time: TimeSlot) => {
+  const handleDateTimeSelect = (time: TimeSlot, numberOfPeople: number) => {
     setBookingState(prev => ({
       ...prev,
-      dateTime: time
+      dateTime: time,
+      numberOfPeople
     }));
     setCurrentStep(4);
   };

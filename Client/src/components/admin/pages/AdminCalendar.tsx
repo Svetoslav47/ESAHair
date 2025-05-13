@@ -216,6 +216,7 @@ interface Appointment {
     id: string;
     name: string;
   };
+  numberOfPeople: number;
 }
 
 interface Resource {
@@ -347,11 +348,11 @@ const AdminCalendar = () => {
     // Convert appointments to events using original time
     const eventsList = filteredAppointments.map(app => {
       const startTime = new Date(`${app.dateTime.date}T${app.dateTime.time}`);
-      const endTime = addHours(startTime, app.service.duration / 60);
+      const endTime = addHours(startTime, (app.service.duration * app.numberOfPeople) / 60);
       
       return {
         id: app._id,
-        title: `${app.customer.firstname} ${app.customer.lastname} - ${app.service.name}`,
+        title: `${app.customer.firstname} ${app.customer.lastname} - ${app.service.name} (${app.numberOfPeople} ${app.numberOfPeople === 1 ? 'човек' : 'хора'})`,
         start: startTime,
         end: endTime,
         resourceId: app.staff.id,
@@ -487,6 +488,8 @@ const AdminCalendar = () => {
                 <div><b>Клиент:</b> {appt.customer.firstname} {appt.customer.lastname} <span style={{color:'#C19B76'}}>{appt.customer.phone && appt.customer.phone.startsWith('0') ? appt.customer.phone.slice(1) : appt.customer.phone}</span></div>
                 <div><b>Дата:</b> {appt.dateTime.date} <b>Час:</b> {appt.dateTime.time}</div>
                 <div><b>Фризьор:</b> {appt.staff.name}</div>
+                <div><b>Брой хора:</b> {appt.numberOfPeople}</div>
+                <div><b>Продължителност:</b> {appt.service.duration * appt.numberOfPeople} мин.</div>
                 {appt.salon && <div><b>Салон:</b> {appt.salon.name}</div>}
               </>;
             })()}
