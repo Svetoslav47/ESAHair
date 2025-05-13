@@ -236,7 +236,6 @@ export const getBarbersAssignedToSaloon = async (req: Request, res: Response) =>
             return;
         }
 
-        console.log(date);
         const today = new Date(date as string);
         const tomorrow = new Date(today);
         tomorrow.setDate(today.getDate() + 1);
@@ -251,6 +250,8 @@ export const getBarbersAssignedToSaloon = async (req: Request, res: Response) =>
         tomorrowStart.setHours(0,0,0,0);
         const tomorrowEnd = new Date(tomorrow);
         tomorrowEnd.setHours(23,59,59,999);
+
+        console.log(todayStart, todayEnd, tomorrowStart, tomorrowEnd);
 
         // Find assignments for the specified saloon and dates
         const assignments = await BarberAssignment.find({
