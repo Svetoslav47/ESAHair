@@ -136,6 +136,15 @@ interface TimeSlotSelectionProps {
   selectedTimeSlot: TimeSlot | null;
 }
 
+const formatTimeFromISO = (isoString: string) => {
+  const time = isoString.split('T')[1].substring(0, 5);
+  const [hours, minutes] = time.split(':');
+  const hour = parseInt(hours);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const hour12 = hour % 12 || 12;
+  return `${hour12}:${minutes} ${ampm}`;
+};
+
 const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId, serviceId, onTimeSlotSelect, selectedTimeSlot }) => {
   const [timeSlots, setTimeSlots] = useState<{ [date: string]: TimeSlot[] }>({});
   const [loading, setLoading] = useState(true);
@@ -200,7 +209,7 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
                     $isSelected={selectedTimeSlot?.start === slot.start}
                     onClick={() => onTimeSlotSelect(slot)}
                   >
-                    {slot.start.split('T')[1].substring(0, 5)} - {slot.end.split('T')[1].substring(0, 5)}
+                    {formatTimeFromISO(slot.start)} - {formatTimeFromISO(slot.end)}
                   </TimeSlotButton>
                 ))
               ) : (
@@ -218,7 +227,7 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
                     $isSelected={selectedTimeSlot?.start === slot.start}
                     onClick={() => onTimeSlotSelect(slot)}
                   >
-                    {slot.start.split('T')[1].substring(0, 5)} - {slot.end.split('T')[1].substring(0, 5)}
+                    {formatTimeFromISO(slot.start)} - {formatTimeFromISO(slot.end)}
                   </TimeSlotButton>
                 ))
               ) : (
