@@ -266,7 +266,9 @@ export const getBarbersAssignedToSaloon = async (req: Request, res: Response) =>
                 $lte: tomorrowEnd
             }
         }).populate('barber');
+        console.log(todayStart, tomorrowEnd);
 
+        console.log(assignments);
         // Get unique barbers from assignments
         const barberIds = [...new Set(assignments.map(a => a.barber._id))];
         const barbers = await Barber.find({ _id: { $in: barberIds } });
