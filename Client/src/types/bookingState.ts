@@ -5,7 +5,6 @@ export interface BookingState {
     service?: Service;
     staff?: { id: string; name: string };
     dateTime?: TimeSlot;
-    duration?: number;
     details?: {
       firstname: string;
       lastname: string;
