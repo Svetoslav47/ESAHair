@@ -6,6 +6,7 @@ import { CalendarService, BookedSlot } from './calendarService';
 import { Barber } from '../models/Barber';
 import { Saloon } from '../models/Saloon';
 import Appointment from '../models/Appointment';
+import { toZonedTime } from 'date-fns-tz';
 
 interface PopulatedSaloonAssignment {
     date: Date;
@@ -43,8 +44,9 @@ export class TimeSlotService {
         procedureLength: number = BOOKING_CONSTANTS.DEFAULT_PROCEDURE_LENGTH,
         bookedSlots: BookedSlot[],
     ): Promise<TimeSlot[]> {
+        const zonedDate = toZonedTime(date, "Europe/Sofia");
         console.log('Generating time slots with params:', {
-            date: date.toISOString(),
+            date: zonedDate,
             startHour,
             endHour,
             procedureLength,
@@ -54,19 +56,19 @@ export class TimeSlotService {
         const slots: TimeSlot[] = [];
         // Create UTC dates for start and end of day
         let dayStart = new Date(Date.UTC(
-            date.getUTCFullYear(),
-            date.getUTCMonth(),
-            date.getUTCDate(),
+            zonedDate.getFullYear(),
+            zonedDate.getMonth(),
+            zonedDate.getDate(),
             startHour,
             0,
             0,
             0
         ));
         const dayEnd = new Date(Date.UTC(
-            date.getUTCFullYear(),
-            date.getUTCMonth(),
-            date.getUTCDate(),
-            endHour,
+            zonedDate.getFullYear(),
+            zonedDate.getMonth(),
+            zonedDate.getDate(),
+            endHour - zonedDate.getTimezoneOffset() / 60,
             0,
             0,
             0
@@ -186,11 +188,10 @@ export class TimeSlotService {
         }
 
         const availableSlots: { date: string; time: string; saloon: string }[] = [];
-        const currentDate = new Date();
 
         // Only allow booking for today and tomorrow
-        const bookingStartDate = startOfDay(currentDate);
-        const bookingEndDate = endOfDay(addMinutes(currentDate, 24 * 60));
+        const bookingStartDate = startOfDay(toZonedTime(startDate, "Europe/Sofia"));
+        const bookingEndDate = endOfDay(toZonedTime(endDate, "Europe/Sofia"));
 
         // Get barber's assignments for the booking period
         const assignments = barber.saloonAssignments.filter(assignment => {
@@ -214,7 +215,7 @@ export class TimeSlotService {
                     slotTime.setHours(hour, minute, 0, 0);
 
                     // Skip past slots
-                    if (slotTime < currentDate) continue;
+                    if (slotTime < startDate) continue;
 
                     // Check if slot is available in calendar
                     const isAvailable = await calendarService.isSlotAvailable(

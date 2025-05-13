@@ -4,6 +4,7 @@ import { format, parseISO, isToday, isTomorrow, addDays } from 'date-fns';
 import { bg } from 'date-fns/locale';
 import { TimeSlot } from '../../../types/times';
 import { fetchTimeSlots } from '../../../services/api';
+import { toZonedTime } from 'date-fns-tz';
 
 const Container = styled.div`
   display: flex;
@@ -139,11 +140,6 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
   const [timeSlots, setTimeSlots] = useState<{ [date: string]: TimeSlot[] }>({});
   const [loading, setLoading] = useState(true);
 
-  const formatUTCTime = (utcTimeString: string) => {
-    // Extract just the time part from the ISO string (HH:mm)
-    return utcTimeString.split('T')[1].substring(0, 5);
-  };
-
   useEffect(() => {
     if (!salonId || !staffId || !serviceId) return;
     setLoading(true);
@@ -157,7 +153,11 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
     const fetchSlotsForDay = async (date: string) => {
       try {
         const slots = await fetchTimeSlots(staffId, salonId, serviceId, date);
-        console.log(`Time slots for ${date}:`, slots);
+        for (const slot of slots) {
+          const clientTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+          slot.start = toZonedTime(slot.start, clientTimezone);
+          slot.end = toZonedTime(slot.end, clientTimezone);
+        }
         setTimeSlots(prev => ({
           ...prev,
           [date]: slots
@@ -204,7 +204,7 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
                     $isSelected={selectedTimeSlot?.start === slot.start}
                     onClick={() => onTimeSlotSelect(slot)}
                   >
-                    {formatUTCTime(slot.start)} - {formatUTCTime(slot.end)}
+                    {format(slot.start, 'h:mm a')} - {format(slot.end, 'h:mm a')}
                   </TimeSlotButton>
                 ))
               ) : (
@@ -222,7 +222,7 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
                     $isSelected={selectedTimeSlot?.start === slot.start}
                     onClick={() => onTimeSlotSelect(slot)}
                   >
-                    {formatUTCTime(slot.start)} - {formatUTCTime(slot.end)}
+                    {format(slot.start, 'h:mm a')} - {format(slot.end, 'h:mm a')}
                   </TimeSlotButton>
                 ))
               ) : (

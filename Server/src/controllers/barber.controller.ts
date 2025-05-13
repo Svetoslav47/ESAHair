@@ -215,6 +215,8 @@ export const getBarberAvailability = async (req: Request, res: Response, calenda
             calendarService
         );
 
+        console.log(availableSlots);
+
         res.status(200).json({
             barber,
             assignments,
