@@ -34,6 +34,11 @@ const startServer = async () => {
 
     app.use(express.static(path.join(__dirname, '../../Client/dist')));
     app.get(/^\/(?!api).*/, (req, res) => {
+        res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.set('Pragma', 'no-cache');
+        res.set('Expires', '0');
+        res.set('Surrogate-Control', 'no-store');
+    
         res.sendFile(path.join(__dirname, '../../Client/dist/index.html'));
     });
 
