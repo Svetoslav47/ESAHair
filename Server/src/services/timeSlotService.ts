@@ -60,7 +60,7 @@ export class TimeSlotService {
             new Date().getFullYear(),
             new Date().getMonth(),
             new Date().getDate(),
-            new Date().getHours(),
+            new Date().getHours() + 3,
             0,
             0
         )), new Date(Date.UTC(
