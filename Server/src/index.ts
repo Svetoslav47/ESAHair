@@ -32,6 +32,11 @@ const startServer = async () => {
     // Setup routes
     app.use('/api', setupRoutes(calendarService!, calendarEnabled));
 
+    app.use(express.static(path.join(__dirname, '../../Client/dist'), {
+        extensions: ['html'],
+        fallthrough: true, // Let non-existent files continue to the next handler
+    }));
+
     app.use(express.static(path.join(__dirname, '../../Client/dist')));
     app.get(/^\/(?!api).*/, (req, res) => {
         res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
