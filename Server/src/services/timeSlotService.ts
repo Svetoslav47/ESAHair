@@ -109,8 +109,8 @@ export class TimeSlotService {
             new Date().getFullYear(),
             new Date().getMonth(),
             new Date().getDate(),
-            new Date().getHours(),
-            new Date().getMinutes(),
+            0,
+            0,
             0
         )), dayStart)) {
             const minutes = new Date().getMinutes();
