@@ -155,7 +155,7 @@ interface TimeSlotSelectionProps {
   salonId: string;
   staffId: string;
   serviceId: string;
-  onTimeSlotSelect: (time: TimeSlot, duration: number) => void;
+  onTimeSlotSelect: (time: TimeSlot) => void;
   selectedTimeSlot: TimeSlot | null;
 }
 
@@ -250,7 +250,7 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
                   <TimeSlotButton
                     key={slot.start}
                     $isSelected={selectedTimeSlot?.start === slot.start}
-                    onClick={() => onTimeSlotSelect(slot, selectedDuration)}
+                    onClick={() => onTimeSlotSelect(slot)}
                   >
                     {formatTimeFromISO(slot.start)} - {formatTimeFromISO(slot.end)}
                   </TimeSlotButton>
@@ -268,7 +268,7 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
                   <TimeSlotButton
                     key={slot.start}
                     $isSelected={selectedTimeSlot?.start === slot.start}
-                    onClick={() => onTimeSlotSelect(slot, selectedDuration)}
+                    onClick={() => onTimeSlotSelect(slot)}
                   >
                     {formatTimeFromISO(slot.start)} - {formatTimeFromISO(slot.end)}
                   </TimeSlotButton>
