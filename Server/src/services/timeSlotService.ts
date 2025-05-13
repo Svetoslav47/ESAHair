@@ -97,11 +97,20 @@ export class TimeSlotService {
             0
         ));
 
-        const minutes = new Date().getMinutes();
-        const min_remainder = minutes % BOOKING_CONSTANTS.TIME_SLOT_INTERVAL;
-        if(min_remainder > 0) {
-            const minutes_to_next_slot = BOOKING_CONSTANTS.TIME_SLOT_INTERVAL - min_remainder;
-            dayStart = addMinutes(dayStart, minutes_to_next_slot);
+        if(isAfter(new Date(Date.UTC(
+            new Date().getFullYear(),
+            new Date().getMonth(),
+            new Date().getDate(),
+            new Date().getHours() + 3,
+            new Date().getMinutes(),
+            0
+        )), dayStart)) {
+            const minutes = new Date().getMinutes();
+            const min_remainder = minutes % BOOKING_CONSTANTS.TIME_SLOT_INTERVAL;
+            if(min_remainder > 0) {
+                const minutes_to_next_slot = BOOKING_CONSTANTS.TIME_SLOT_INTERVAL - min_remainder;
+                dayStart = addMinutes(dayStart, minutes_to_next_slot);
+            }
         }
 
         console.log('Day range:', {
