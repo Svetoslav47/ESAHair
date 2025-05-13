@@ -99,8 +99,10 @@ export class TimeSlotService {
 
         const minutes = new Date().getMinutes();
         const min_remainder = minutes % BOOKING_CONSTANTS.TIME_SLOT_INTERVAL;
-        const minutes_to_next_slot = BOOKING_CONSTANTS.TIME_SLOT_INTERVAL - min_remainder;
-        dayStart = addMinutes(dayStart, minutes_to_next_slot);
+        if(min_remainder > 0) {
+            const minutes_to_next_slot = BOOKING_CONSTANTS.TIME_SLOT_INTERVAL - min_remainder;
+            dayStart = addMinutes(dayStart, minutes_to_next_slot);
+        }
 
         console.log('Day range:', {
             dayStart: dayStart.toISOString(),
