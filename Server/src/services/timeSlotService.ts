@@ -105,21 +105,12 @@ export class TimeSlotService {
             0
         ));
 
-        if(isAfter(new Date(Date.UTC(
-            new Date().getFullYear(),
-            new Date().getMonth(),
-            new Date().getDate(),
-            0,
-            0,
-            0
-        )), dayStart)) {
-            const minutes = new Date().getMinutes();
+            const minutes = dayStart.getMinutes();
             const min_remainder = minutes % BOOKING_CONSTANTS.TIME_SLOT_INTERVAL;
             if(min_remainder > 0) {
                 const minutes_to_next_slot = BOOKING_CONSTANTS.TIME_SLOT_INTERVAL - min_remainder;
                 dayStart = addMinutes(dayStart, minutes_to_next_slot);
             }
-        }
 
         console.log('Day range:', {
             dayStart: dayStart.toISOString(),
