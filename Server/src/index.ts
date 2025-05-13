@@ -36,7 +36,7 @@ const startServer = async () => {
         fallthrough: true,
     }));
     
-    app.get('/^\/(?!api).*/', (req, res, next) => {
+    app.get(/^\/(?!api).*/, (req, res, next) => {
         if (req.accepts('html')) {
             // Only send index.html if it's an HTML navigation request
             res.set({
