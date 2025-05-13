@@ -59,22 +59,20 @@ export class TimeSlotService {
             zonedDate.getFullYear(),
             zonedDate.getMonth(),
             zonedDate.getDate(),
-            startHour,
+            startHour - zonedDate.getTimezoneOffset() / 60,
             0,
             0,
             0
         ));
-        dayStart = addHours(dayStart, -zonedDate.getTimezoneOffset() / 60)
         let dayEnd = new Date(Date.UTC(
             zonedDate.getFullYear(),
             zonedDate.getMonth(),
             zonedDate.getDate(),
-            endHour,
+            endHour - zonedDate.getTimezoneOffset() / 60,
             0,
             0,
             0
         ));
-        dayEnd = addHours(dayEnd, -zonedDate.getTimezoneOffset() / 60)
 
         console.log('Day range:', {
             dayStart: dayStart.toISOString(),
