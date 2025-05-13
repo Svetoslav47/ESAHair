@@ -59,7 +59,7 @@ export class TimeSlotService {
             zonedDate.getFullYear(),
             zonedDate.getMonth(),
             zonedDate.getDate(),
-            startHour - zonedDate.getTimezoneOffset() / 60,
+            startHour - zonedDate.getTimezoneOffset() / 30,
             0,
             0,
             0
@@ -68,7 +68,7 @@ export class TimeSlotService {
             zonedDate.getFullYear(),
             zonedDate.getMonth(),
             zonedDate.getDate(),
-            endHour - zonedDate.getTimezoneOffset() / 60,
+            endHour - zonedDate.getTimezoneOffset() / 30,
             0,
             0,
             0
