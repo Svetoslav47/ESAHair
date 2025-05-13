@@ -55,7 +55,14 @@ export class TimeSlotService {
 
         const slots: TimeSlot[] = [];
         
-        startHour = isAfter(zonedDate, new Date()) ? startHour : new Date().getHours();
+        startHour = isAfter(zonedDate, new Date(Date.UTC(
+            zonedDate.getFullYear(),
+            zonedDate.getMonth(),
+            zonedDate.getDate(),
+            startHour,
+            0,
+            0
+        ))) ? startHour : new Date().getHours();
 
         let dayStart = new Date(Date.UTC(
             zonedDate.getFullYear(),
