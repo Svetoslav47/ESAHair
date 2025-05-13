@@ -266,13 +266,7 @@ export const getBarbersAssignedToSaloon = async (req: Request, res: Response) =>
         const barberIds = [...new Set(assignments.map(a => a.barber._id))];
         const barbers = await Barber.find({ _id: { $in: barberIds } });
 
-        // Add assignments to each barber
-        const barbersWithAssignments = barbers.map(barber => ({
-            ...barber.toObject(),
-            saloonAssignments: assignments.filter(a => a.barber._id.toString() === barber._id.toString())
-        }));
-
-        res.status(200).json(barbersWithAssignments);
+        res.status(200).json(barbers);
     } catch (error) {
         console.error('Error fetching barbers for saloon:', error);
         res.status(500).json({ error: 'Failed to fetch barbers for saloon' });
