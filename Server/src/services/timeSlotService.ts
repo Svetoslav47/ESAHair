@@ -44,7 +44,7 @@ export class TimeSlotService {
         procedureLength: number = BOOKING_CONSTANTS.DEFAULT_PROCEDURE_LENGTH,
         bookedSlots: BookedSlot[],
     ): Promise<TimeSlot[]> {
-        const zonedDate = toZonedTime(date, "Europe/Sofia")
+        const zonedDate = date
         console.log('Generating time slots with params:', {
             date: zonedDate,
             startHour,
