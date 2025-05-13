@@ -153,11 +153,6 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
     const fetchSlotsForDay = async (date: string) => {
       try {
         const slots = await fetchTimeSlots(staffId, salonId, serviceId, date);
-        for (const slot of slots) {
-          const clientTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-          slot.start = toZonedTime(slot.start, clientTimezone);
-          slot.end = toZonedTime(slot.end, clientTimezone);
-        }
         setTimeSlots(prev => ({
           ...prev,
           [date]: slots
@@ -183,7 +178,7 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
   }, [salonId, staffId, serviceId]);
 
   if (loading && Object.keys(timeSlots).length === 0) {
-    return <Container>Loading available time slots...</Container>;
+    return <Container>Зареждане на свободни часове...</Container>;
   }
 
   const today = format(new Date(), 'yyyy-MM-dd');
@@ -204,7 +199,7 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
                     $isSelected={selectedTimeSlot?.start === slot.start}
                     onClick={() => onTimeSlotSelect(slot)}
                   >
-                    {format(slot.start, 'h:mm a')} - {format(slot.end, 'h:mm a')}
+                    {slot.start.split('T')[1].substring(0, 5)} - {slot.end.split('T')[1].substring(0, 5)}
                   </TimeSlotButton>
                 ))
               ) : (
@@ -222,7 +217,7 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
                     $isSelected={selectedTimeSlot?.start === slot.start}
                     onClick={() => onTimeSlotSelect(slot)}
                   >
-                    {format(slot.start, 'h:mm a')} - {format(slot.end, 'h:mm a')}
+                    {slot.start.split('T')[1].substring(0, 5)} - {slot.end.split('T')[1].substring(0, 5)}
                   </TimeSlotButton>
                 ))
               ) : (
