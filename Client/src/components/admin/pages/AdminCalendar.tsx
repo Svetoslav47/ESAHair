@@ -5,7 +5,6 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { addHours, subHours, parseISO, format, parse, startOfWeek } from 'date-fns';
 import { enUS } from 'date-fns/locale/en-US';
 import styled from 'styled-components';
-import { io as socketIOClient } from 'socket.io-client';
 import { Barber as BaseBarber } from '../../../types/barber';
 
 const locales = {
@@ -278,18 +277,16 @@ const AdminCalendar = () => {
       const appointmentsData = await fetchAppointments();
       setAppointments(appointmentsData);
     };
-    loadAppointments();
-  }, [selectedSalon, selectedBarber]);
 
-  useEffect(() => {
-    const socket = socketIOClient('/');
-    socket.on('appointment:new', (appointment) => {
-      setAppointments(prev => [...prev, appointment]);
-    });
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
+    // Initial load
+    loadAppointments();
+
+    // Set up polling every 15 seconds
+    const intervalId = setInterval(loadAppointments, 15000);
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(intervalId);
+  }, [selectedSalon, selectedBarber]);
 
   // Helper: get barbers assigned to a salon on a given date
   const getBarbersAssignedToSalonOnDate = (salonId: string, date: string) => {
