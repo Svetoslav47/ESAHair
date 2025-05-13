@@ -54,12 +54,14 @@ export class TimeSlotService {
         });
 
         const slots: TimeSlot[] = [];
-        // Create UTC dates for start and end of day
+        
+        startHour = isAfter(zonedDate, new Date()) ? startHour : new Date().getHours();
+
         let dayStart = new Date(Date.UTC(
             zonedDate.getFullYear(),
             zonedDate.getMonth(),
             zonedDate.getDate(),
-            startHour - zonedDate.getTimezoneOffset() / 30,
+            startHour,
             0,
             0,
             0
@@ -68,7 +70,7 @@ export class TimeSlotService {
             zonedDate.getFullYear(),
             zonedDate.getMonth(),
             zonedDate.getDate(),
-            endHour - zonedDate.getTimezoneOffset() / 30,
+            endHour,
             0,
             0,
             0
