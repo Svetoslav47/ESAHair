@@ -109,7 +109,7 @@ export class TimeSlotService {
             new Date().getFullYear(),
             new Date().getMonth(),
             new Date().getDate(),
-            new Date().getHours() + 3,
+            new Date().getHours(),
             new Date().getMinutes(),
             0
         )), dayStart)) {
