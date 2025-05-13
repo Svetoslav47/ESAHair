@@ -102,6 +102,7 @@ interface BookingConfirmation {
   date: string;
   price: string;
   bookingId: string;
+  duration: number;
 }
 
 const ThankYou = ({ booking }: { booking: BookingConfirmation }) => {
@@ -134,6 +135,10 @@ const ThankYou = ({ booking }: { booking: BookingConfirmation }) => {
         <DetailRow>
           <DetailLabel>Дата и час</DetailLabel>
           <DetailValue>{format(new Date(booking.date), 'MMMM d, yyyy, HH:mm')}</DetailValue>
+        </DetailRow>
+        <DetailRow>
+          <DetailLabel>Брой хора</DetailLabel>
+          <DetailValue>{booking.duration} {booking.duration === 1 ? 'човек' : 'души'}</DetailValue>
         </DetailRow>
         <DetailRow>
           <DetailLabel>Сума</DetailLabel>

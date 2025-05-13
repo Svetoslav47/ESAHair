@@ -13,7 +13,7 @@ export const bookAppointment = async (req: Request<{}, {}, AppointmentRequest>, 
         return res.status(400).json({ error: 'Missing request body' });
     }
     
-    const { barberName, customerEmail, customerPhone, date, customerName, serviceId } = req.body;
+    const { barberName, customerEmail, customerPhone, date, customerName, serviceId, duration } = req.body;
 
     const barber = await Barber.findOne({ name: barberName });
     if (!barber) {
@@ -51,11 +51,11 @@ export const bookAppointment = async (req: Request<{}, {}, AppointmentRequest>, 
     if (calendarEnabled && calendarService) {
         try {
             const startDateTime = appointmentDate;
-            const endDateTime = addMinutes(appointmentDate, service.duration);
+            const endDateTime = addMinutes(appointmentDate, service.duration * (duration || 1));
             const calendarId = await calendarService.getOrCreateBarberCalendar(barberName);
             const event = {
-                summary: `${service.name} with ${barber.name}`,
-                description: `Customer: ${customerName}, Phone: ${customerPhone}, Email: ${customerEmail}\nBarber: ${barber.name}`,
+                summary: `${service.name} with ${barber.name} (${duration || 1} ${duration === 1 ? 'person' : 'people'})`,
+                description: `Customer: ${customerName}, Phone: ${customerPhone}, Email: ${customerEmail}\nBarber: ${barber.name}\nDuration: ${duration || 1} ${duration === 1 ? 'person' : 'people'}`,
                 start: {
                     dateTime: startDateTime.toISOString(),
                     timeZone: 'Europe/Sofia',
@@ -92,6 +92,7 @@ export const bookAppointment = async (req: Request<{}, {}, AppointmentRequest>, 
             email: customerEmail,
             phone: customerPhone
         },
+        duration: duration || 1,
         status: 'confirmed'
     });
     await appointment.save();

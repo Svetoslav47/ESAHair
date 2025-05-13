@@ -174,7 +174,7 @@ interface SummaryProps {
 }
 
 const Summary = ({ bookingState }: SummaryProps) => {
-  const { service, staff, dateTime, details } = bookingState;
+  const { service, staff, dateTime, details, duration } = bookingState;
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -199,7 +199,8 @@ const Summary = ({ bookingState }: SummaryProps) => {
         customerPhone: details?.phone || '',
         customerName: details?.firstname + ' ' + details?.lastname || '',
         date: dateTime?.start || '',
-        serviceId: service?._id || ''
+        serviceId: service?._id || '',
+        duration: duration || 1
       };
       const data = await bookAppointment(appointment);
       
@@ -214,7 +215,8 @@ const Summary = ({ bookingState }: SummaryProps) => {
             barberName: staff?.name,
             date: dateTime?.start,
             price: service?.price,
-            bookingId: data.bookingId
+            bookingId: data.bookingId,
+            duration: duration || 1
           }
         }
       });

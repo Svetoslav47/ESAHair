@@ -5,4 +5,5 @@ export interface AppointmentRequest {
     date: string;
     customerName: string;
     serviceId: string;
+    duration: number;
 } 
