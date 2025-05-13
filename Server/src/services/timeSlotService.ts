@@ -1,5 +1,5 @@
 import { BOOKING_CONSTANTS, TimeSlot } from '../constants/booking';
-import { addMinutes, setHours, setMinutes, eachDayOfInterval, addDays, isSameDay, startOfDay, format, isAfter, isWithinInterval, endOfDay } from 'date-fns';
+import { addMinutes, setHours, setMinutes, eachDayOfInterval, addDays, isSameDay, startOfDay, format, isAfter, isWithinInterval, endOfDay, addHours } from 'date-fns';
 import { DayOff } from '../models/DayOff';
 import { Types } from 'mongoose';
 import { CalendarService, BookedSlot } from './calendarService';
@@ -64,7 +64,8 @@ export class TimeSlotService {
             0,
             0
         ));
-        const dayEnd = new Date(Date.UTC(
+        dayStart = addHours(dayStart, -zonedDate.getTimezoneOffset() / 60)
+        let dayEnd = new Date(Date.UTC(
             zonedDate.getFullYear(),
             zonedDate.getMonth(),
             zonedDate.getDate(),
@@ -73,6 +74,7 @@ export class TimeSlotService {
             0,
             0
         ));
+        dayEnd = addHours(dayEnd, -zonedDate.getTimezoneOffset() / 60)
 
         console.log('Day range:', {
             dayStart: dayStart.toISOString(),
