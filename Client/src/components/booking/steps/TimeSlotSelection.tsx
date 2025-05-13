@@ -29,6 +29,29 @@ const Title = styled.h2`
   letter-spacing: 2px;
 `;
 
+const DurationSelector = styled.div`
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+`;
+
+const DurationButton = styled.button<{ $isSelected: boolean }>`
+  padding: 0.8rem 1.5rem;
+  border: 1px solid ${({ $isSelected }) => ($isSelected ? '#C19B76' : '#333')};
+  background: ${({ $isSelected }) => ($isSelected ? '#C19B76' : '#222')};
+  color: ${({ $isSelected }) => ($isSelected ? '#000' : '#fff')};
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+
+  &:hover {
+    background: ${({ $isSelected }) => ($isSelected ? '#C19B76' : '#444')};
+    border-color: #C19B76;
+  }
+`;
+
 const DaysGrid = styled.div`
   display: flex;
   gap: 2rem;
@@ -148,6 +171,7 @@ const formatTimeFromISO = (isoString: string) => {
 const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId, serviceId, onTimeSlotSelect, selectedTimeSlot }) => {
   const [timeSlots, setTimeSlots] = useState<{ [date: string]: TimeSlot[] }>({});
   const [loading, setLoading] = useState(true);
+  const [selectedDuration, setSelectedDuration] = useState(1);
 
   useEffect(() => {
     if (!salonId || !staffId || !serviceId) return;
@@ -161,7 +185,7 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
     // Fetch slots for each day independently
     const fetchSlotsForDay = async (date: string) => {
       try {
-        const slots = await fetchTimeSlots(staffId, salonId, serviceId, date);
+        const slots = await fetchTimeSlots(staffId, salonId, serviceId, date, selectedDuration);
         console.log('Slots:', slots);
         setTimeSlots(prev => ({
           ...prev,
@@ -169,7 +193,6 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
         }));
       } catch (error) {
         console.error(`Error fetching slots for ${date}:`, error);
-        // Set empty array for failed fetches instead of showing error
         setTimeSlots(prev => ({
           ...prev,
           [date]: []
@@ -185,7 +208,7 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
       setLoading(false);
       console.log('All time slots:', timeSlots);
     });
-  }, [salonId, staffId, serviceId]);
+  }, [salonId, staffId, serviceId, selectedDuration]);
 
   if (loading && Object.keys(timeSlots).length === 0) {
     return <Container>Зареждане на свободни часове...</Container>;
@@ -198,6 +221,26 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({ salonId, staffId,
     <Container>
       <StepWrapper>
         <Title>Изберете час</Title>
+        <DurationSelector>
+          <DurationButton 
+            $isSelected={selectedDuration === 1}
+            onClick={() => setSelectedDuration(1)}
+          >
+            1 човек
+          </DurationButton>
+          <DurationButton 
+            $isSelected={selectedDuration === 2}
+            onClick={() => setSelectedDuration(2)}
+          >
+            2 души
+          </DurationButton>
+          <DurationButton 
+            $isSelected={selectedDuration === 3}
+            onClick={() => setSelectedDuration(3)}
+          >
+            3 души
+          </DurationButton>
+        </DurationSelector>
         <DaysGrid>
           <DayColumn>
             <DayTitle>Днес</DayTitle>

@@ -281,7 +281,7 @@ export const getBarbersAssignedToSaloon = async (req: Request, res: Response) =>
 export const getBarberDayAvailability = async (req: Request, res: Response) => {
     try {
         const { barberId } = req.params;
-        const { saloonId, serviceId, date } = req.query;
+        const { saloonId, serviceId, date, duration } = req.query;
 
         if (!barberId || !saloonId || !serviceId || !date) {
             return res.status(400).json({ error: 'Missing required parameters' });
@@ -316,11 +316,14 @@ export const getBarberDayAvailability = async (req: Request, res: Response) => {
             return { start: start.toISOString(), end: end.toISOString() };
         });
 
+        // Calculate total duration based on number of people
+        const totalDuration = service.duration * (parseInt(duration as string) || 1);
+
         const slots = await TimeSlotService.generateTimeSlotsForDay(
             startOfDayDate,
             barber.startHour || 9,
             barber.endHour || 18,
-            service.duration,
+            totalDuration,
             bookedSlots
         );
 

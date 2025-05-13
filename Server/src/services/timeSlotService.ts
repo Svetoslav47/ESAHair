@@ -104,7 +104,14 @@ export class TimeSlotService {
             new Date().getHours() + 3,
             new Date().getMinutes(),
             0
-        )), dayStart)) {
+        )), new Date(Date.UTC(
+            dayStart.getFullYear(),
+            dayStart.getMonth(),
+            dayStart.getDate(),
+            0,
+            0,
+            0
+        )))) {
             const minutes = new Date().getMinutes();
             const min_remainder = minutes % BOOKING_CONSTANTS.TIME_SLOT_INTERVAL;
             if(min_remainder > 0) {
