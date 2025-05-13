@@ -44,7 +44,7 @@ export class TimeSlotService {
         procedureLength: number = BOOKING_CONSTANTS.DEFAULT_PROCEDURE_LENGTH,
         bookedSlots: BookedSlot[],
     ): Promise<TimeSlot[]> {
-        const zonedDate = toZonedTime(date, "Europe/Sofia");
+        const zonedDate = toZonedTime(date, "Europe/Sofia")
         console.log('Generating time slots with params:', {
             date: zonedDate,
             startHour,
@@ -68,7 +68,7 @@ export class TimeSlotService {
             zonedDate.getFullYear(),
             zonedDate.getMonth(),
             zonedDate.getDate(),
-            endHour - zonedDate.getTimezoneOffset() / 60,
+            endHour,
             0,
             0,
             0
