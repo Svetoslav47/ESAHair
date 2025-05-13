@@ -7,6 +7,7 @@ import { Barber } from '../models/Barber';
 import { Saloon } from '../models/Saloon';
 import Appointment from '../models/Appointment';
 import { toZonedTime } from 'date-fns-tz';
+import { start } from 'repl';
 
 interface PopulatedSaloonAssignment {
     date: Date;
@@ -61,8 +62,8 @@ export class TimeSlotService {
             new Date().getFullYear(),
             new Date().getMonth(),
             new Date().getDate(),
-            new Date().getHours(),
-            0,
+            new Date().getHours() + 3,
+            new Date().getMinutes(),
             0
         )), new Date(Date.UTC(
             zonedDate.getFullYear(),
@@ -75,9 +76,8 @@ export class TimeSlotService {
             zonedDate.getFullYear(),
             zonedDate.getMonth(),
             zonedDate.getDate(),
-            zonedDate.getHours(),
-            zonedDate.getMinutes(),
-            zonedDate.getSeconds(),
+            new Date().getHours() + 3,
+            new Date().getMinutes(),
             0
         )) : new Date(Date.UTC(
             zonedDate.getFullYear(),
