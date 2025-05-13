@@ -4,7 +4,7 @@ import { Service } from '../models/Service';
 import { TimeSlotService } from '../services/timeSlotService';
 import { CalendarService } from '../services/calendarService';
 import { uploadBarberImageToS3 } from '../utils/s3Upload';
-import { addDays, startOfDay, endOfDay } from 'date-fns';
+import { addDays, startOfDay, endOfDay, format, setHours } from 'date-fns';
 import mongoose from 'mongoose';
 import { IAppointment } from '../models/Appointment';
 import { BarberAssignment } from '../models/BarberAssignment';
@@ -52,6 +52,13 @@ interface Assignment {
         name: string;
     };
     date: Date;
+}
+
+interface PopulatedAssignment extends Omit<Assignment, 'saloon'> {
+    saloon: {
+        _id: mongoose.Types.ObjectId;
+        name: string;
+    };
 }
 
 export const getBarbers = async (req: Request, res: Response) => {
@@ -251,8 +258,6 @@ export const getBarbersAssignedToSaloon = async (req: Request, res: Response) =>
         const tomorrowEnd = new Date(tomorrow);
         tomorrowEnd.setHours(23,59,59,999);
 
-        console.log(todayStart, todayEnd, tomorrowStart, tomorrowEnd);
-
         // Find assignments for the specified saloon and dates
         const assignments = await BarberAssignment.find({
             saloon: saloonId,
@@ -285,14 +290,38 @@ export const getBarberDayAvailability = async (req: Request, res: Response) => {
         const barber = await Barber.findById(barberId);
         if (!barber) return res.status(404).json({ error: 'Barber not found' });
 
-        // Check assignment
+        // Convert saloonId to ObjectId for proper comparison
+        const saloonObjectId = new mongoose.Types.ObjectId(saloonId as string);
+
+        // Check if barber is assigned to a different salon on this date
+        const otherAssignment = await BarberAssignment.findOne({
+            barber: barberId,
+            date: (new Date(date as string)).setHours(0, 0, 0, 0),
+            saloon: { $ne: saloonObjectId }
+        }).populate<{ saloon: { _id: mongoose.Types.ObjectId; name: string } }>('saloon') as PopulatedAssignment | null;
+
+
+        console.log(otherAssignment);
+        if (otherAssignment) {
+            
+            return res.json({
+                message: `${barber.name} работи в ${otherAssignment.saloon.name} на ${format(new Date(date as string), 'dd.MM.yyyy')}`,
+                isAssignedToOtherSalon: true,
+                otherSalonName: otherAssignment.saloon.name
+            });
+        }
+        
+
+        // Check assignment at requested salon
         const assignment = await BarberAssignment.findOne({
             barber: barberId,
             saloon: saloonId,
             date: new Date(date as string)
         });
 
-        if (!assignment) return res.json([]);
+        if (!assignment) {
+            return res.json([]);
+        }
 
         const service = await Service.findById(serviceId);
         if (!service) return res.status(404).json({ error: 'Service not found' });

@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { format, parseISO, isToday, isTomorrow, addDays } from 'date-fns';
-import { bg } from 'date-fns/locale';
+import { format, addDays } from 'date-fns';
 import { TimeSlot } from '../../../types/times';
 import { fetchTimeSlots } from '../../../services/api';
-import { toZonedTime } from 'date-fns-tz';
 
 const Container = styled.div`
   display: flex;
@@ -110,22 +108,19 @@ const NoTimeSlotsMessage = styled.div`
   padding: 2rem;
 `;
 
+const OtherSalonMessage = styled.div`
+  color: #C19B76;
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.1rem;
+`;
+
 const StepWrapper = styled.div`
   max-width: 800px;
   width: 100%;
   margin: 2rem auto;
   padding: 1.5rem 2rem;
   background: transparent;
-`;
-
-const ErrorMessage = styled.div`
-  color: #ff6b6b;
-  text-align: center;
-  padding: 0.5rem;
-  font-size: 0.9rem;
-  background: rgba(255, 107, 107, 0.1);
-  border-radius: 4px;
-  margin-bottom: 0.5rem;
 `;
 
 const PeopleSelector = styled.div`
@@ -198,6 +193,7 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({
   const [timeSlots, setTimeSlots] = useState<{ [date: string]: TimeSlot[] }>({});
   const [loading, setLoading] = useState(true);
   const [numberOfPeople, setNumberOfPeople] = useState(selectedNumberOfPeople);
+  const [otherSalonInfo, setOtherSalonInfo] = useState<{ [date: string]: { message: string; salonName: string } }>({});
 
   const handlePeopleChange = (change: number) => {
     const newCount = numberOfPeople + change;
@@ -209,6 +205,7 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({
   useEffect(() => {
     if (!salonId || !staffId || !serviceId) return;
     setLoading(true);
+    setOtherSalonInfo({});
     const today = new Date();
     const tomorrow = new Date();
     tomorrow.setDate(today.getDate() + 1);
@@ -218,18 +215,21 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({
     // Fetch slots for each day independently
     const fetchSlotsForDay = async (date: string) => {
       try {
-        const slots = await fetchTimeSlots(staffId, salonId, serviceId, date, numberOfPeople);
-        console.log('Slots for', date, 'with', numberOfPeople, 'people:', slots);
-        setTimeSlots(prev => ({
-          ...prev,
-          [date]: slots
-        }));
+        const response = await fetchTimeSlots(staffId, salonId, serviceId, date, numberOfPeople);
+        if (response.isAssignedToOtherSalon && response.message && response.otherSalonName) {
+          setOtherSalonInfo(prev => ({
+            ...prev,
+            [date]: {
+              message: response.message,
+              salonName: response.otherSalonName
+            }
+          }));
+          return [];
+        }
+        return response;
       } catch (error) {
         console.error(`Error fetching slots for ${date}:`, error);
-        setTimeSlots(prev => ({
-          ...prev,
-          [date]: []
-        }));
+        return [];
       }
     };
 
@@ -237,7 +237,12 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({
     Promise.all([
       fetchSlotsForDay(todayStr),
       fetchSlotsForDay(tomorrowStr)
-    ]).finally(() => {
+    ]).then(([todaySlots, tomorrowSlots]) => {
+      setTimeSlots({
+        [todayStr]: todaySlots,
+        [tomorrowStr]: tomorrowSlots
+      });
+    }).finally(() => {
       setLoading(false);
     });
   }, [salonId, staffId, serviceId, numberOfPeople]);
@@ -275,6 +280,10 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({
             <TimeSlotsContainer>
               {loading ? (
                 <NoTimeSlotsMessage>зарежда</NoTimeSlotsMessage>
+              ) : otherSalonInfo[today] ? (
+                <OtherSalonMessage>
+                  {otherSalonInfo[today].message}
+                </OtherSalonMessage>
               ) : timeSlots[today]?.length > 0 ? (
                 timeSlots[today].map((slot) => (
                   <TimeSlotButton
@@ -295,6 +304,10 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({
             <TimeSlotsContainer>
               {loading ? (
                 <NoTimeSlotsMessage>зарежда</NoTimeSlotsMessage>
+              ) : otherSalonInfo[tomorrow] ? (
+                <OtherSalonMessage>
+                  {otherSalonInfo[tomorrow].message}
+                </OtherSalonMessage>
               ) : timeSlots[tomorrow]?.length > 0 ? (
                 timeSlots[tomorrow].map((slot) => (
                   <TimeSlotButton
