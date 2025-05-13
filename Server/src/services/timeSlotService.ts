@@ -39,9 +39,9 @@ export class TimeSlotService {
         const slotEnd = addMinutes(slotStart, procedureLength);
         return bookedSlots.some(bookedSlot => {
             let bookedSlotStart = new Date(bookedSlot.start);
-            bookedSlotStart = addHours(bookedSlotStart, 3);
+            // bookedSlotStart = addHours(bookedSlotStart, 3);
             let bookedSlotEnd = new Date(bookedSlot.end);
-            bookedSlotEnd = addHours(bookedSlotEnd, 3);
+            // bookedSlotEnd = addHours(bookedSlotEnd, 3);
             return slotStart < bookedSlotEnd && slotEnd > bookedSlotStart;
         });
     }
