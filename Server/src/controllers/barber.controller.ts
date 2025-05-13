@@ -237,8 +237,8 @@ export const getBarbersAssignedToSaloon = async (req: Request, res: Response) =>
         }
 
         // Get today and tomorrow's dates
-        const today = new Date();
-        const tomorrow = new Date();
+        const today = new Date(date as string);
+        const tomorrow = new Date(today);
         tomorrow.setDate(today.getDate() + 1);
 
         // Set up date ranges for both days
