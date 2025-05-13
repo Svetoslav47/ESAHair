@@ -102,17 +102,6 @@ export class TimeSlotService {
             dayEnd: dayEnd.toISOString()
         });
 
-        const currentTime = new Date();
-        if (isAfter(currentTime, dayStart)) {
-            // Find the next available slot after current time
-            let nextSlot = new Date(dayStart);
-            while (isAfter(currentTime, nextSlot)) {
-                nextSlot = addMinutes(nextSlot, BOOKING_CONSTANTS.TIME_SLOT_INTERVAL);
-            }
-            dayStart = nextSlot;
-            console.log('Adjusted dayStart to:', dayStart.toISOString());
-        }
-
         let currentSlotStart = dayStart;
 
         while (addMinutes(currentSlotStart, procedureLength) <= dayEnd) {
