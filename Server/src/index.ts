@@ -36,8 +36,6 @@ const startServer = async () => {
         extensions: ['html'],
         fallthrough: true, // Let non-existent files continue to the next handler
     }));
-
-    app.use(express.static(path.join(__dirname, '../../Client/dist')));
     app.get(/^\/(?!api).*/, (req, res) => {
         res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
         res.set('Pragma', 'no-cache');
