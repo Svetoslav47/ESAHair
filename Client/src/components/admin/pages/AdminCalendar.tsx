@@ -345,8 +345,10 @@ const AdminCalendar = () => {
     // Convert appointments to events using original time
     const eventsList = filteredAppointments.map(app => {
       const startTime = new Date(`${app.dateTime.date}T${app.dateTime.time}`);
+      if (!app.service) return null;
       const endTime = addHours(startTime, (app.service.duration * app.numberOfPeople) / 60);
       
+
       return {
         id: app._id,
         title: `${app.customer.firstname} - ${app.service.name} (${app.numberOfPeople} ${app.numberOfPeople === 1 ? 'човек' : 'хора'})`,
@@ -390,6 +392,10 @@ const AdminCalendar = () => {
     let min = 8, max = 18;
     filteredAppointments.forEach(a => {
       const appointmentStartHour = new Date(`${a.dateTime.date}T${a.dateTime.time}`).getHours();
+      if (!a.service) {
+        console.log("a service is missing");
+        return;
+      };
       const endHour = appointmentStartHour + (a.service.duration / 60);
       if (appointmentStartHour < min) min = appointmentStartHour;
       if (endHour > max) max = endHour;
