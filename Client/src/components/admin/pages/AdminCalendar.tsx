@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Calendar, dateFnsLocalizer, Views } from 'react-big-calendar';
 import { fetchAppointments, fetchBarbers, fetchSaloons, bookAppointment, fetchServices } from '../../../services/api';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import { addHours, subHours, parseISO, format, parse, startOfWeek } from 'date-fns';
+import { addHours, subHours, parseISO, format, parse, startOfWeek, addDays } from 'date-fns';
 import { enUS } from 'date-fns/locale/en-US';
 import styled from 'styled-components';
 import { Barber as BaseBarber } from '../../../types/barber';
@@ -241,7 +241,15 @@ const AdminCalendar = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [minTime, setMinTime] = useState<Date>(new Date(new Date().setHours(8,0,0,0)));
   const [maxTime, setMaxTime] = useState<Date>(new Date(new Date().setHours(22,0,0,0)));
-  const [currentDate, setCurrentDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [currentDate, setCurrentDate] = useState<string>(new Date(Date.UTC(
+    new Date().getFullYear(),
+    new Date().getMonth(),
+    new Date().getDate(),
+    new Date().getHours(),
+    new Date().getMinutes(),
+    new Date().getSeconds(),
+    new Date().getMilliseconds()
+  )).toISOString().split('T')[0]);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -307,14 +315,21 @@ const AdminCalendar = () => {
     );
 
   // Day navigation logic
-  const todayDate = new Date();
-  const tomorrowDate = new Date();
-  tomorrowDate.setDate(todayDate.getDate() + 1);
+  const todayDate = new Date(Date.UTC(
+    new Date().getFullYear(),
+    new Date().getMonth(),
+    new Date().getDate(),
+    new Date().getHours(),
+    new Date().getMinutes(),
+    new Date().getSeconds(),
+    new Date().getMilliseconds()
+  ))
+  const tomorrowDate = addDays(todayDate, 1);
   const todayStr = todayDate.toISOString().split('T')[0];
   const tomorrowStr = tomorrowDate.toISOString().split('T')[0];
   const dayOptions = [
-    { label: 'Днес', value: todayStr },
-    { label: 'Утре', value: tomorrowStr },
+    { label: `Днес ${todayStr}`, value: todayStr },
+    { label: `Утре ${tomorrowStr}`, value: tomorrowStr },
   ];
 
   useEffect(() => {
