@@ -503,7 +503,7 @@ const AdminCalendar = () => {
               const appt = getAppointmentByEvent(selectedEvent);
               if (!appt) return <div>Резервацията не е намерена.</div>;
               return <>
-                <div><b>Клиент:</b> {appt.customer.firstname} {appt.customer.lastname} <span style={{color:'#C19B76'}}>{appt.customer.phone && appt.customer.phone.startsWith('0') ? appt.customer.phone.slice(1) : appt.customer.phone}</span></div>
+                <div><b>Клиент:</b> {appt.customer.firstname} <span style={{color:'#C19B76'}}>{appt.customer.phone && appt.customer.phone.startsWith('0') ? appt.customer.phone.slice(1) : appt.customer.phone}</span></div>
                 <div><b>Дата:</b> {appt.dateTime.date} <b>Час:</b> {appt.dateTime.time}</div>
                 <div><b>Фризьор:</b> {appt.staff.name}</div>
                 <div><b>Брой хора:</b> {appt.numberOfPeople}</div>
