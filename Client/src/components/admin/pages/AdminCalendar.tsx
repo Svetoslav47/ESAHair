@@ -240,7 +240,7 @@ const AdminCalendar = () => {
   const [resources, setResources] = useState<Resource[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
   const [minTime, setMinTime] = useState<Date>(new Date(new Date().setHours(8,0,0,0)));
-  const [maxTime, setMaxTime] = useState<Date>(new Date(new Date().setHours(18,0,0,0)));
+  const [maxTime, setMaxTime] = useState<Date>(new Date(new Date().setHours(22,0,0,0)));
   const [currentDate, setCurrentDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);

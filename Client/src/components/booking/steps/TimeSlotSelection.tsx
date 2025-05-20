@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { format, addDays } from 'date-fns';
+import { format, addDays, addHours } from 'date-fns';
 import { TimeSlot } from '../../../types/times';
 import { fetchTimeSlots } from '../../../services/api';
 
@@ -206,7 +206,8 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({
     if (!salonId || !staffId || !serviceId) return;
     setLoading(true);
     setOtherSalonInfo({});
-    const today = new Date();
+    const today = addHours(new Date(), 12)
+    console.log("the date today is:", today)
     const tomorrow = new Date();
     tomorrow.setDate(today.getDate() + 1);
     const todayStr = format(today, 'yyyy-MM-dd');
@@ -276,7 +277,7 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({
         </PeopleSelector>
         <DaysGrid>
           <DayColumn>
-            <DayTitle>Днес</DayTitle>
+            <DayTitle>Днес ({today})</DayTitle>
             <TimeSlotsContainer>
               {loading ? (
                 <NoTimeSlotsMessage>зарежда</NoTimeSlotsMessage>
@@ -291,7 +292,7 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({
                     $isSelected={selectedTimeSlot?.start === slot.start}
                     onClick={() => onTimeSlotSelect(slot, numberOfPeople)}
                   >
-                    {formatTimeFromISO(slot.start)} - {formatTimeFromISO(slot.end)}
+                    {formatTimeFromISO(slot.start)}
                   </TimeSlotButton>
                 ))
               ) : (
@@ -300,7 +301,7 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({
             </TimeSlotsContainer>
           </DayColumn>
           <DayColumn>
-            <DayTitle>Утре</DayTitle>
+            <DayTitle>Утре ({tomorrow})</DayTitle>
             <TimeSlotsContainer>
               {loading ? (
                 <NoTimeSlotsMessage>зарежда</NoTimeSlotsMessage>
@@ -315,7 +316,7 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({
                     $isSelected={selectedTimeSlot?.start === slot.start}
                     onClick={() => onTimeSlotSelect(slot, numberOfPeople)}
                   >
-                    {formatTimeFromISO(slot.start)} - {formatTimeFromISO(slot.end)}
+                    {formatTimeFromISO(slot.start)}
                   </TimeSlotButton>
                 ))
               ) : (
