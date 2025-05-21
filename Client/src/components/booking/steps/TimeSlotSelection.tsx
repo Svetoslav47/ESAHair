@@ -206,10 +206,17 @@ const TimeSlotSelection: React.FC<TimeSlotSelectionProps> = ({
     if (!salonId || !staffId || !serviceId) return;
     setLoading(true);
     setOtherSalonInfo({});
-    const today = addHours(new Date(), 12)
+    const today = new Date(Date.UTC(
+      new Date().getUTCFullYear(),
+      new Date().getUTCMonth(),
+      new Date().getUTCDate(),
+      new Date().getUTCHours(),
+      new Date().getUTCMinutes(),
+      new Date().getUTCSeconds(),
+      new Date().getUTCMilliseconds()
+    ));
     console.log("the date today is:", today)
-    const tomorrow = new Date();
-    tomorrow.setDate(today.getDate() + 1);
+    const tomorrow = addDays(today, 1);
     const todayStr = format(today, 'yyyy-MM-dd');
     const tomorrowStr = format(tomorrow, 'yyyy-MM-dd');
 
