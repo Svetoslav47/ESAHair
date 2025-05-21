@@ -119,6 +119,7 @@ export class TimeSlotService {
 
         let currentSlotStart = dayStart;
 
+        console.log("booked slots:", bookedSlots)
         while (addMinutes(currentSlotStart, procedureLength) <= dayEnd) {
             let isSlotBooked = false;
             if (bookedSlots) {
@@ -152,7 +153,7 @@ export class TimeSlotService {
         const normalizedStartDate = new Date(startDate);
         normalizedStartDate.setHours(0, 0, 0, 0);
         const endDate = new Date(normalizedStartDate);
-        endDate.setDate(endDate.getDate() + BOOKING_CONSTANTS.DAYS_IN_ADVANCE);
+        endDate.setDate(endDate.getDate() + BOOKING_CONSTANTS.DAYS_IN_ADVANCE + 1);
         const dates = eachDayOfInterval({ start: normalizedStartDate, end: endDate });
 
         // Get all days off for this barber within the date range
