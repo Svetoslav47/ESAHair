@@ -30,9 +30,19 @@ const barberSchema = new mongoose.Schema({
         type: Number,
         required: false
     },
+    startMinutes: {
+        type: Number,
+        required: false,
+        default: 0
+    },
     endHour: { 
         type: Number,
         required: false
+    },
+    endMinutes: {
+        type: Number,
+        required: false,
+        default: 0
     },
     workingDays: { // array of days of the week
         type: [String],

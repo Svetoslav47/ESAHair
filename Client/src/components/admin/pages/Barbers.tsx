@@ -2,7 +2,7 @@ import React, { useEffect, useState, ChangeEvent, FormEvent } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faSpinner, faClock, faUser, faImage, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { format, addDays } from 'date-fns';
 
 const PageContainer = styled.div`
@@ -202,6 +202,55 @@ const Spinner = styled.div`
   }
 `;
 
+const TimeInputGroup = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.2rem;
+`;
+
+const TimeSection = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`;
+
+const TimeLabel = styled.div`
+  color: #bbb;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+const TimeInputs = styled.div`
+  display: flex;
+  gap: 0.5rem;
+`;
+
+const TimeDash = styled.div`
+  color: #bbb;
+  font-size: 1.5rem;
+  font-weight: 300;
+  margin: 0 0.5rem;
+  align-self: flex-end;
+  padding-bottom: 0.5rem;
+`;
+
+const InputGroup = styled.div`
+  margin-bottom: 1.2rem;
+`;
+
+const InputLabel = styled.div`
+  color: #bbb;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
 interface Barber {
   _id: string;
   name: string;
@@ -209,7 +258,9 @@ interface Barber {
   email?: string;
   phone?: string;
   startHour?: number;
+  startMinutes?: number;
   endHour?: number;
+  endMinutes?: number;
   saloonAssignments: Array<{
     date: string;
     saloon: {
@@ -238,7 +289,9 @@ const Barbers: React.FC = () => {
   const [editBarber, setEditBarber] = useState<Barber | null>(null);
   const [name, setName] = useState('');
   const [startHour, setStartHour] = useState<number | ''>('');
+  const [startMinutes, setStartMinutes] = useState<number | ''>('');
   const [endHour, setEndHour] = useState<number | ''>('');
+  const [endMinutes, setEndMinutes] = useState<number | ''>('');
   const [image, setImage] = useState<File | null>(null);
   const [error, setError] = useState('');
   const [loadingAssignments, setLoadingAssignments] = useState<{[key: string]: boolean}>({});
@@ -280,7 +333,9 @@ const Barbers: React.FC = () => {
     setEditBarber(null);
     setName('');
     setStartHour('');
+    setStartMinutes('');
     setEndHour('');
+    setEndMinutes('');
     setImage(null);
     setShowModal(true);
     setError('');
@@ -290,7 +345,9 @@ const Barbers: React.FC = () => {
     setEditBarber(barber);
     setName(barber.name);
     setStartHour(barber.startHour ?? '');
+    setStartMinutes(barber.startMinutes ?? '');
     setEndHour(barber.endHour ?? '');
+    setEndMinutes(barber.endMinutes ?? '');
     setImage(null);
     setShowModal(true);
     setError('');
@@ -301,7 +358,9 @@ const Barbers: React.FC = () => {
     setEditBarber(null);
     setName('');
     setStartHour('');
+    setStartMinutes('');
     setEndHour('');
+    setEndMinutes('');
     setImage(null);
     setError('');
   };
@@ -326,7 +385,9 @@ const Barbers: React.FC = () => {
       const formData = new FormData();
       formData.append('name', name);
       formData.append('startHour', String(startHour));
+      formData.append('startMinutes', String(startMinutes || 0));
       formData.append('endHour', String(endHour));
+      formData.append('endMinutes', String(endMinutes || 0));
       if (image) formData.append('image', image);
       if (editBarber) {
         await axios.put(`/api/barbers/${editBarber._id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
@@ -400,7 +461,7 @@ const Barbers: React.FC = () => {
             <BarberName>{barber.name}</BarberName>
             {(barber.startHour !== undefined && barber.endHour !== undefined) && (
               <div style={{ color: '#bbb', fontSize: '1.02rem', marginBottom: '1.1rem' }}>
-                Работно време: {barber.startHour}:00 - {barber.endHour}:00
+                Работно време: {barber.startHour.toString().padStart(2, '0')}:{barber.startMinutes?.toString().padStart(2, '0') || '00'} - {barber.endHour.toString().padStart(2, '0')}:{barber.endMinutes?.toString().padStart(2, '0') || '00'}
               </div>
             )}
             <AssignmentsContainer>
@@ -462,41 +523,99 @@ const Barbers: React.FC = () => {
             <ModalTitle>{editBarber ? 'Редактиране на фризьор' : 'Добавяне на фризьор'}</ModalTitle>
             {error && <ErrorMsg>{error}</ErrorMsg>}
             <form onSubmit={handleSubmit}>
-              <Input
-                type="text"
-                placeholder="Име"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                required
-              />
-              <HourRow>
-                <HourInput
-                  type="number"
-                  min={0}
-                  max={23}
-                  placeholder="Начало на работа (e.g. 9)"
-                  value={startHour}
-                  onChange={e => setStartHour(e.target.value === '' ? '' : Math.max(0, Math.min(23, Number(e.target.value))))}
+              <InputGroup>
+                <InputLabel>
+                  <FontAwesomeIcon icon={faUser} />
+                  Име на фризьора
+                </InputLabel>
+                <Input
+                  type="text"
+                  placeholder="Въведете име"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
                   required
                 />
-                <HourInput
-                  type="number"
-                  min={1}
-                  max={24}
-                  placeholder="Крайна час (e.g. 18)"
-                  value={endHour}
-                  onChange={e => setEndHour(e.target.value === '' ? '' : Math.max(1, Math.min(24, Number(e.target.value))))}
-                  required
+              </InputGroup>
+
+              <TimeInputGroup>
+                <TimeSection>
+                  <TimeLabel>
+                    <FontAwesomeIcon icon={faClock} />
+                    Начало на работа
+                  </TimeLabel>
+                  <TimeInputs>
+                    <HourInput
+                      type="number"
+                      min={0}
+                      max={23}
+                      placeholder="Час"
+                      value={startHour}
+                      onChange={e => setStartHour(e.target.value === '' ? '' : Math.max(0, Math.min(23, Number(e.target.value))))}
+                      required
+                    />
+                    <HourInput
+                      type="number"
+                      min={0}
+                      max={59}
+                      placeholder="Мин"
+                      value={startMinutes}
+                      onChange={e => setStartMinutes(e.target.value === '' ? '' : Math.max(0, Math.min(59, Number(e.target.value))))}
+                      required
+                    />
+                  </TimeInputs>
+                </TimeSection>
+
+                <TimeDash>—</TimeDash>
+
+                <TimeSection>
+                  <TimeLabel>
+                    <FontAwesomeIcon icon={faClock} />
+                    Край на работа
+                  </TimeLabel>
+                  <TimeInputs>
+                    <HourInput
+                      type="number"
+                      min={0}
+                      max={23}
+                      placeholder="Час"
+                      value={endHour}
+                      onChange={e => setEndHour(e.target.value === '' ? '' : Math.max(0, Math.min(23, Number(e.target.value))))}
+                      required
+                    />
+                    <HourInput
+                      type="number"
+                      min={0}
+                      max={59}
+                      placeholder="Мин"
+                      value={endMinutes}
+                      onChange={e => setEndMinutes(e.target.value === '' ? '' : Math.max(0, Math.min(59, Number(e.target.value))))}
+                      required
+                    />
+                  </TimeInputs>
+                </TimeSection>
+              </TimeInputGroup>
+
+              <InputGroup>
+                <InputLabel>
+                  <FontAwesomeIcon icon={faImage} />
+                  Снимка
+                </InputLabel>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
                 />
-              </HourRow>
-              <Input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-              />
+              </InputGroup>
+
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
-                <ActionButton type="button" onClick={closeModal} style={{ background: '#444' }}>Отказ</ActionButton>
-                <ActionButton type="submit">Запиши</ActionButton>
+                <ActionButton type="button" onClick={closeModal} style={{ background: '#444' }}>
+                  <FontAwesomeIcon icon={faTimes} style={{ marginRight: '0.5rem' }} />
+                  Отказ
+                </ActionButton>
+                <ActionButton type="submit">
+                  <FontAwesomeIcon icon={faPlus} style={{ marginRight: '0.5rem' }} />
+                  {editBarber ? 'Запази промените' : 'Добави фризьор'}
+                </ActionButton>
               </div>
             </form>
           </Modal>

@@ -16,7 +16,9 @@ interface BarberUpdateData {
     phone?: string | null;
     role?: string;
     startHour?: number;
+    startMinutes?: number;
     endHour?: number;
+    endMinutes?: number;
     isActive?: boolean;
     image?: string;
 }
@@ -83,7 +85,7 @@ export const getBarbers = async (req: Request, res: Response) => {
 
 export const createBarber = async (req: Request, res: Response) => {
     try {
-        const { name, email, phone, role, startHour, endHour, isActive } = req.body;
+        const { name, email, phone, role, startHour, startMinutes, endHour, endMinutes, isActive } = req.body;
         let image = undefined;
         if (req.file) {
             image = await uploadBarberImageToS3(req.file.buffer, req.file.originalname, req.file.mimetype);
@@ -94,7 +96,9 @@ export const createBarber = async (req: Request, res: Response) => {
             phone, 
             role, 
             startHour, 
+            startMinutes: startMinutes ?? 0,
             endHour, 
+            endMinutes: endMinutes ?? 0,
             image,
             isActive: isActive !== undefined ? isActive : true
         });
@@ -109,8 +113,16 @@ export const createBarber = async (req: Request, res: Response) => {
 export const updateBarber = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const { name, email, phone, role, startHour, endHour, isActive } = req.body;
-        const updateData: BarberUpdateData = { name, role, startHour, endHour, isActive };
+        const { name, email, phone, role, startHour, startMinutes, endHour, endMinutes, isActive } = req.body;
+        const updateData: BarberUpdateData = { 
+            name, 
+            role, 
+            startHour, 
+            startMinutes: startMinutes ?? 0, 
+            endHour, 
+            endMinutes: endMinutes ?? 0,
+            isActive 
+        };
         updateData.email = email === '' ? null : email;
         updateData.phone = phone === '' ? null : phone;
         if (req.file) {
@@ -350,7 +362,8 @@ export const getBarberDayAvailability = async (req: Request, res: Response) => {
             barber.startHour || 9,
             barber.endHour || 18,
             totalDuration,
-            bookedSlots
+            bookedSlots,
+            barber.startMinutes || 0
         );
 
         res.json(slots);

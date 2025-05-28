@@ -52,6 +52,7 @@ export class TimeSlotService {
         endHour: number,
         procedureLength: number = BOOKING_CONSTANTS.DEFAULT_PROCEDURE_LENGTH,
         bookedSlots: BookedSlot[],
+        startMinutes: number | null | undefined = 0
     ): Promise<TimeSlot[]> {
         const zonedDate = date
         console.log(zonedDate)
@@ -60,12 +61,12 @@ export class TimeSlotService {
             startHour,
             endHour,
             procedureLength,
-            bookedSlotsCount: bookedSlots?.length || 0
+            bookedSlotsCount: bookedSlots?.length || 0,
+            startMinutes: startMinutes ?? 0
         });
 
         const slots: TimeSlot[] = [];
         
-
         let dayStart = isAfter(new Date(Date.UTC(
             new Date().getFullYear(),
             new Date().getMonth(),
@@ -78,7 +79,7 @@ export class TimeSlotService {
             zonedDate.getMonth(),
             zonedDate.getDate(),
             startHour,
-            0,
+            startMinutes ?? 0,
             0
         ))) ? new Date(Date.UTC(
             zonedDate.getFullYear(),
@@ -92,7 +93,7 @@ export class TimeSlotService {
             zonedDate.getMonth(),
             zonedDate.getDate(),
             startHour,
-            0,
+            startMinutes ?? 0,
             0
         ));
         let dayEnd = new Date(Date.UTC(
@@ -165,6 +166,12 @@ export class TimeSlotService {
             }
         });
 
+        // Get barber details
+        const barber = await Barber.findById(barberId);
+        if (!barber) {
+            throw new Error('Barber not found');
+        }
+
         // Create a Set of day off dates for efficient lookup
         const daysOffSet = new Set(
             daysOff.map(dayOff => format(dayOff.date, 'yyyy-MM-dd'))
@@ -195,7 +202,14 @@ export class TimeSlotService {
             .reduce(async (accPromise, date) => {
                 const acc = await accPromise;
                 const dateKey = format(date, 'yyyy-MM-dd');
-                acc[dateKey] = await this.generateTimeSlotsForDay(date, startHour, endHour, procedureLength, bookedSlotsByDate[dateKey] || []);
+                acc[dateKey] = await this.generateTimeSlotsForDay(
+                    date, 
+                    startHour, 
+                    endHour, 
+                    procedureLength, 
+                    bookedSlotsByDate[dateKey] || [],
+                    barber.startMinutes || 0
+                );
                 return acc;
             }, Promise.resolve({} as Record<string, TimeSlot[]>));
     }
