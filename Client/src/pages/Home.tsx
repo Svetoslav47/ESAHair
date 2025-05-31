@@ -23,7 +23,7 @@ const Home = () => {
       <Hero />
       <ServiceList />
       <ScrollToBookingButton />
-      <StaffShowcase />
+      {/* <StaffShowcase /> */}
       <BookingSection>
         <EmbeddedBooking />
       </BookingSection>

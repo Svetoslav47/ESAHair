@@ -121,7 +121,7 @@ export class TimeSlotService {
         let currentSlotStart = dayStart;
 
         console.log("booked slots:", bookedSlots)
-        while (addMinutes(currentSlotStart, procedureLength) <= dayEnd) {
+        while (currentSlotStart < dayEnd && addMinutes(currentSlotStart, procedureLength) <= dayEnd) {
             let isSlotBooked = false;
             if (bookedSlots) {
                 isSlotBooked = this.isSlotBooked(currentSlotStart, bookedSlots, procedureLength);
