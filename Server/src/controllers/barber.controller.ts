@@ -363,7 +363,8 @@ export const getBarberDayAvailability = async (req: Request, res: Response) => {
             barber.endHour || 18,
             totalDuration,
             bookedSlots,
-            barber.startMinutes || 0
+            barber.startMinutes || 0,
+            barber.endMinutes || 0
         );
 
         res.json(slots);
