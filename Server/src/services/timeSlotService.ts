@@ -106,12 +106,20 @@ export class TimeSlotService {
             0
         ));
 
-            const minutes = dayStart.getMinutes();
-            const min_remainder = minutes % BOOKING_CONSTANTS.TIME_SLOT_INTERVAL;
-            if(min_remainder > 0) {
-                const minutes_to_next_slot = BOOKING_CONSTANTS.TIME_SLOT_INTERVAL - min_remainder;
-                dayStart = addMinutes(dayStart, minutes_to_next_slot);
-            }
+        console.log('Debug - Time calculations:', {
+            startHour,
+            endHour,
+            dayStart: dayStart.toISOString(),
+            dayEnd: dayEnd.toISOString(),
+            procedureLength
+        });
+
+        const minutes = dayStart.getMinutes();
+        const min_remainder = minutes % BOOKING_CONSTANTS.TIME_SLOT_INTERVAL;
+        if(min_remainder > 0) {
+            const minutes_to_next_slot = BOOKING_CONSTANTS.TIME_SLOT_INTERVAL - min_remainder;
+            dayStart = addMinutes(dayStart, minutes_to_next_slot);
+        }
 
         console.log('Day range:', {
             dayStart: dayStart.toISOString(),
@@ -129,6 +137,11 @@ export class TimeSlotService {
 
             if (!isSlotBooked) {
                 const slotEnd = addMinutes(currentSlotStart, procedureLength);
+                console.log('Debug - Slot:', {
+                    start: currentSlotStart.toISOString(),
+                    end: slotEnd.toISOString(),
+                    isWithinBounds: slotEnd <= dayEnd
+                });
                 slots.push({
                     start: currentSlotStart.toISOString(),
                     end: slotEnd.toISOString()
