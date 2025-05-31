@@ -52,7 +52,8 @@ export class TimeSlotService {
         endHour: number,
         procedureLength: number = BOOKING_CONSTANTS.DEFAULT_PROCEDURE_LENGTH,
         bookedSlots: BookedSlot[],
-        startMinutes: number | null | undefined = 0
+        startMinutes: number | null | undefined = 0,
+        endMinutes: number | null | undefined = 0
     ): Promise<TimeSlot[]> {
         const zonedDate = date
         console.log(zonedDate)
@@ -62,7 +63,8 @@ export class TimeSlotService {
             endHour,
             procedureLength,
             bookedSlotsCount: bookedSlots?.length || 0,
-            startMinutes: startMinutes ?? 0
+            startMinutes: startMinutes ?? 0,
+            endMinutes: endMinutes ?? 0
         });
 
         const slots: TimeSlot[] = [];
@@ -101,8 +103,7 @@ export class TimeSlotService {
             zonedDate.getMonth(),
             zonedDate.getDate(),
             endHour,
-            0,
-            0,
+            endMinutes ?? 0,
             0
         ));
 
@@ -221,7 +222,8 @@ export class TimeSlotService {
                     endHour, 
                     procedureLength, 
                     bookedSlotsByDate[dateKey] || [],
-                    barber.startMinutes || 0
+                    barber.startMinutes || 0,
+                    barber.endMinutes || 0
                 );
                 return acc;
             }, Promise.resolve({} as Record<string, TimeSlot[]>));
