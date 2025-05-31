@@ -131,9 +131,9 @@ const EmbeddedBooking: React.FC = () => {
   const [bookingState, setBookingState] = useState<BookingState>({});
 
   const steps = [
-    { icon: faStore, text: 'Салон' },
+    { icon: faStore, text: 'Избери салон' },
     { icon: faScissors, text: 'Услуга' },
-    { icon: faUser, text: 'Фризьор' },
+    { icon: faUser, text: 'Избери фризьор' },
     { icon: faClock, text: 'Дата и час' },
     { icon: faClipboard, text: 'Детайли' },
     { icon: faCheck, text: 'Потвърди' }
