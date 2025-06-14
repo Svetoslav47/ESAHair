@@ -9,7 +9,7 @@ import AdminLogin from './components/admin/AdminLogin'
 import AdminDashboard from './components/admin/AdminDashboard'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { useEffect } from 'react'
-import { Analytics } from "@vercel/analytics/next"
+import { Analytics } from "@vercel/analytics/react"
 
 // Protected Route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
