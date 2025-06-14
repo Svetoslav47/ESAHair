@@ -9,6 +9,7 @@ import AdminLogin from './components/admin/AdminLogin'
 import AdminDashboard from './components/admin/AdminDashboard'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { useEffect } from 'react'
+import { Analytics } from "@vercel/analytics/next"
 
 // Protected Route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -38,6 +39,7 @@ function App() {
 
   return (
     <AuthProvider>
+      <Analytics />
       <GlobalStyle />
       <Routes>
         <Route path="/" element={

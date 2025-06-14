@@ -2,7 +2,7 @@ import React, { useEffect, useState, ChangeEvent, FormEvent } from 'react';
 import styled from 'styled-components';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faClock, faMoneyBill, faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faClock, faMoneyBill, faEdit } from '@fortawesome/free-solid-svg-icons';
 
 const PageContainer = styled.div`
   padding: 0 40px 0 40px;
