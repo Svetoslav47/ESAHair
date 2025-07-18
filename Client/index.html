@@ -5,6 +5,28 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>МХ ЗАКИ</title>
+    <script>
+        // Check for new version and force reload if detected.
+        // This script runs *before* the React app fully loads.
+        (function() {
+            const currentBuildId = 'b90HHbvvxBPtMFoHXhUfvg=='; // Replace with a unique ID from your build process
+            const localStorageKey = 'app_last_loaded_build_id';
+
+            const lastLoadedBuildId = localStorage.getItem(localStorageKey);
+
+            if (!lastLoadedBuildId || lastLoadedBuildId !== currentBuildId) {
+                console.log('New app version detected. Forcing hard reload.');
+                localStorage.setItem(localStorageKey, currentBuildId);
+                // Use window.location.replace to prevent back button issues
+                // Add a unique query param to bypass cache, but remove it after reload
+                const newUrl = new URL(window.location.href);
+                newUrl.searchParams.set('_v', Date.now()); // Add unique version param
+                window.location.replace(newUrl.toString());
+            } else {
+                console.log('App version is current.');
+            }
+        })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
