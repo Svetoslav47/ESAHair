@@ -21,15 +21,39 @@ export const setupAppointmentRoutes = (calendarService: CalendarService, calenda
     };
 
     const getAppointmentsHandler: RequestHandler = async (req, res) => {
-        try {
-            const appointments = await Appointment.find()
-                .populate('service')
-                .sort({ 'dateTime.date': 1, 'dateTime.time': 1 });
-            res.json(appointments);
-        } catch (error) {
-            res.status(500).json({ error: 'Failed to fetch appointments' });
-        }
-    };
+    try {
+        // 1. Calculate the date range
+        const today = new Date();
+
+        // Start of yesterday (setting hours to 00:00:00 for the start of the day)
+        const startOfYesterday = new Date(today);
+        startOfYesterday.setDate(today.getDate() - 1);
+        startOfYesterday.setHours(0, 0, 0, 0);
+
+        // End of 5 days in advance (setting hours to 23:59:59 for the end of the day)
+        const endOfFiveDaysAdvance = new Date(today);
+        endOfFiveDaysAdvance.setDate(today.getDate() + 5);
+        endOfFiveDaysAdvance.setHours(23, 59, 59, 999); // 999 milliseconds for end of day
+
+        // 2. Build the query
+        const query = {
+            'dateTime.date': {
+                $gte: startOfYesterday,
+                $lte: endOfFiveDaysAdvance,
+            },
+        };
+
+        // 3. Execute the query
+        const appointments = await Appointment.find(query)
+            .populate('service')
+            .sort({ 'dateTime.date': 1, 'dateTime.time': 1 }); // Still good to sort for consistency
+
+        res.json(appointments);
+    } catch (error) {
+        console.error("Error fetching appointments:", error); // Log the actual error
+        res.status(500).json({ error: 'Failed to fetch appointments' });
+    }
+};
     // @ts-ignore
     const getAppointmentByIdHandler: RequestHandler = async (req, res) => {
         try {
