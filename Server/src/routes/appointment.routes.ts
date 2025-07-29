@@ -22,35 +22,77 @@ export const setupAppointmentRoutes = (calendarService: CalendarService, calenda
 
     const getAppointmentsHandler: RequestHandler = async (req, res) => {
     try {
-        // 1. Calculate the date range
         const today = new Date();
 
-        // Start of yesterday (setting hours to 00:00:00 for the start of the day)
+        // Start of yesterday
         const startOfYesterday = new Date(today);
         startOfYesterday.setDate(today.getDate() - 1);
         startOfYesterday.setHours(0, 0, 0, 0);
 
-        // End of 5 days in advance (setting hours to 23:59:59 for the end of the day)
+        // End of 5 days in advance
         const endOfFiveDaysAdvance = new Date(today);
         endOfFiveDaysAdvance.setDate(today.getDate() + 5);
-        endOfFiveDaysAdvance.setHours(23, 59, 59, 999); // 999 milliseconds for end of day
+        endOfFiveDaysAdvance.setHours(23, 59, 59, 999);
 
-        // 2. Build the query
-        const query = {
-            'dateTime.date': {
-                $gte: startOfYesterday,
-                $lte: endOfFiveDaysAdvance,
+        // Convert the Date objects to YYYY-MM-DD strings for comparison
+        // This is important because your stored dates are strings without time components
+        const startOfYesterdayString = startOfYesterday.toISOString().slice(0, 10); // "YYYY-MM-DD"
+        const endOfFiveDaysAdvanceString = endOfFiveDaysAdvance.toISOString().slice(0, 10); // "YYYY-MM-DD"
+
+        const appointments = await Appointment.aggregate([
+            {
+                $addFields: {
+                    // Convert 'dateTime.date' string to a proper Date object
+                    convertedDate: {
+                        $dateFromString: {
+                            dateString: '$dateTime.date',
+                            format: '%Y-%m-%d', // Specify the format of your date string
+                            // You can add onError/onNull if needed for error handling of malformed strings
+                            // onError: null,
+                            // onNull: null
+                        },
+                    },
+                },
             },
-        };
-
-        // 3. Execute the query
-        const appointments = await Appointment.find(query)
-            .populate('service')
-            .sort({ 'dateTime.date': 1, 'dateTime.time': 1 }); // Still good to sort for consistency
+            {
+                $match: {
+                    'convertedDate': {
+                        $gte: new Date(startOfYesterdayString), // Convert the string back to Date for comparison
+                        $lte: new Date(endOfFiveDaysAdvanceString), // Convert the string back to Date for comparison
+                    },
+                },
+            },
+            {
+                $lookup: {
+                    from: 'services', // The name of your service collection (lowercase and plural by default)
+                    localField: 'service', // The field in the appointments collection
+                    foreignField: '_id', // The field in the services collection
+                    as: 'service', // The array field to add to the input documents
+                },
+            },
+            {
+                $unwind: {
+                    path: '$service', // Unwind the service array to get a single service object
+                    preserveNullAndEmptyArrays: true // Keep appointments even if service is null
+                }
+            },
+            {
+                $sort: {
+                    'convertedDate': 1, // Sort by the converted date
+                    'dateTime.time': 1, // Then by the original time string (if it's also a string and sortable)
+                },
+            },
+            {
+                $project: {
+                    // Remove the temporary convertedDate field if you don't need it in the final output
+                    convertedDate: 0,
+                },
+            },
+        ]);
 
         res.json(appointments);
     } catch (error) {
-        console.error("Error fetching appointments:", error); // Log the actual error
+        console.error("Error fetching appointments:", error);
         res.status(500).json({ error: 'Failed to fetch appointments' });
     }
 };
