@@ -186,7 +186,7 @@ const Summary = ({ bookingState }: SummaryProps) => {
       const date = startDateTimePart.split('T')[0];
       const startTime = startDateTimePart.split('T')[1].substring(0, 5);
       const endTime = endDateTimePart.split('T')[1].substring(0, 5);
-      return `${date} ${startTime} - ${endTime}`;
+      return `${date} ${startTime}`;
     } catch (e) {
       console.error("Error parsing date:", dateTimeString, e);
       return 'Invalid date/time';
