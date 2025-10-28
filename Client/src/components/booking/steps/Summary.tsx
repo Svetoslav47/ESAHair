@@ -110,10 +110,29 @@ const TotalLabel = styled.span`
   color: #fff;
 `;
 
-const TotalPrice = styled.span`
+const TotalPrice = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: flex-end;
+`;
+
+const TotalPrimaryPrice = styled.span`
   font-size: 1.1rem;
   font-weight: 600;
   color: #C19B76;
+  line-height: 1;
+  display: inline-block;
+`;
+
+const TotalSecondaryPrice = styled.span`
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #999;
+  opacity: 0.7;
+  line-height: 1;
+  display: inline-block;
 `;
 
 const FinishButton = styled.button`
@@ -198,9 +217,9 @@ const Summary = ({ bookingState }: SummaryProps) => {
     try {
       const appointment = {
         barberName: staff?.name || '',
-        customerEmail: details?.email || '',
+        customerEmail: '',
         customerPhone: details?.phone || '',
-        customerName: details?.firstname + ' ' + details?.lastname || '',
+        customerName: details?.firstname || '',
         date: dateTime?.start || '',
         serviceId: service?._id || '',
         numberOfPeople
@@ -213,11 +232,12 @@ const Summary = ({ bookingState }: SummaryProps) => {
       navigate('/thank-you', {
         state: {
           booking: {
-            customerName: `${details?.firstname} ${details?.lastname}`,
+            customerName: details?.firstname || '',
             serviceName: service?.name,
             barberName: staff?.name,
             date: dateTime?.start,
-            price: service?.price,
+            priceEUR: service?.priceEUR ?? ((service?.price ?? 0) / 1.95583),
+            priceBGN: service?.priceBGN ?? service?.price ?? 0,
             bookingId: data.bookingId,
             numberOfPeople
           }
@@ -238,7 +258,7 @@ const Summary = ({ bookingState }: SummaryProps) => {
         <MainContent>
           <CustomerInfo>
             <DetailLabel>Клиент</DetailLabel>
-            <CustomerName>{details?.firstname} {details?.lastname}</CustomerName>
+            <CustomerName>{details?.firstname}</CustomerName>
           </CustomerInfo>
 
           <DetailsGrid>
@@ -264,7 +284,10 @@ const Summary = ({ bookingState }: SummaryProps) => {
 
           <TotalAmountContainer>
             <TotalLabel>Обща сума</TotalLabel>
-            <TotalPrice>{service?.price * numberOfPeople} лв.</TotalPrice>
+            <TotalPrice>
+              <TotalPrimaryPrice>{((service?.priceBGN ?? service?.price ?? 0) * numberOfPeople).toFixed(2)} лв.</TotalPrimaryPrice>
+              <TotalSecondaryPrice>{((service?.priceEUR ?? ((service?.price ?? 0) / 1.95583)) * numberOfPeople).toFixed(2)} EUR</TotalSecondaryPrice>
+            </TotalPrice>
           </TotalAmountContainer>
 
           <FinishButton onClick={handleFinishBooking} disabled={isLoading}>

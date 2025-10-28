@@ -226,7 +226,9 @@ interface Service {
   image?: string;
   description: string;
   duration: number;
-  price: number;
+  price?: number;
+  priceEUR?: number;
+  priceBGN?: number;
   sortOrder?: number;
 }
 
@@ -237,7 +239,8 @@ const Services: React.FC = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [duration, setDuration] = useState<number | ''>('');
-  const [price, setPrice] = useState<number | ''>('');
+  const [priceEUR, setPriceEUR] = useState<number | ''>('');
+  const [priceBGN, setPriceBGN] = useState<number | ''>('');
   const [sortOrder, setSortOrder] = useState<number>(0);
   const [image, setImage] = useState<File | null>(null);
   const [error, setError] = useState('');
@@ -264,7 +267,8 @@ const Services: React.FC = () => {
     setName('');
     setDescription('');
     setDuration('');
-    setPrice('');
+    setPriceEUR('');
+    setPriceBGN('');
     setSortOrder(0);
     setImage(null);
     setShowModal(true);
@@ -276,7 +280,8 @@ const Services: React.FC = () => {
     setName(service.name);
     setDescription(service.description);
     setDuration(service.duration);
-    setPrice(service.price);
+    setPriceEUR(service.priceEUR ?? (service.price ? service.price / 1.95583 : ''));
+    setPriceBGN(service.priceBGN ?? service.price ?? '');
     setSortOrder(service.sortOrder || 0);
     setImage(null);
     setShowModal(true);
@@ -289,7 +294,8 @@ const Services: React.FC = () => {
     setName('');
     setDescription('');
     setDuration('');
-    setPrice('');
+    setPriceEUR('');
+    setPriceBGN('');
     setSortOrder(0);
     setImage(null);
     setError('');
@@ -311,7 +317,8 @@ const Services: React.FC = () => {
       formDataToSend.append('name', name);
       formDataToSend.append('description', description);
       formDataToSend.append('length', String(duration));
-      formDataToSend.append('price', String(price));
+      formDataToSend.append('priceEUR', String(priceEUR));
+      formDataToSend.append('priceBGN', String(priceBGN));
       formDataToSend.append('sortOrder', String(sortOrder));
       if (image) formDataToSend.append('image', image);
 
@@ -354,7 +361,7 @@ const Services: React.FC = () => {
             </ServiceInfo>
             <ServiceInfo>
               <InfoIcon icon={faMoneyBill} />
-              Цена: {service.price} лв.
+              Цена: {service.priceBGN ?? service.price ?? 0} лв. ({service.priceEUR ?? (service.price ? (service.price / 1.95583).toFixed(2) : 0)} EUR)
             </ServiceInfo>
             <ServiceInfo>
               <InfoIcon icon={faEdit} />
@@ -407,9 +414,21 @@ const Services: React.FC = () => {
                   type="number"
                   min={0}
                   max={1000}
-                  placeholder="Цена (лв.)"
-                  value={price}
-                  onChange={e => setPrice(e.target.value === '' ? '' : Math.max(0, Math.min(1000, Number(e.target.value))))}
+                  placeholder="Цена (EUR)"
+                  value={priceEUR}
+                  onChange={e => setPriceEUR(e.target.value === '' ? '' : Math.max(0, Math.min(1000, Number(e.target.value))))}
+                  required
+                />
+              </InputWrapper>
+              <InputWrapper>
+                <InputIcon icon={faMoneyBill} />
+                <Input
+                  type="number"
+                  min={0}
+                  max={2000}
+                  placeholder="Цена (BGN - лв.)"
+                  value={priceBGN}
+                  onChange={e => setPriceBGN(e.target.value === '' ? '' : Math.max(0, Math.min(2000, Number(e.target.value))))}
                   required
                 />
               </InputWrapper>

@@ -100,7 +100,8 @@ interface BookingConfirmation {
   serviceName: string;
   barberName: string;
   date: string;
-  price: string;
+  priceEUR?: number;
+  priceBGN?: number;
   bookingId: string;
   numberOfPeople: number;
 }
@@ -144,7 +145,10 @@ const ThankYou: React.FC<{ booking: BookingConfirmation }> = ({ booking }) => {
         </DetailRow>
         <DetailRow>
           <DetailLabel>Сума</DetailLabel>
-          <DetailValue>{Number(booking.price) * booking.numberOfPeople} лв.</DetailValue>
+          <DetailValue>
+            <span style={{ color: '#fff', fontWeight: 500 }}>{(booking.priceBGN ?? 0) * booking.numberOfPeople} лв.</span>
+            <span style={{ color: '#999', fontSize: '0.9rem', marginLeft: '0.5rem', opacity: 0.7 }}> / {(booking.priceEUR ?? 0) * booking.numberOfPeople} EUR</span>
+          </DetailValue>
         </DetailRow>
       </BookingDetails>
 

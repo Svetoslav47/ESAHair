@@ -1,9 +1,12 @@
 import styled from 'styled-components';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
 import CountrySelector from './CountrySelector';
 import { processPhoneNumber } from './CountrySelector';
+import { BookingState } from '../../../types/bookingState';
+import { bookAppointment } from '../../../services/api';
 
 const Container = styled.div`
   display: flex;
@@ -164,6 +167,33 @@ const SubmitButton = styled.button<{ $isDisabled: boolean }>`
   }
 `;
 
+const LoadingOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
+
+const LoadingContent = styled.div`
+  background: #1a1a1a;
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+  color: #fff;
+`;
+
+const LoadingText = styled.p`
+  color: #C19B76;
+  font-size: 1.2rem;
+  margin: 1rem 0;
+`;
+
 interface Country {
   name: string;
   code: string;
@@ -177,9 +207,12 @@ interface PersonalInfoProps {
     phone: string;
     termsAccepted: boolean;
   }) => void;
+  bookingState?: BookingState;
 }
 
-const PersonalInfo = ({ onDetailsSubmit }: PersonalInfoProps) => {
+const PersonalInfo = ({ onDetailsSubmit, bookingState }: PersonalInfoProps) => {
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     firstname: '',
     phone: '',
@@ -232,17 +265,57 @@ const PersonalInfo = ({ onDetailsSubmit }: PersonalInfoProps) => {
     );
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-      onDetailsSubmit({
+      const finalDetails = {
         ...formData,
         phone: `${selectedCountry.dialCode} ${formData.phone}`
-      });
-      // Auto-redirect to the next step after a short delay
-      setTimeout(() => {
-        window.dispatchEvent(new CustomEvent('stepChange', { detail: 4 }));
-      }, 100);
+      };
+      
+      onDetailsSubmit(finalDetails);
+      
+      // Make the booking
+      setIsLoading(true);
+      try {
+        const { service, staff, dateTime, numberOfPeople = 1 } = bookingState || {};
+        
+        const appointment = {
+          barberName: staff?.name || '',
+          customerEmail: '',
+          customerPhone: finalDetails.phone,
+          customerName: finalDetails.firstname,
+          date: dateTime?.start || '',
+          serviceId: service?._id || '',
+          numberOfPeople
+        };
+        
+        const data = await bookAppointment(appointment);
+        
+        if ('error' in data) {
+          throw new Error(data.error);
+        }
+        
+        navigate('/thank-you', {
+          state: {
+            booking: {
+              customerName: finalDetails.firstname,
+              serviceName: service?.name,
+              barberName: staff?.name,
+              date: dateTime?.start,
+              priceEUR: service?.priceEUR ?? ((service?.price ?? 0) / 1.95583),
+              priceBGN: service?.priceBGN ?? service?.price ?? 0,
+              bookingId: data.bookingId,
+              numberOfPeople
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Error booking appointment:', error);
+        alert('Неуспешна резервация. Моля опитайте отново.');
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -343,13 +416,21 @@ const PersonalInfo = ({ onDetailsSubmit }: PersonalInfoProps) => {
 
           <SubmitButton 
             type="submit" 
-            $isDisabled={!isFormValid()}
-            disabled={!isFormValid()}
+            $isDisabled={!isFormValid() || isLoading}
+            disabled={!isFormValid() || isLoading}
           >
-            Продължи
+            {isLoading ? 'Зареждане...' : 'Резервирай'}
           </SubmitButton>
         </Form>
       </StepWrapper>
+      
+      {isLoading && (
+        <LoadingOverlay>
+          <LoadingContent>
+            <LoadingText>Обработка на резервацията...</LoadingText>
+          </LoadingContent>
+        </LoadingOverlay>
+      )}
     </Container>
   );
 };

@@ -116,8 +116,7 @@ const BookingSteps = ({
     { icon: faScissors, text: 'Service', tooltip: 'Select a service to continue' },
     { icon: faUser, text: 'Barber/Hair Braider', tooltip: 'Select a service first' },
     { icon: faCalendarAlt, text: 'Date & Time', tooltip: 'Select a barber first' },
-    { icon: faClipboardList, text: 'Basic Details', tooltip: 'Select date and time first' },
-    { icon: faCheck, text: 'Summary', tooltip: 'Fill in your details first' }
+    { icon: faClipboardList, text: 'Basic Details', tooltip: 'Select date and time first' }
   ];
 
   const handleStepClick = (index: number) => {

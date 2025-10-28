@@ -22,7 +22,15 @@ const serviceSchema = new mongoose.Schema({
     },
     price: {
         type: Number,
-        required: true
+        required: false
+    },
+    priceEUR: {
+        type: Number,
+        required: false
+    },
+    priceBGN: {
+        type: Number,
+        required: false
     },
     sortOrder: {
         type: Number,

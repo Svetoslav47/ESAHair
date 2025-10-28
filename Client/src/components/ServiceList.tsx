@@ -69,10 +69,27 @@ const Duration = styled.span`
   font-size: 1rem;
 `;
 
-const Price = styled.span`
+const Price = styled.div`
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  align-items: center;
+`;
+
+const PrimaryPrice = styled.span`
   color: #C19B76;
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: bold;
+  line-height: 1;
+  display: inline-block;
+`;
+
+const SecondaryPrice = styled.span`
+  color: #999;
+  font-size: 1rem;
+  opacity: 0.7;
+  line-height: 1;
+  display: inline-block;
 `;
 
 const ServiceList: React.FC = () => {
@@ -99,7 +116,10 @@ const ServiceList: React.FC = () => {
             <ServiceDescription>{service.description}</ServiceDescription>
             <ServiceInfo>
               <Duration>{service.duration} мин.</Duration>
-              <Price>{service.price} лв.</Price>
+              <Price>
+                <PrimaryPrice>{service.priceBGN ?? service.price ?? 0} лв.</PrimaryPrice>
+                <SecondaryPrice>{service.priceEUR ?? ((service.price ?? 0) / 1.95583).toFixed(2)} EUR</SecondaryPrice>
+              </Price>
             </ServiceInfo>
           </ServiceCard>
         ))}

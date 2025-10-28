@@ -135,8 +135,7 @@ const EmbeddedBooking: React.FC = () => {
     { icon: faScissors, text: 'Услуга' },
     { icon: faUser, text: 'Избери фризьор' },
     { icon: faClock, text: 'Дата и час' },
-    { icon: faClipboard, text: 'Детайли' },
-    { icon: faCheck, text: 'Потвърди' }
+    { icon: faClipboard, text: 'Детайли' }
   ];
 
   const canNavigateToStep = (step: number) => {
@@ -146,7 +145,6 @@ const EmbeddedBooking: React.FC = () => {
       case 2: return !!bookingState.salon && !!bookingState.service;
       case 3: return !!bookingState.salon && !!bookingState.service && !!bookingState.staff;
       case 4: return !!bookingState.salon && !!bookingState.service && !!bookingState.staff && !!bookingState.dateTime;
-      case 5: return !!bookingState.salon && !!bookingState.service && !!bookingState.staff && !!bookingState.dateTime && !!bookingState.details;
       default: return false;
     }
   };
@@ -190,16 +188,17 @@ const EmbeddedBooking: React.FC = () => {
 
   const handleDetailsSubmit = (details: { 
     firstname: string; 
-    lastname: string; 
-    email: string; 
     phone: string;
     termsAccepted: boolean;
   }) => {
     setBookingState(prev => ({
       ...prev,
-      details
+      details: {
+        firstname: details.firstname,
+        phone: details.phone,
+        termsAccepted: details.termsAccepted
+      }
     }));
-    setCurrentStep(5);
   };
 
   const handleStepClick = (index: number) => {
@@ -277,10 +276,8 @@ const EmbeddedBooking: React.FC = () => {
         {currentStep === 4 && (
           <PersonalInfo
             onDetailsSubmit={handleDetailsSubmit}
+            bookingState={bookingState}
           />
-        )}
-        {currentStep === 5 && (
-          <Summary bookingState={bookingState} />
         )}
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24 }}>
           {currentStep > 0 && (

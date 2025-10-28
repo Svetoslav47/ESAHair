@@ -8,8 +8,6 @@ export interface BookingState {
     numberOfPeople?: number;
     details?: {
       firstname: string;
-      lastname: string;
-      email: string;
       phone: string;
       termsAccepted: boolean;
     };
