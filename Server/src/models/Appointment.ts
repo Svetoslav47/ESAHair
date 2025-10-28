@@ -12,8 +12,8 @@ export interface IAppointment extends Document {
   };
   customer: {
     firstname: string;
-    lastname: string;
-    email: string;
+    lastname?: string;
+    email?: string;
     phone: string;
   };
   numberOfPeople: number;
@@ -38,7 +38,7 @@ const AppointmentSchema: Schema = new Schema({
   },
   customer: {
     firstname: { type: String, required: true },
-    lastname: { type: String, required: true },
+    lastname: { type: String, required: false },
     email: { type: String, required: false },
     phone: { type: String, required: true }
   },
