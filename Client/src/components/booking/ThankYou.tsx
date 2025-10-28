@@ -25,16 +25,10 @@ const SuccessIcon = styled.div`
   margin-bottom: 1rem;
 `;
 
-const Title = styled.h2`
+const Subtitle = styled.h2`
   color: #fff;
-  font-size: 2rem;
-  font-weight: 600;
-  margin: 0;
-`;
-
-const Subtitle = styled.p`
-  color: #C19B76;
-  font-size: 1.2rem;
+  font-size: 2.5rem;
+  font-weight: 700;
   margin: 0;
 `;
 
@@ -115,10 +109,7 @@ const ThankYou: React.FC<{ booking: BookingConfirmation }> = ({ booking }) => {
         <FontAwesomeIcon icon={faCheckCircle} />
       </SuccessIcon>
       
-      <div>
-        <Title>Благодарим за резервацията!</Title>
-        <Subtitle>Вашата резервация е потвърдена</Subtitle>
-      </div>
+      <Subtitle>Вашата резервация е потвърдена</Subtitle>
 
       <BookingDetails>
         <DetailRow>
@@ -146,8 +137,8 @@ const ThankYou: React.FC<{ booking: BookingConfirmation }> = ({ booking }) => {
         <DetailRow>
           <DetailLabel>Сума</DetailLabel>
           <DetailValue>
-            <span style={{ color: '#fff', fontWeight: 500 }}>{(booking.priceBGN ?? 0) * booking.numberOfPeople} лв.</span>
-            <span style={{ color: '#999', fontSize: '0.9rem', marginLeft: '0.5rem', opacity: 0.7 }}> / {(booking.priceEUR ?? 0) * booking.numberOfPeople} EUR</span>
+            <span style={{ color: '#fff', fontWeight: 500 }}>{((booking.priceBGN ?? 0) * booking.numberOfPeople).toFixed(2)} лв.</span>
+            <span style={{ color: '#999', fontSize: '0.9rem', marginLeft: '0.5rem', opacity: 0.7 }}> / {((booking.priceEUR ?? 0) * booking.numberOfPeople).toFixed(2)} EUR</span>
           </DetailValue>
         </DetailRow>
       </BookingDetails>
