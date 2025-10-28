@@ -3,6 +3,7 @@ import { format } from 'date-fns';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheckCircle, faHome } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 const Container = styled.div`
   display: flex;
@@ -102,6 +103,10 @@ interface BookingConfirmation {
 
 const ThankYou: React.FC<{ booking: BookingConfirmation }> = ({ booking }) => {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   return (
     <Container>
