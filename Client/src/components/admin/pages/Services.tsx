@@ -414,6 +414,7 @@ const Services: React.FC = () => {
                   type="number"
                   min={0}
                   max={1000}
+                  step="0.01"
                   placeholder="Цена (EUR)"
                   value={priceEUR}
                   onChange={e => setPriceEUR(e.target.value === '' ? '' : Math.max(0, Math.min(1000, Number(e.target.value))))}
@@ -426,6 +427,7 @@ const Services: React.FC = () => {
                   type="number"
                   min={0}
                   max={2000}
+                  step="0.01"
                   placeholder="Цена (BGN - лв.)"
                   value={priceBGN}
                   onChange={e => setPriceBGN(e.target.value === '' ? '' : Math.max(0, Math.min(2000, Number(e.target.value))))}
