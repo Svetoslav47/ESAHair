@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft, faChevronRight, faStore, faScissors, faUser, faClock, faClipboard, faCheck } from '@fortawesome/free-solid-svg-icons';
@@ -129,6 +129,8 @@ const NavigationButton = styled.button<{ $direction: 'prev' | 'next' }>`
 const EmbeddedBooking: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [bookingState, setBookingState] = useState<BookingState>({});
+  const isNavigatingFromHistory = useRef(false);
+  const isInitialMount = useRef(true);
 
   const steps = [
     { icon: faStore, text: 'Избери салон' },
@@ -214,6 +216,48 @@ const EmbeddedBooking: React.FC = () => {
   const handleNext = () => {
     if (canNavigateToStep(currentStep + 1)) setCurrentStep(currentStep + 1);
   };
+
+  // Initialize history state on mount
+  useEffect(() => {
+    // Replace current history entry with initial step state
+    window.history.replaceState({ step: 0 }, '', window.location.href);
+    isInitialMount.current = false;
+  }, []);
+
+  // Handle browser back/forward button
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      const step = event.state?.step ?? 0;
+      // Allow navigation back to any previous step, or forward if navigation is allowed
+      if (step !== currentStep) {
+        const isGoingBack = step < currentStep;
+        if (isGoingBack || canNavigateToStep(step)) {
+          isNavigatingFromHistory.current = true;
+          setCurrentStep(step);
+          // Reset flag after state update
+          setTimeout(() => {
+            isNavigatingFromHistory.current = false;
+          }, 0);
+        }
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [currentStep]);
+
+  // Push history state when step changes (forward navigation)
+  useEffect(() => {
+    // Skip on initial mount or when navigating from browser history
+    if (isInitialMount.current || isNavigatingFromHistory.current) {
+      return;
+    }
+
+    // Push new history entry for forward navigation
+    window.history.pushState({ step: currentStep }, '', window.location.href);
+  }, [currentStep]);
 
   console.log(bookingState);
   return (
