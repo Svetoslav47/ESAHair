@@ -5,6 +5,7 @@ import { BookingState } from '../../../types/bookingState';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { bookAppointment } from '../../../services/api';
+import { getServicePriceBGN, getServicePriceEUR } from '../../../utils/servicePrice';
 
 const Container = styled.div`
   display: flex;
@@ -236,8 +237,8 @@ const Summary = ({ bookingState }: SummaryProps) => {
             serviceName: service?.name,
             barberName: staff?.name,
             date: dateTime?.start,
-            priceEUR: service?.priceEUR ?? ((service?.price ?? 0) / 1.95583),
-            priceBGN: service?.priceBGN ?? service?.price ?? 0,
+            priceEUR: getServicePriceEUR(service),
+            priceBGN: getServicePriceBGN(service),
             bookingId: data.bookingId,
             numberOfPeople
           }
@@ -285,8 +286,8 @@ const Summary = ({ bookingState }: SummaryProps) => {
           <TotalAmountContainer>
             <TotalLabel>Обща сума</TotalLabel>
             <TotalPrice>
-              <TotalPrimaryPrice>{((service?.priceBGN ?? service?.price ?? 0) * numberOfPeople).toFixed(2)} лв.</TotalPrimaryPrice>
-              <TotalSecondaryPrice>{((service?.priceEUR ?? ((service?.price ?? 0) / 1.95583)) * numberOfPeople).toFixed(2)} EUR</TotalSecondaryPrice>
+              <TotalPrimaryPrice>{((getServicePriceBGN(service) * numberOfPeople).toFixed(2))} лв.</TotalPrimaryPrice>
+              <TotalSecondaryPrice>{((getServicePriceEUR(service) * numberOfPeople).toFixed(2))} EUR</TotalSecondaryPrice>
             </TotalPrice>
           </TotalAmountContainer>
 

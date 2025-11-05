@@ -7,6 +7,7 @@ import CountrySelector from './CountrySelector';
 import { processPhoneNumber } from './CountrySelector';
 import { BookingState } from '../../../types/bookingState';
 import { bookAppointment } from '../../../services/api';
+import { getServicePriceBGN, getServicePriceEUR } from '../../../utils/servicePrice';
 
 const Container = styled.div`
   display: flex;
@@ -303,8 +304,8 @@ const PersonalInfo = ({ onDetailsSubmit, bookingState }: PersonalInfoProps) => {
               serviceName: service?.name,
               barberName: staff?.name,
               date: dateTime?.start,
-              priceEUR: service?.priceEUR ?? ((service?.price ?? 0) / 1.95583),
-              priceBGN: service?.priceBGN ?? service?.price ?? 0,
+              priceEUR: getServicePriceEUR(service),
+              priceBGN: getServicePriceBGN(service),
               bookingId: data.bookingId,
               numberOfPeople
             }

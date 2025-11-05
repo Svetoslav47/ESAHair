@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Service } from '../types/service';
 import { fetchServices } from '../services/api';
+import { getServicePriceBGN, getServicePriceEUR, formatPriceBGN, formatPriceEUR } from '../utils/servicePrice';
 
 const Container = styled.div`
   max-width: 1100px;
@@ -117,8 +118,8 @@ const ServiceList: React.FC = () => {
             <ServiceInfo>
               <Duration>{service.duration} мин.</Duration>
               <Price>
-                <PrimaryPrice>{service.priceBGN ?? service.price ?? 0} лв.</PrimaryPrice>
-                <SecondaryPrice>{service.priceEUR ?? ((service.price ?? 0) / 1.95583).toFixed(2)} EUR</SecondaryPrice>
+                <PrimaryPrice>{formatPriceBGN(getServicePriceBGN(service))} лв.</PrimaryPrice>
+                <SecondaryPrice>{formatPriceEUR(getServicePriceEUR(service))} EUR</SecondaryPrice>
               </Price>
             </ServiceInfo>
           </ServiceCard>

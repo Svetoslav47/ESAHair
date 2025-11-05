@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClock } from '@fortawesome/free-solid-svg-icons';
 import { Service } from '../../../types/service';
 import { fetchServices } from '../../../services/api';
+import { getServicePriceBGN, getServicePriceEUR, formatPriceBGN, formatPriceEUR } from '../../../utils/servicePrice';
 
 const Container = styled.div`
   display: flex;
@@ -186,8 +187,8 @@ const ServiceSelection: React.FC<SelectServiceProps> = ({ onSelect, selectedServ
                     {service.duration} минути
                   </Duration>
                   <Price>
-                    <PrimaryPrice>{service.priceBGN ?? service.price ?? 0} лв.</PrimaryPrice>
-                    <SecondaryPrice>{service.priceEUR ?? ((service.price ?? 0) / 1.95583).toFixed(2)} EUR</SecondaryPrice>
+                    <PrimaryPrice>{formatPriceBGN(getServicePriceBGN(service))} лв.</PrimaryPrice>
+                    <SecondaryPrice>{formatPriceEUR(getServicePriceEUR(service))} EUR</SecondaryPrice>
                   </Price>
                 </ServiceInfo>
               </ServiceDetails>
