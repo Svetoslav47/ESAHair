@@ -317,7 +317,10 @@ const Services: React.FC = () => {
       formDataToSend.append('name', name);
       formDataToSend.append('description', description);
       formDataToSend.append('length', String(duration));
-      formDataToSend.append('priceEUR', String(priceEUR));
+      // Only append priceEUR if it's not empty
+      if (priceEUR !== '' && priceEUR !== null && priceEUR !== undefined) {
+        formDataToSend.append('priceEUR', String(priceEUR));
+      }
       formDataToSend.append('priceBGN', String(priceBGN));
       formDataToSend.append('sortOrder', String(sortOrder));
       if (image) formDataToSend.append('image', image);
@@ -415,10 +418,9 @@ const Services: React.FC = () => {
                   min={0}
                   max={1000}
                   step="0.01"
-                  placeholder="Цена (EUR)"
+                  placeholder="Цена (EUR) - ще се изчисли автоматично ако е празно"
                   value={priceEUR}
                   onChange={e => setPriceEUR(e.target.value === '' ? '' : Math.max(0, Math.min(1000, Number(e.target.value))))}
-                  required
                 />
               </InputWrapper>
               <InputWrapper>
