@@ -45,16 +45,16 @@ export const createService = async (req: Request, res: Response) => {
         if (!priceEURValue && !priceBGNValue && price) {
             const oldPrice = parseFloat(price);
             finalPriceBGN = oldPrice; // Old price is in BGN
-            finalPriceEUR = oldPrice / CONVERSION_RATE;
+            finalPriceEUR = Math.round((oldPrice / CONVERSION_RATE) * 100) / 100;
         } else {
             // If EUR price is not provided, calculate from BGN
             if (!priceEURValue && priceBGNValue) {
-                finalPriceEUR = priceBGNValue / CONVERSION_RATE;
+                finalPriceEUR = Math.round((priceBGNValue / CONVERSION_RATE) * 100) / 100;
             }
             
             // If BGN price is not provided, calculate from EUR
             if (!priceBGNValue && priceEURValue) {
-                finalPriceBGN = priceEURValue * CONVERSION_RATE;
+                finalPriceBGN = Math.round((priceEURValue * CONVERSION_RATE) * 100) / 100;
             }
         }
         
@@ -98,10 +98,10 @@ export const updateService = async (req: Request, res: Response) => {
             // Both provided, use as-is
         } else if (priceEURValue !== undefined && !priceBGNValue) {
             // Only EUR provided, calculate BGN
-            finalPriceBGN = priceEURValue * CONVERSION_RATE;
+            finalPriceBGN = Math.round((priceEURValue * CONVERSION_RATE) * 100) / 100;
         } else if (priceBGNValue !== undefined && !priceEURValue) {
             // Only BGN provided, calculate EUR
-            finalPriceEUR = priceBGNValue / CONVERSION_RATE;
+            finalPriceEUR = Math.round((priceBGNValue / CONVERSION_RATE) * 100) / 100;
         }
         
         const updateData: ServiceUpdateData = { 
