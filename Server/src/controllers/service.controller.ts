@@ -34,23 +34,27 @@ export const createService = async (req: Request, res: Response) => {
         // Conversion rate: 1 EUR = 1.95583 BGN
         const CONVERSION_RATE = 1.95583;
         
-        let finalPriceEUR = priceEUR !== undefined ? parseFloat(priceEUR) : undefined;
-        let finalPriceBGN = priceBGN !== undefined ? parseFloat(priceBGN) : undefined;
+        // Handle empty strings - treat them as undefined
+        const priceEURValue = (priceEUR !== undefined && priceEUR !== '' && priceEUR !== null) ? parseFloat(priceEUR) : undefined;
+        const priceBGNValue = (priceBGN !== undefined && priceBGN !== '' && priceBGN !== null) ? parseFloat(priceBGN) : undefined;
+        
+        let finalPriceEUR = priceEURValue;
+        let finalPriceBGN = priceBGNValue;
         
         // Fallback: if neither priceEUR nor priceBGN provided, use old price field and convert to both
-        if (!priceEUR && !priceBGN && price) {
+        if (!priceEURValue && !priceBGNValue && price) {
             const oldPrice = parseFloat(price);
             finalPriceBGN = oldPrice; // Old price is in BGN
             finalPriceEUR = oldPrice / CONVERSION_RATE;
         } else {
             // If EUR price is not provided, calculate from BGN
-            if (!priceEUR && priceBGN) {
-                finalPriceEUR = parseFloat(priceBGN) / CONVERSION_RATE;
+            if (!priceEURValue && priceBGNValue) {
+                finalPriceEUR = priceBGNValue / CONVERSION_RATE;
             }
             
             // If BGN price is not provided, calculate from EUR
-            if (!priceBGN && priceEUR) {
-                finalPriceBGN = parseFloat(priceEUR) * CONVERSION_RATE;
+            if (!priceBGNValue && priceEURValue) {
+                finalPriceBGN = priceEURValue * CONVERSION_RATE;
             }
         }
         
@@ -82,18 +86,22 @@ export const updateService = async (req: Request, res: Response) => {
         // Conversion rate: 1 EUR = 1.95583 BGN
         const CONVERSION_RATE = 1.95583;
         
-        let finalPriceEUR = priceEUR !== undefined ? parseFloat(priceEUR) : undefined;
-        let finalPriceBGN = priceBGN !== undefined ? parseFloat(priceBGN) : undefined;
+        // Handle empty strings - treat them as undefined
+        const priceEURValue = (priceEUR !== undefined && priceEUR !== '' && priceEUR !== null) ? parseFloat(priceEUR) : undefined;
+        const priceBGNValue = (priceBGN !== undefined && priceBGN !== '' && priceBGN !== null) ? parseFloat(priceBGN) : undefined;
+        
+        let finalPriceEUR = priceEURValue;
+        let finalPriceBGN = priceBGNValue;
         
         // If both prices are being updated or one is missing, handle conversion
-        if (req.body.priceEUR !== undefined && req.body.priceBGN !== undefined) {
+        if (priceEURValue !== undefined && priceBGNValue !== undefined) {
             // Both provided, use as-is
-        } else if (priceEUR !== undefined && !priceBGN) {
+        } else if (priceEURValue !== undefined && !priceBGNValue) {
             // Only EUR provided, calculate BGN
-            finalPriceBGN = parseFloat(priceEUR) * CONVERSION_RATE;
-        } else if (priceBGN !== undefined && !priceEUR) {
+            finalPriceBGN = priceEURValue * CONVERSION_RATE;
+        } else if (priceBGNValue !== undefined && !priceEURValue) {
             // Only BGN provided, calculate EUR
-            finalPriceEUR = parseFloat(priceBGN) / CONVERSION_RATE;
+            finalPriceEUR = priceBGNValue / CONVERSION_RATE;
         }
         
         const updateData: ServiceUpdateData = { 
