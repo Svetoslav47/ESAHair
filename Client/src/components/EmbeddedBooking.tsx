@@ -25,6 +25,7 @@ const BookingContainer = styled.div`
   overflow-x: hidden;
   height: auto;
   min-height: 0;
+  box-sizing: border-box;
 `;
 
 const BookingHeader = styled.div`
@@ -34,22 +35,30 @@ const BookingHeader = styled.div`
   padding: 1rem 1.5rem;
   background: transparent;
   border-bottom: none;
+  box-sizing: border-box;
+  @media (max-width: 480px) {
+    padding: 1rem 0.75rem;
+  }
 `;
 
 const Title = styled.h2`
   color: #fff;
   margin: 0;
-  font-size: 2.5rem;
+  font-size: clamp(1.5rem, 5vw, 2.5rem);
   font-weight: bold;
   letter-spacing: 2px;
   text-align: center;
+  @media (max-width: 480px) {
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+  }
 `;
 
 const StepsContainer = styled.div`
   display: flex;
   justify-content: center;
   gap: 1rem;
-  padding: 0.5rem 0 0.5rem 0;
+  padding: 0.5rem 0.5rem;
   background: transparent;
   border-bottom: none;
   flex-wrap: wrap;
@@ -60,6 +69,14 @@ const StepsContainer = styled.div`
     display: none;
   }
   width: 100%;
+  box-sizing: border-box;
+  overflow-x: auto;
+  @media (max-width: 480px) {
+    gap: 0.5rem;
+    padding: 0.5rem 0.25rem;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+  }
 `;
 
 const Step = styled.div<{ $isActive?: boolean; $isPast?: boolean; $isDisabled?: boolean }>`
@@ -69,12 +86,17 @@ const Step = styled.div<{ $isActive?: boolean; $isPast?: boolean; $isDisabled?: 
   color: ${({ $isActive, $isPast, $isDisabled }) => 
     $isDisabled ? '#666' : $isActive ? '#C19B76' : $isPast ? 'rgba(193, 155, 118, 0.7)' : '#fff'};
   cursor: ${({ $isDisabled }) => ($isDisabled ? 'not-allowed' : 'pointer')};
-  font-size: 1rem;
+  font-size: clamp(0.875rem, 2vw, 1rem);
   font-weight: 500;
   transition: color 0.3s ease;
   white-space: nowrap;
   flex-shrink: 0;
   padding: 0 0.5rem;
+  @media (max-width: 480px) {
+    font-size: 0.75rem;
+    padding: 0 0.25rem;
+    gap: 0.125rem;
+  }
 `;
 
 const StepIcon = styled.div<{ $isActive?: boolean; $isPast?: boolean; $isDisabled?: boolean }>`
@@ -91,12 +113,25 @@ const StepIcon = styled.div<{ $isActive?: boolean; $isPast?: boolean; $isDisable
   color: ${({ $isActive, $isDisabled }) => 
     $isDisabled ? '#666' : $isActive ? '#000' : '#fff'};
   transition: all 0.3s ease;
+  flex-shrink: 0;
+  @media (max-width: 480px) {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-width: 1.5px;
+  }
 `;
 
 const StepContent = styled.div`
   padding: 1rem 0;
   height: auto;
   min-height: 0;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  @media (max-width: 480px) {
+    padding: 0.75rem 0;
+  }
 `;
 
 const NavigationButton = styled.button<{ $direction: 'prev' | 'next' }>`
@@ -109,6 +144,8 @@ const NavigationButton = styled.button<{ $direction: 'prev' | 'next' }>`
   color: #fff;
   width: 36px;
   height: 36px;
+  min-width: 44px;
+  min-height: 44px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -116,6 +153,7 @@ const NavigationButton = styled.button<{ $direction: 'prev' | 'next' }>`
   cursor: pointer;
   transition: all 0.3s ease;
   z-index: 2;
+  box-sizing: border-box;
   &:hover {
     background: #C19B76;
     color: #fff;
@@ -123,6 +161,11 @@ const NavigationButton = styled.button<{ $direction: 'prev' | 'next' }>`
   &:disabled {
     opacity: 0.3;
     cursor: not-allowed;
+  }
+  @media (max-width: 480px) {
+    width: 44px;
+    height: 44px;
+    ${({ $direction }) => $direction === 'prev' ? 'left: 0.25rem;' : 'right: 0.25rem;'}
   }
 `;
 
@@ -323,7 +366,7 @@ const EmbeddedBooking: React.FC = () => {
             bookingState={bookingState}
           />
         )}
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 24, position: 'relative', minHeight: '44px' }}>
           {currentStep > 0 && (
             <NavigationButton $direction="prev" onClick={handlePrev}>
               <FontAwesomeIcon icon={faChevronLeft} />

@@ -21,6 +21,12 @@ const Container = styled.div`
   color: #fff;
   box-sizing: border-box;
   max-width: 100vw;
+  width: 100%;
+  overflow-x: hidden;
+  @media (max-width: 480px) {
+    padding: 0.5rem 0;
+    gap: 1rem;
+  }
 `;
 
 const StepWrapper = styled.div`
@@ -30,8 +36,13 @@ const StepWrapper = styled.div`
   padding: 1.5rem 2rem;
   background: transparent;
   box-sizing: border-box;
-  @media (max-width: 600px) {
-    padding: 1rem 0.5rem;
+  @media (max-width: 768px) {
+    padding: 1rem 1rem;
+    margin: 1rem auto;
+  }
+  @media (max-width: 480px) {
+    padding: 1rem 0.75rem;
+    margin: 0.5rem auto;
     max-width: 100vw;
   }
 `;
@@ -40,10 +51,15 @@ const Title = styled.h2`
   color: #fff;
   text-align: center;
   margin-bottom: 1.5rem;
-  font-size: 2.5rem;
+  font-size: clamp(1.5rem, 5vw, 2.5rem);
   font-weight: bold;
   margin-top: 0;
   letter-spacing: 2px;
+  @media (max-width: 480px) {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    letter-spacing: 1px;
+  }
 `;
 
 const Form = styled.form`
@@ -95,7 +111,9 @@ const PhoneInputContainer = styled.div`
   display: flex;
   gap: 0.5rem;
   align-items: flex-start;
-  @media (max-width: 600px) {
+  width: 100%;
+  box-sizing: border-box;
+  @media (max-width: 480px) {
     flex-direction: column;
     gap: 0.5rem;
   }
@@ -104,9 +122,15 @@ const PhoneInputContainer = styled.div`
   }
   & > *:first-child {
     flex: 0 0 auto;
+    @media (max-width: 480px) {
+      width: 100%;
+    }
   }
   & > *:last-child {
     flex: 1;
+    @media (max-width: 480px) {
+      width: 100%;
+    }
   }
 `;
 

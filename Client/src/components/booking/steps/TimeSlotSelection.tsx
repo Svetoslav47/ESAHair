@@ -15,26 +15,43 @@ const Container = styled.div`
   border-radius: 0;
   border: none;
   color: #fff;
+  box-sizing: border-box;
+  width: 100%;
+  overflow-x: hidden;
+  @media (max-width: 480px) {
+    padding: 0.5rem 0;
+    gap: 1rem;
+  }
 `;
 
 const Title = styled.h2`
   color: #fff;
   text-align: center;
   margin-bottom: 1.5rem;
-  font-size: 2.5rem;
+  font-size: clamp(1.5rem, 5vw, 2.5rem);
   font-weight: bold;
   margin-top: 0;
   letter-spacing: 2px;
+  @media (max-width: 480px) {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    letter-spacing: 1px;
+  }
 `;
 
 const DaysGrid = styled.div`
   display: flex;
   gap: 2rem;
   justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
+  @media (max-width: 768px) {
+    gap: 1.5rem;
+  }
   @media (max-width: 600px) {
     flex-direction: column;
     gap: 1.5rem;
-    align-items: center;
+    align-items: stretch;
   }
 `;
 
@@ -46,6 +63,17 @@ const DayColumn = styled.div`
   max-height: 400px;
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
+  flex: 1;
+  @media (max-width: 768px) {
+    min-width: 180px;
+  }
+  @media (max-width: 600px) {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    max-height: 350px;
+  }
 `;
 
 const DayTitle = styled.h3`
@@ -121,6 +149,16 @@ const StepWrapper = styled.div`
   margin: 2rem auto;
   padding: 1.5rem 2rem;
   background: transparent;
+  box-sizing: border-box;
+  @media (max-width: 768px) {
+    padding: 1rem 1rem;
+    margin: 1rem auto;
+  }
+  @media (max-width: 480px) {
+    padding: 1rem 0.75rem;
+    margin: 0.5rem auto;
+    max-width: 100vw;
+  }
 `;
 
 const PeopleSelector = styled.div`
@@ -129,6 +167,12 @@ const PeopleSelector = styled.div`
   gap: 1rem;
   margin-bottom: 1.5rem;
   justify-content: center;
+  flex-wrap: wrap;
+  box-sizing: border-box;
+  @media (max-width: 480px) {
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
 `;
 
 const PeopleLabel = styled.span`
@@ -142,12 +186,19 @@ const PeopleButton = styled.button`
   color: #fff;
   width: 2rem;
   height: 2rem;
+  min-width: 44px;
+  min-height: 44px;
   border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
+  box-sizing: border-box;
+  @media (max-width: 480px) {
+    width: 44px;
+    height: 44px;
+  }
 
   &:hover {
     background: #C19B76;

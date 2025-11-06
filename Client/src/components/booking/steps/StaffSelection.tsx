@@ -14,23 +14,44 @@ const Container = styled.div`
   border-radius: 0;
   border: none;
   color: #fff;
+  box-sizing: border-box;
+  width: 100%;
+  overflow-x: hidden;
+  @media (max-width: 480px) {
+    padding: 0.5rem 0;
+    gap: 1rem;
+  }
 `;
 
 const Title = styled.h2`
   color: #fff;
   text-align: center;
   margin-bottom: 1.5rem;
-  font-size: 2.5rem;
+  font-size: clamp(1.5rem, 5vw, 2.5rem);
   font-weight: bold;
   margin-top: 0;
   letter-spacing: 2px;
+  @media (max-width: 480px) {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    letter-spacing: 1px;
+  }
 `;
 
 const StaffGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1.5rem;
   width: 100%;
+  box-sizing: border-box;
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+  }
+  @media (max-width: 480px) {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+  }
 `;
 
 const StaffCard = styled.div<{ $isSelected?: boolean }>`
@@ -44,6 +65,11 @@ const StaffCard = styled.div<{ $isSelected?: boolean }>`
   display: flex;
   flex-direction: column;
   box-shadow: none;
+  box-sizing: border-box;
+  width: 100%;
+  @media (max-width: 480px) {
+    padding: 0.75rem;
+  }
   &:hover {
     transform: translateY(-3px);
     border-color: #C19B76;
@@ -72,6 +98,16 @@ const StepWrapper = styled.div`
   margin: 2rem auto;
   padding: 1.5rem 2rem;
   background: transparent;
+  box-sizing: border-box;
+  @media (max-width: 768px) {
+    padding: 1rem 1rem;
+    margin: 1rem auto;
+  }
+  @media (max-width: 480px) {
+    padding: 1rem 0.75rem;
+    margin: 0.5rem auto;
+    max-width: 100vw;
+  }
 `;
 
 interface StaffSelectionProps {
