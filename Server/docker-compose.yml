@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  zaki-server:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    image: zaki:v1
+    container_name: zaki-server
+    restart: unless-stopped
+    ports:
+      - "8796:8796"
