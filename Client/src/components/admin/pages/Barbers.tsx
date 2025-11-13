@@ -1,6 +1,6 @@
 import React, { useEffect, useState, ChangeEvent, FormEvent } from 'react';
 import styled from 'styled-components';
-import axios from 'axios';
+import apiClient from '../../../utils/apiClient';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faSpinner, faClock, faUser, faImage, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { format, addDays } from 'date-fns';
@@ -298,7 +298,7 @@ const Barbers: React.FC = () => {
 
   const fetchBarbers = async () => {
     try {
-      const res = await axios.get('/api/barbers');
+      const res = await apiClient.get('/api/barbers');
       setBarbers(res.data);
     } catch {
       setError('Failed to fetch barbers');
@@ -307,7 +307,7 @@ const Barbers: React.FC = () => {
 
   const fetchSaloons = async () => {
     try {
-      const res = await axios.get('/api/saloons');
+      const res = await apiClient.get('/api/saloons');
       setSaloons(res.data);
     } catch {
       setError('Failed to fetch saloons');
@@ -316,7 +316,7 @@ const Barbers: React.FC = () => {
 
   const fetchAppointments = async () => {
     try {
-      const res = await axios.get('/api/appointments');
+      const res = await apiClient.get('/api/appointments');
       setAppointments(res.data);
     } catch {
       setError('Failed to fetch appointments');
@@ -390,9 +390,9 @@ const Barbers: React.FC = () => {
       formData.append('endMinutes', String(endMinutes || 0));
       if (image) formData.append('image', image);
       if (editBarber) {
-        await axios.put(`/api/barbers/${editBarber._id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+        await apiClient.put(`/api/barbers/${editBarber._id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
       } else {
-        await axios.post('/api/barbers', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+        await apiClient.post('/api/barbers', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
       }
       closeModal();
       fetchBarbers();
@@ -406,12 +406,12 @@ const Barbers: React.FC = () => {
     setLoadingAssignments(prev => ({ ...prev, [assignmentKey]: true }));
     try {
       if (saloonId === '') {
-        await axios.post(`/api/barbers/${barber._id}/assign-saloon`, {
+        await apiClient.post(`/api/barbers/${barber._id}/assign-saloon`, {
           date: date.toISOString(),
           saloonId: "-1"
         });
       } else {
-        await axios.post(`/api/barbers/${barber._id}/assign-saloon`, {
+        await apiClient.post(`/api/barbers/${barber._id}/assign-saloon`, {
           date: date.toISOString(),
           saloonId
         });
@@ -440,7 +440,7 @@ const Barbers: React.FC = () => {
   const handleDelete = async (id: string) => {
     if (!window.confirm('Сигурен ли си, че искаш да изтриеш този фризьор?')) return;
     try {
-      await axios.delete(`/api/barbers/${id}`);
+      await apiClient.delete(`/api/barbers/${id}`);
       fetchBarbers();
     } catch {
       setError('Неуспешно изтриване на фризьора');

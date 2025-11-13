@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate, Routes, Route, Navigate } from 'react-router-dom';
-import axios, { AxiosError } from 'axios';
+import apiClient, { AxiosError } from '../../utils/apiClient';
 import { useAuth } from '../../context/AuthContext';
 import AdminSidebar from './AdminSidebar';
 import AdminCalendar from './pages/AdminCalendar';
@@ -100,9 +100,9 @@ const AdminDashboard = () => {
     const fetchDashboardData = async () => {
       try {
         const [appointments, barbers, services] = await Promise.all([
-          axios.get('/api/appointments'),
-          axios.get('/api/barbers'),
-          axios.get('/api/services')
+          apiClient.get('/api/appointments'),
+          apiClient.get('/api/barbers'),
+          apiClient.get('/api/services')
         ]);
 
         setStats({

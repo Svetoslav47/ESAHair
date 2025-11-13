@@ -3,8 +3,10 @@ import { Barber } from '../types/barber';
 import { BarberAvailability } from '../types/barberAvailability';
 import { Appointment } from '../types/appointment';
 
+const API_URL = import.meta.env.VITE_API_URL || '';
+
 export const fetchServices = async (): Promise<Service[]> => {
-    const response = await fetch(`/api/services`);
+    const response = await fetch(`${API_URL}/api/services`);
     if (!response.ok) {
         throw new Error('Failed to fetch services');
     }
@@ -12,7 +14,7 @@ export const fetchServices = async (): Promise<Service[]> => {
 }; 
 
 export const fetchBarbers = async (): Promise<Barber[]> => {
-    const response = await fetch(`/api/barbers`);
+    const response = await fetch(`${API_URL}/api/barbers`);
     if (!response.ok) {
         throw new Error('Failed to fetch barbers');
     }
@@ -23,7 +25,7 @@ export const fetchBarberAvailability = async (barberName: string, serviceId: str
     if (!barberName || !serviceId) {
         throw new Error('Barber name and service ID are required');
     }
-    const response = await fetch(`/api/barbers/${barberName}/availability?serviceId=${serviceId}`);
+    const response = await fetch(`${API_URL}/api/barbers/${barberName}/availability?serviceId=${serviceId}`);
     if (!response.ok) {
         throw new Error('Failed to fetch barber availability');
     }
@@ -41,7 +43,7 @@ interface BookingError {
 }
 
 export const bookAppointment = async (appointment: Appointment): Promise<BookingSuccess | BookingError> => {
-    const response = await fetch(`/api/appointments/book`, {
+    const response = await fetch(`${API_URL}/api/appointments/book`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -66,7 +68,7 @@ interface Salon {
 }
 
 export const fetchSaloons = async (): Promise<Salon[]> => {
-    const response = await fetch(`/api/saloons`);
+    const response = await fetch(`${API_URL}/api/saloons`);
     if (!response.ok) {
         throw new Error('Failed to fetch saloons');
     }
@@ -78,7 +80,7 @@ export const fetchSaloons = async (): Promise<Salon[]> => {
 };
 
 export const fetchBarbersAssignedToSaloon = async (saloonId: string, date: string) => {
-    const response = await fetch(`/api/barbers/assigned?saloonId=${saloonId}&date=${date}`);
+    const response = await fetch(`${API_URL}/api/barbers/assigned?saloonId=${saloonId}&date=${date}`);
     if (!response.ok) {
         throw new Error('Failed to fetch barbers for saloon');
     }
@@ -90,13 +92,13 @@ export const fetchBarbersAssignedToSaloon = async (saloonId: string, date: strin
 };
 
 export const fetchTimeSlots = async (barberId: string, saloonId: string, serviceId: string, date: string, numberOfPeople: number = 1) => {
-    const response = await fetch(`/api/barbers/${barberId}/availability/day?saloonId=${saloonId}&serviceId=${serviceId}&date=${date}&numberOfPeople=${numberOfPeople}`);
+    const response = await fetch(`${API_URL}/api/barbers/${barberId}/availability/day?saloonId=${saloonId}&serviceId=${serviceId}&date=${date}&numberOfPeople=${numberOfPeople}`);
     if (!response.ok) throw new Error('Failed to fetch time slots');
     return response.json(); // Should be array of { start, end }
 };
 
 export const fetchAppointments = async () => {
-    const response = await fetch(`/api/appointments`);
+    const response = await fetch(`${API_URL}/api/appointments`);
     if (!response.ok) {
         throw new Error('Failed to fetch appointments');
     }

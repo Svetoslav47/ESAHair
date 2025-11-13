@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
-import axios, { AxiosError } from 'axios';
+import apiClient, { AxiosError } from '../../utils/apiClient';
 import { useAuth } from '../../context/AuthContext';
 
 const Container = styled.div`
@@ -83,7 +83,7 @@ const AdminLogin = () => {
     setError('');
 
     try {
-      const response = await axios.post('/api/auth/login', { email, password });
+      const response = await apiClient.post('/api/auth/login', { email, password });
       const { token, user } = response.data;
 
       if (user.role !== 'admin') {

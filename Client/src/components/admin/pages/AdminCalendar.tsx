@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Calendar, dateFnsLocalizer, Views } from 'react-big-calendar';
 import { fetchAppointments, fetchBarbers, fetchSaloons, bookAppointment, fetchServices } from '../../../services/api';
+
+const API_URL = import.meta.env.VITE_API_URL || '';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { addHours, subHours, parseISO, format, parse, startOfWeek, addDays } from 'date-fns';
 import { enUS } from 'date-fns/locale/en-US';
@@ -439,7 +441,7 @@ const AdminCalendar = () => {
     if (!selectedEvent) return;
     setDeleting(true);
     try {
-      await fetch(`/api/appointments/${selectedEvent.id}`, { method: 'DELETE' });
+      await fetch(`${API_URL}/api/appointments/${selectedEvent.id}`, { method: 'DELETE' });
       setModalOpen(false);
       setSelectedEvent(null);
       // Refresh appointments

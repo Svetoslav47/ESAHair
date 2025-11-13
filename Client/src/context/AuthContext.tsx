@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../utils/apiClient';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -17,11 +17,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      // Set up axios default headers
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      // Set up apiClient default headers
+      apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       
       // Verify token and get user info
-      axios.get('/api/auth/me')
+      apiClient.get('/api/auth/me')
         .then(response => {
           const userData = response.data.user;
           if (userData.role === 'admin') {
@@ -30,27 +30,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           } else {
             // If user is not admin, clear everything
             localStorage.removeItem('token');
-            delete axios.defaults.headers.common['Authorization'];
+            delete apiClient.defaults.headers.common['Authorization'];
           }
         })
         .catch(() => {
           // If token is invalid, clear everything
           localStorage.removeItem('token');
-          delete axios.defaults.headers.common['Authorization'];
+          delete apiClient.defaults.headers.common['Authorization'];
         });
     }
   }, []);
 
   const login = (token: string, userData: { email: string; role: string }) => {
     localStorage.setItem('token', token);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     setIsAuthenticated(true);
     setUser(userData);
   };
 
   const logout = () => {
     localStorage.removeItem('token');
-    delete axios.defaults.headers.common['Authorization'];
+    delete apiClient.defaults.headers.common['Authorization'];
     setIsAuthenticated(false);
     setUser(null);
   };

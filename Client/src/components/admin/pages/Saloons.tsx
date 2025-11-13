@@ -1,6 +1,6 @@
 import React, { useEffect, useState, ChangeEvent, FormEvent } from 'react';
 import styled from 'styled-components';
-import axios from 'axios';
+import apiClient from '../../../utils/apiClient';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faMapMarkerAlt, faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 
@@ -180,7 +180,7 @@ const Saloons: React.FC = () => {
 
   const fetchSaloons = async () => {
     try {
-      const res = await axios.get('/api/saloons');
+      const res = await apiClient.get('/api/saloons');
       setSaloons(res.data);
     } catch {
       setError('Failed to fetch saloons');
@@ -238,9 +238,9 @@ const Saloons: React.FC = () => {
       if (gmapsLink) formData.append('gmapsLink', gmapsLink);
       if (image) formData.append('image', image);
       if (editSaloon) {
-        await axios.put(`/api/saloons/${editSaloon._id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+        await apiClient.put(`/api/saloons/${editSaloon._id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
       } else {
-        await axios.post('/api/saloons', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+        await apiClient.post('/api/saloons', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
       }
       closeModal();
       fetchSaloons();
@@ -252,7 +252,7 @@ const Saloons: React.FC = () => {
   const handleDelete = async (id: string) => {
     if (!window.confirm('Delete this saloon?')) return;
     try {
-      await axios.delete(`/api/saloons/${id}`);
+      await apiClient.delete(`/api/saloons/${id}`);
       fetchSaloons();
     } catch {
       setError('Failed to delete saloon');

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, ChangeEvent, FormEvent } from 'react';
 import styled from 'styled-components';
-import axios from 'axios';
+import apiClient from '../../../utils/apiClient';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faClock, faMoneyBill, faEdit, faEuro } from '@fortawesome/free-solid-svg-icons';
 
@@ -248,7 +248,7 @@ const Services: React.FC = () => {
 
   const fetchServices = async () => {
     try {
-      const res = await axios.get('/api/services');
+      const res = await apiClient.get('/api/services');
       const sortedServices = res.data.sort((a: Service, b: Service) => 
         (b.sortOrder || 0) - (a.sortOrder || 0)
       );
@@ -326,9 +326,9 @@ const Services: React.FC = () => {
       if (image) formDataToSend.append('image', image);
 
       if (editService) {
-        await axios.put(`/api/services/${editService._id}`, formDataToSend, { headers: { 'Content-Type': 'multipart/form-data' } });
+        await apiClient.put(`/api/services/${editService._id}`, formDataToSend, { headers: { 'Content-Type': 'multipart/form-data' } });
       } else {
-        await axios.post('/api/services', formDataToSend, { headers: { 'Content-Type': 'multipart/form-data' } });
+        await apiClient.post('/api/services', formDataToSend, { headers: { 'Content-Type': 'multipart/form-data' } });
       }
 
       closeModal();
@@ -343,7 +343,7 @@ const Services: React.FC = () => {
   const handleDelete = async (id: string) => {
     if (!window.confirm('Delete this service?')) return;
     try {
-      await axios.delete(`/api/services/${id}`);
+      await apiClient.delete(`/api/services/${id}`);
       fetchServices();
     } catch {
       setError('Failed to delete service');

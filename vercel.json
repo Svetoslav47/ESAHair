@@ -1,27 +1,11 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "Server/src/index.ts",
-      "use": "@vercel/node"
-    }
-  ],
-  "buildCommand": "cd Server && npm install",
-  "headers": [
-    {
-      "source": "/(.*).js",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/javascript"
-        }
-      ]
-    }
-  ],
+  "buildCommand": "cd Client && npm install && npm run build",
+  "outputDirectory": "Client/dist",
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "Server/src/index.ts"
+      "destination": "/index.html"
     }
   ]
 }
