@@ -1,0 +1,15 @@
+node_modules
+dist
+npm-debug.log
+# .env files are included for convenience (remove from .dockerignore for production security)
+# .env
+# .env.local
+.git
+.gitignore
+README.md
+*.md
+.vscode
+.idea
+*.log
+.DS_Store
+
