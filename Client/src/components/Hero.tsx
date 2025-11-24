@@ -25,12 +25,13 @@ const HeroSection = styled.section`
 const HeroContent = styled.div`
   max-width: 600px;
   z-index: 2;
+  position: relative;
 
   @media (max-width: 768px) {
     max-width: 100%;
     padding: 0 20px;
     position: absolute;
-    top: 50%;
+    top: 40%;
     left: 50%;
     transform: translate(-50%, -50%);
   }
@@ -141,11 +142,60 @@ const BookButton = styled.button`
   }
 `;
 
+const ContactInfo = styled.div`
+  margin-bottom: 2rem;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0rem;
+  position: absolute;
+  top: -80px;
+  left: 0;
+  
+  @media (max-width: 768px) {
+    margin-bottom: 0;
+    text-align: left;
+    top: -100px;
+    left: 20px;
+    gap: 0.2rem;
+  }
+`;
+
+const ContactText = styled.div`
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  
+  @media (max-width: 768px) {
+    font-size: 1.1rem;
+  }
+`;
+
+const PhoneLink = styled.a`
+  color: white;
+  font-size: 2.5rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-block;
+  transition: color 0.3s ease;
+  
+  &:hover {
+    color: #C19B76;
+  }
+  
+  @media (max-width: 768px) {
+    font-size: 1.6rem;
+  }
+`;
+
 export default function Hero() {
   
     return (
       <HeroSection>
         <HeroContent>
+          <ContactInfo>
+            <ContactText>За промяна на часа</ContactText>
+            <PhoneLink href="tel:0890139334">0890139334</PhoneLink>
+          </ContactInfo>
           <Title>ДОБРЕ ДОШЛИ</Title>
           <Subtitle>
             Запазете час в бръснарница Мх Заки за перфектната прическа.
