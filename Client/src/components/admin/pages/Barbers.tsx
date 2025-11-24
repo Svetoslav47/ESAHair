@@ -424,9 +424,9 @@ const Barbers: React.FC = () => {
     }
   };
 
-  const getNextThreeDays = () => {
+  const getNextSevenDays = () => {
     const days = [];
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 7; i++) {
       days.push(addDays(new Date(), i));
     }
     return days;
@@ -466,7 +466,7 @@ const Barbers: React.FC = () => {
             )}
             <AssignmentsContainer>
               <DateGrid>
-                {getNextThreeDays().map((date, idx) => {
+                {getNextSevenDays().map((date, idx) => {
                   const assignment = getAssignmentForDate(barber, date);
                   const disableAssignment = hasAppointmentsForDay(barber, date);
                   const assignmentKey = `${barber._id}-${date.toISOString()}`;
