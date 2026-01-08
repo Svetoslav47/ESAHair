@@ -223,8 +223,8 @@ const ServiceSelection: React.FC<SelectServiceProps> = ({ onSelect, selectedServ
                     {service.duration} минути
                   </Duration>
                   <Price>
-                    <PrimaryPrice>{formatPriceBGN(getServicePriceBGN(service))} лв.</PrimaryPrice>
-                    <SecondaryPrice>{formatPriceEUR(getServicePriceEUR(service))} EUR</SecondaryPrice>
+                    <PrimaryPrice>{formatPriceEUR(getServicePriceEUR(service))} EUR</PrimaryPrice>
+                    <SecondaryPrice>/ {formatPriceBGN(getServicePriceBGN(service))} лв.</SecondaryPrice>
                   </Price>
                 </ServiceInfo>
               </ServiceDetails>

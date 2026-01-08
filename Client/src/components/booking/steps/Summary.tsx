@@ -286,8 +286,8 @@ const Summary = ({ bookingState }: SummaryProps) => {
           <TotalAmountContainer>
             <TotalLabel>Обща сума</TotalLabel>
             <TotalPrice>
-              <TotalPrimaryPrice>{((getServicePriceBGN(service) * numberOfPeople).toFixed(2))} лв.</TotalPrimaryPrice>
-              <TotalSecondaryPrice>{((getServicePriceEUR(service) * numberOfPeople).toFixed(2))} EUR</TotalSecondaryPrice>
+              <TotalPrimaryPrice>{((getServicePriceEUR(service) * numberOfPeople).toFixed(2))} EUR</TotalPrimaryPrice>
+              <TotalSecondaryPrice>/ {((getServicePriceBGN(service) * numberOfPeople).toFixed(2))} лв.</TotalSecondaryPrice>
             </TotalPrice>
           </TotalAmountContainer>
 

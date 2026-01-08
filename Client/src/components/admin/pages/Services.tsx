@@ -364,7 +364,7 @@ const Services: React.FC = () => {
             </ServiceInfo>
             <ServiceInfo>
               <InfoIcon icon={faMoneyBill} />
-              Цена: {service.priceBGN ?? service.price ?? 0} лв. ({service.priceEUR ?? (service.price ? (service.price / 1.95583).toFixed(2) : 0)} EUR)
+              Цена: {Number(service.priceEUR ?? (service.price ? service.price / 1.95583 : 0)).toFixed(2)} EUR / {Number(service.priceBGN ?? service.price ?? 0).toFixed(2)} лв.
             </ServiceInfo>
             <ServiceInfo>
               <InfoIcon icon={faEdit} />

@@ -118,8 +118,8 @@ const ServiceList: React.FC = () => {
             <ServiceInfo>
               <Duration>{service.duration} мин.</Duration>
               <Price>
-                <PrimaryPrice>{formatPriceBGN(getServicePriceBGN(service))} лв.</PrimaryPrice>
-                <SecondaryPrice>{formatPriceEUR(getServicePriceEUR(service))} EUR</SecondaryPrice>
+                <PrimaryPrice>{formatPriceEUR(getServicePriceEUR(service))} EUR</PrimaryPrice>
+                <SecondaryPrice>/ {formatPriceBGN(getServicePriceBGN(service))} лв.</SecondaryPrice>
               </Price>
             </ServiceInfo>
           </ServiceCard>

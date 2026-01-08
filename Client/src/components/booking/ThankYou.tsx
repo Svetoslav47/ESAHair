@@ -142,8 +142,8 @@ const ThankYou: React.FC<{ booking: BookingConfirmation }> = ({ booking }) => {
         <DetailRow>
           <DetailLabel>Сума</DetailLabel>
           <DetailValue>
-            <span style={{ color: '#fff', fontWeight: 500 }}>{((booking.priceBGN ?? 0) * booking.numberOfPeople).toFixed(2)} лв.</span>
-            <span style={{ color: '#999', fontSize: '0.9rem', marginLeft: '0.5rem', opacity: 0.7 }}> / {((booking.priceEUR ?? 0) * booking.numberOfPeople).toFixed(2)} EUR</span>
+            <span style={{ color: '#fff', fontWeight: 500 }}>{((booking.priceEUR ?? 0) * booking.numberOfPeople).toFixed(2)} EUR</span>
+            <span style={{ color: '#999', fontSize: '0.9rem', marginLeft: '0.5rem', opacity: 0.7 }}> / {((booking.priceBGN ?? 0) * booking.numberOfPeople).toFixed(2)} лв.</span>
           </DetailValue>
         </DetailRow>
       </BookingDetails>
