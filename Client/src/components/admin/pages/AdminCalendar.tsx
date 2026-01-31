@@ -436,6 +436,23 @@ const AdminCalendar = () => {
     return appointments.find(a => a._id === event.id);
   };
 
+  // Format phone number for tel: link
+  const formatPhoneForLink = (phone: string): string => {
+    if (!phone) return '';
+    // Remove any non-digit characters
+    const digitsOnly = phone.replace(/\D/g, '');
+    // If it starts with 0, replace with country code (Bulgaria: +359)
+    if (digitsOnly.startsWith('0')) {
+      return '+359' + digitsOnly.slice(1);
+    }
+    // If it already starts with country code, add + if missing
+    if (digitsOnly.startsWith('359')) {
+      return '+' + digitsOnly;
+    }
+    // Otherwise, assume it's already formatted or add +359
+    return digitsOnly.startsWith('+') ? digitsOnly : '+359' + digitsOnly;
+  };
+
   // Delete appointment
   const handleDelete = async () => {
     if (!selectedEvent) return;
@@ -504,8 +521,22 @@ const AdminCalendar = () => {
             {(() => {
               const appt = getAppointmentByEvent(selectedEvent);
               if (!appt) return <div>Резервацията не е намерена.</div>;
+              const displayPhone = appt.customer.phone && appt.customer.phone.startsWith('0') ? appt.customer.phone.slice(1) : appt.customer.phone;
               return <>
-                <div><b>Клиент:</b> {appt.customer.firstname} <span style={{color:'#C19B76'}}>{appt.customer.phone && appt.customer.phone.startsWith('0') ? appt.customer.phone.slice(1) : appt.customer.phone}</span></div>
+                <div><b>Клиент:</b> {appt.customer.firstname} {appt.customer.phone && (
+                  <a 
+                    href={`tel:${formatPhoneForLink(appt.customer.phone)}`}
+                    style={{
+                      color: '#C19B76',
+                      textDecoration: 'none',
+                      cursor: 'pointer',
+                      fontWeight: 'bold'
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {displayPhone}
+                  </a>
+                )}</div>
                 <div><b>Дата:</b> {appt.dateTime.date} <b>Час:</b> {appt.dateTime.time}</div>
                 <div><b>Фризьор:</b> {appt.staff.name}</div>
                 <div><b>Брой хора:</b> {appt.numberOfPeople}</div>
