@@ -36,19 +36,15 @@ const SidebarContainer = styled.div<{ isOpen: boolean }>`
   display: flex;
   flex-direction: column;
   transform: ${({ isOpen }) => isOpen ? 'translateX(0)' : 'translateX(-100%)'};
-  
-  @media (max-width: 768px) {
-    width: 220px;
-  }
 `;
 
 const BurgerButton = styled.button`
   position: fixed;
-  top: 12px;
-  left: 12px;
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
+  top: 20px;
+  left: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
   background-color: #C19B76;
   border: none;
   color: white;
@@ -58,19 +54,10 @@ const BurgerButton = styled.button`
   cursor: pointer;
   z-index: 2100;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  font-size: 1.1rem;
-  touch-action: manipulation;
+  font-size: 1.3rem;
 
   &:hover {
     background-color: #b08a65;
-  }
-  
-  @media (max-width: 768px) {
-    width: 36px;
-    height: 36px;
-    top: 10px;
-    left: 10px;
-    font-size: 1rem;
   }
 `;
 
@@ -111,17 +98,10 @@ const NavItem = styled.li<{ isActive: boolean }>`
   background-color: ${props => props.isActive ? 'rgba(193, 155, 118, 0.1)' : 'transparent'};
   cursor: pointer;
   transition: all 0.2s ease;
-  min-height: 48px;
-  touch-action: manipulation;
 
   &:hover {
     background-color: rgba(193, 155, 118, 0.1);
     color: #C19B76;
-  }
-  
-  @media (max-width: 768px) {
-    padding: 18px 20px;
-    min-height: 52px;
   }
 `;
 

@@ -37,10 +37,6 @@ const messages = {
 
 const CalendarWrapper = styled.div`
   padding: 2rem 2rem 0 2rem;
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  
   .rbc-calendar, .rbc-time-view, .rbc-timeslot-group, .rbc-time-header, .rbc-time-content, .rbc-time-slot, .rbc-label, .rbc-header, .rbc-event, .rbc-time-gutter, .rbc-timeslot-group {
     background: #181818 !important;
     color: #fff !important;
@@ -69,47 +65,6 @@ const CalendarWrapper = styled.div`
     color: #C19B76 !important;
     font-weight: bold;
   }
-  .rbc-time-view {
-    overflow-y: auto !important;
-  }
-
-  @media (max-width: 768px) {
-    padding: 0.5rem 0.5rem 2rem 0.5rem;
-    overflow-x: hidden;
-    overflow-y: visible;
-    height: auto;
-    min-height: calc(100vh - 200px);
-    padding-bottom: 2rem;
-    
-    .rbc-calendar {
-      min-width: 600px;
-    }
-    
-    .rbc-time-view {
-      height: 100% !important;
-    }
-    
-    .rbc-time-content {
-      overflow-y: auto !important;
-      max-height: calc(100vh - 250px) !important;
-    }
-  }
-`;
-
-const CalendarContainer = styled.div`
-  height: 800px;
-  margin: 2rem 0;
-  background: #181818;
-  border-radius: 8px;
-  position: relative;
-  
-  @media (max-width: 768px) {
-    height: calc(100vh - 220px);
-    min-height: 450px;
-    margin: 0.5rem 0;
-    min-width: 600px;
-    max-height: 600px;
-  }
 `;
 
 const DayNav = styled.div`
@@ -118,14 +73,6 @@ const DayNav = styled.div`
   margin-bottom: 24px;
   justify-content: center;
   align-items: center;
-  flex-wrap: wrap;
-  
-  @media (max-width: 768px) {
-    gap: 6px;
-    margin-bottom: 12px;
-    padding: 0 1rem;
-    justify-content: center;
-  }
 `;
 const DayButton = styled.button<{ selected: boolean }>`
   background: ${({ selected }) => (selected ? '#C19B76' : '#222')};
@@ -136,12 +83,6 @@ const DayButton = styled.button<{ selected: boolean }>`
   font-size: 1.1rem;
   font-weight: bold;
   cursor: pointer;
-  white-space: nowrap;
-  
-  @media (max-width: 768px) {
-    padding: 8px 16px;
-    font-size: 0.9rem;
-  }
 `;
 
 const FilterRow = styled.div`
@@ -150,7 +91,6 @@ const FilterRow = styled.div`
   gap: 24px;
   justify-content: center;
   align-items: center;
-  flex-wrap: wrap;
 
   select {
     font-size: 1.1rem;
@@ -160,19 +100,6 @@ const FilterRow = styled.div`
     background: #222;
     color: #fff;
     min-width: 220px;
-  }
-  
-  @media (max-width: 768px) {
-    gap: 12px;
-    margin-bottom: 12px;
-    
-    select {
-      font-size: 1rem;
-      padding: 10px 14px;
-      min-width: 0;
-      flex: 1;
-      min-width: 150px;
-    }
   }
 `;
 
@@ -191,9 +118,6 @@ const ModalContent = styled.div`
   padding: 2rem 2.5rem;
   border-radius: 10px;
   min-width: 320px;
-  max-width: 90vw;
-  max-height: 90vh;
-  overflow-y: auto;
   box-shadow: 0 4px 32px #000a;
   display: flex;
   flex-direction: column;
@@ -208,18 +132,6 @@ const ModalContent = styled.div`
     min-width: 250px;
     margin-top: 4px;
     margin-bottom: 4px;
-  }
-  
-  @media (max-width: 768px) {
-    padding: 1.5rem 1.5rem;
-    min-width: 280px;
-    max-width: 95vw;
-    
-    select {
-      font-size: 1rem;
-      padding: 10px 16px;
-      min-width: 200px;
-    }
   }
 `;
 const ModalTitle = styled.div`
@@ -253,19 +165,6 @@ const CloseButton = styled.button`
   font-size: 1rem;
 `;
 
-const PhoneLink = styled.a`
-  color: #C19B76;
-  text-decoration: none;
-  cursor: pointer;
-  font-weight: bold;
-  transition: color 0.2s;
-
-  &:hover {
-    color: #b08a65;
-    text-decoration: underline;
-  }
-`;
-
 const AddButton = styled.button`
   background: #C19B76;
   color: #000;
@@ -279,87 +178,6 @@ const AddButton = styled.button`
   display: block;
   margin-left: auto;
   margin-right: auto;
-  
-  @media (max-width: 768px) {
-    padding: 10px 20px;
-    font-size: 1rem;
-    margin-bottom: 12px;
-    width: 100%;
-    max-width: 300px;
-  }
-`;
-
-const MobileListContainer = styled.div`
-  display: none;
-  
-  @media (max-width: 768px) {
-    display: block;
-    padding: 0 0.5rem 3rem 0.5rem;
-    max-height: calc(100vh - 250px);
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    margin-bottom: 2rem;
-  }
-`;
-
-const MobileAppointmentCard = styled.div`
-  background: #2a2a2a;
-  border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  border-left: 4px solid #C19B76;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-
-  &:active {
-    transform: scale(0.98);
-  }
-`;
-
-const MobileAppointmentHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 0.5rem;
-`;
-
-const MobileAppointmentTime = styled.div`
-  color: #C19B76;
-  font-weight: bold;
-  font-size: 1.1rem;
-`;
-
-const MobileAppointmentName = styled.div`
-  color: #fff;
-  font-weight: bold;
-  font-size: 1rem;
-  margin-bottom: 0.25rem;
-`;
-
-const MobileAppointmentDetails = styled.div`
-  color: #aaa;
-  font-size: 0.9rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-`;
-
-const MobileAppointmentPhone = styled.a`
-  color: #C19B76;
-  text-decoration: none;
-  font-weight: bold;
-  
-  &:hover {
-    text-decoration: underline;
-  }
-`;
-
-const DesktopCalendarContainer = styled.div`
-  display: block;
-  
-  @media (max-width: 768px) {
-    display: none;
-  }
 `;
 
 interface Salon { 
@@ -449,15 +267,6 @@ const AdminCalendar = () => {
     customerPhone: '',
   });
   const [adding, setAdding] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   useEffect(() => {
     const loadInitialData = async () => {
@@ -559,7 +368,7 @@ const AdminCalendar = () => {
 
       return {
         id: app._id,
-        title: `${app.customer.firstname} (${app.numberOfPeople} ${app.numberOfPeople === 1 ? 'човек' : 'човека'})`,
+        title: `${app.customer.firstname} - ${app.service.name} (${app.numberOfPeople} ${app.numberOfPeople === 1 ? 'човек' : 'хора'})`,
         start: startTime,
         end: endTime,
         resourceId: app.staff.id,
@@ -625,32 +434,6 @@ const AdminCalendar = () => {
   const getAppointmentByEvent = (event: Event | null) => {
     if (!event) return null;
     return appointments.find(a => a._id === event.id);
-  };
-
-  // Format phone number for tel: link
-  const formatPhoneForTel = (phone: string): string => {
-    if (!phone) return '';
-    // Remove any non-digit characters
-    let cleaned = phone.replace(/\D/g, '');
-    // If it starts with 0, remove it and add +359 (Bulgaria country code)
-    if (cleaned.startsWith('0')) {
-      cleaned = '359' + cleaned.slice(1);
-    }
-    // If it doesn't start with a country code, add +359
-    if (!cleaned.startsWith('359')) {
-      cleaned = '359' + cleaned;
-    }
-    return '+' + cleaned;
-  };
-
-  // Format phone number for display
-  const formatPhoneForDisplay = (phone: string): string => {
-    if (!phone) return '';
-    // If it starts with 0, remove it for display
-    if (phone.startsWith('0')) {
-      return phone.slice(1);
-    }
-    return phone;
   };
 
   // Delete appointment
@@ -722,17 +505,9 @@ const AdminCalendar = () => {
               const appt = getAppointmentByEvent(selectedEvent);
               if (!appt) return <div>Резервацията не е намерена.</div>;
               return <>
-                <div><b>Клиент:</b> {appt.customer.firstname} {appt.customer.phone && (
-                  <PhoneLink 
-                    href={`tel:${formatPhoneForTel(appt.customer.phone)}`}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {formatPhoneForDisplay(appt.customer.phone)}
-                  </PhoneLink>
-                )}</div>
+                <div><b>Клиент:</b> {appt.customer.firstname} <span style={{color:'#C19B76'}}>{appt.customer.phone && appt.customer.phone.startsWith('0') ? appt.customer.phone.slice(1) : appt.customer.phone}</span></div>
                 <div><b>Дата:</b> {appt.dateTime.date} <b>Час:</b> {appt.dateTime.time}</div>
                 <div><b>Фризьор:</b> {appt.staff.name}</div>
-                <div><b>Услуга:</b> {appt.service.name}</div>
                 <div><b>Брой хора:</b> {appt.numberOfPeople}</div>
                 <div><b>Продължителност:</b> {appt.service.duration * appt.numberOfPeople} мин.</div>
                 {appt.salon && <div><b>Салон:</b> {appt.salon.name}</div>}
@@ -808,93 +583,29 @@ const AdminCalendar = () => {
           {salons.map(s => <option key={s._id || s.id} value={s._id || s.id}>{s.name}</option>)}
         </select>
         <select value={selectedBarber} onChange={e => { setSelectedBarber(e.target.value); setSelectedSalon(''); }}>
-          {!isMobile && <option value="">Всички фризьори</option>}
+          <option value="">Всички фризьори</option>
           {barberDropdownOptions.map(b => <option key={b._id || b.id} value={b._id || b.id}>{b.name}</option>)}
         </select>
       </FilterRow>
-      
-      {/* Mobile List View */}
-      <MobileListContainer>
-        {(() => {
-          // Filter events by current date
-          const dateFilteredEvents = events.filter(event => {
-            const eventDate = event.start.toISOString().split('T')[0];
-            return eventDate === currentDate;
-          });
-
-          if (dateFilteredEvents.length === 0) {
-            return (
-              <div style={{ textAlign: 'center', color: '#aaa', padding: '2rem' }}>
-                Няма резервации за този ден
-              </div>
-            );
-          }
-
-          return dateFilteredEvents
-            .sort((a, b) => a.start.getTime() - b.start.getTime())
-            .map(event => {
-              const appt = getAppointmentByEvent(event);
-              if (!appt) return null;
-              const timeStr = `${appt.dateTime.time}`;
-              return (
-                <MobileAppointmentCard
-                  key={event.id}
-                  onClick={() => {
-                    setSelectedEvent(event);
-                    setModalOpen(true);
-                  }}
-                >
-                  <MobileAppointmentHeader>
-                    <MobileAppointmentTime>{timeStr}</MobileAppointmentTime>
-                    <div style={{ color: '#C19B76', fontSize: '0.85rem' }}>
-                      {appt.numberOfPeople} {appt.numberOfPeople === 1 ? 'човек' : 'човека'}
-                    </div>
-                  </MobileAppointmentHeader>
-                  <MobileAppointmentName>{appt.customer.firstname}</MobileAppointmentName>
-                  <MobileAppointmentDetails>
-                    <div>Фризьор: {appt.staff.name}</div>
-                    {appt.customer.phone && (
-                      <MobileAppointmentPhone
-                        href={`tel:${formatPhoneForTel(appt.customer.phone)}`}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {formatPhoneForDisplay(appt.customer.phone)}
-                      </MobileAppointmentPhone>
-                    )}
-                    {appt.salon && <div>Салон: {appt.salon.name}</div>}
-                    <div>Услуга: {appt.service.name}</div>
-                    <div>Продължителност: {appt.service.duration * appt.numberOfPeople} мин.</div>
-                  </MobileAppointmentDetails>
-                </MobileAppointmentCard>
-              );
-            });
-        })()}
-      </MobileListContainer>
-
-      {/* Desktop Calendar View */}
-      <DesktopCalendarContainer>
-        <CalendarContainer>
-          <Calendar
-            localizer={localizer}
-            events={events}
-            resources={resources}
-            resourceIdAccessor="resourceId"
-            resourceTitleAccessor="resourceTitle"
-            defaultView={Views.DAY}
-            views={['day']}
-            min={minTime}
-            max={maxTime}
-            step={30}
-            timeslots={2}
-            style={{ height: '100%', minHeight: '100%' }}
-            messages={messages}
-            date={parseISO(currentDate)}
-            onNavigate={() => {}} // Disable default navigation
-            toolbar={false} // Hide default toolbar
-            onSelectEvent={event => { setSelectedEvent(event); setModalOpen(true); }}
-          />
-        </CalendarContainer>
-      </DesktopCalendarContainer>
+      <Calendar
+        localizer={localizer}
+        events={events}
+        resources={resources}
+        resourceIdAccessor="resourceId"
+        resourceTitleAccessor="resourceTitle"
+        defaultView={Views.DAY}
+        views={['day']}
+        min={minTime}
+        max={maxTime}
+        step={30}
+        timeslots={2}
+        style={{ height: 800, margin: '2rem 0', background: '#181818', borderRadius: 8 }}
+        messages={messages}
+        date={parseISO(currentDate)}
+        onNavigate={() => {}} // Disable default navigation
+        toolbar={false} // Hide default toolbar
+        onSelectEvent={event => { setSelectedEvent(event); setModalOpen(true); }}
+      />
     </CalendarWrapper>
   );
 };
