@@ -18,6 +18,14 @@ const Container = styled.div`
 
 const MainContent = styled.main`
   flex: 1;
+  overflow-x: hidden;
+  
+  @media (max-width: 768px) {
+    overflow-x: hidden;
+    overflow-y: auto;
+    width: 100%;
+    padding-bottom: 2rem;
+  }
 `;
 
 const Header = styled.header<{ isSidebarOpen: boolean }>`
@@ -31,12 +39,25 @@ const Header = styled.header<{ isSidebarOpen: boolean }>`
   background-color: #2a2a2a;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: padding-left 0.3s;
+  
+  @media (max-width: 768px) {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    padding-right: 1rem;
+    padding-left: 60px;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
 `;
 
 const Title = styled.h1`
   color: #fff;
   margin: 0 0.5em;
-
+  
+  @media (max-width: 768px) {
+    font-size: 1.2rem;
+    margin: 0 0.25em;
+  }
 `;
 
 const LogoutButton = styled.button`
@@ -51,6 +72,11 @@ const LogoutButton = styled.button`
   &:hover {
     background-color: #b08a65;
   }
+  
+  @media (max-width: 768px) {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+  }
 `;
 
 const DashboardGrid = styled.div`
@@ -58,6 +84,12 @@ const DashboardGrid = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
   padding: 2rem;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1rem;
+  }
 `;
 
 const Card = styled.div`
