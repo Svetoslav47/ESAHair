@@ -49,8 +49,8 @@ const StaffGrid = styled.div`
     gap: 1rem;
   }
   @media (max-width: 480px) {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
   }
 `;
 
@@ -69,6 +69,7 @@ const StaffCard = styled.div<{ $isSelected?: boolean }>`
   width: 100%;
   @media (max-width: 480px) {
     padding: 0.75rem;
+    aspect-ratio: auto;
   }
   &:hover {
     transform: translateY(-3px);
@@ -82,6 +83,14 @@ const StaffImage = styled.img`
   object-fit: cover;
   border-radius: 4px;
   margin-bottom: 1rem;
+
+  @media (max-width: 480px) {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    align-self: center;
+    margin-bottom: 0.75rem;
+  }
 `;
 
 const StaffName = styled.h3`
@@ -90,6 +99,11 @@ const StaffName = styled.h3`
   margin-bottom: 0.5rem;
   text-align: center;
   text-transform: capitalize;
+
+  @media (max-width: 480px) {
+    font-size: 1rem;
+    margin-bottom: 0;
+  }
 `;
 
 const StepWrapper = styled.div`
