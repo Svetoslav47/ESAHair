@@ -326,10 +326,13 @@ const AdminCalendar = () => {
     new Date().getSeconds(),
     new Date().getMilliseconds()
   ))
+  const yesterdayDate = addDays(todayDate, -1);
   const tomorrowDate = addDays(todayDate, 1);
+  const yesterdayStr = yesterdayDate.toISOString().split('T')[0];
   const todayStr = todayDate.toISOString().split('T')[0];
   const tomorrowStr = tomorrowDate.toISOString().split('T')[0];
   const dayOptions = [
+    { label: `Вчера ${yesterdayStr}`, value: yesterdayStr },
     { label: `Днес ${todayStr}`, value: todayStr },
     { label: `Утре ${tomorrowStr}`, value: tomorrowStr },
   ];
