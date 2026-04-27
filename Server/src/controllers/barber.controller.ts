@@ -281,9 +281,17 @@ export const getBarbersAssignedToSaloon = async (req: Request, res: Response) =>
         console.log(todayStart, tomorrowEnd);
 
         console.log(assignments);
-        // Get unique barbers from assignments
-        const barberIds = [...new Set(assignments.map(a => a.barber._id))];
-        const barbers = await Barber.find({ _id: { $in: barberIds } });
+        // Some assignments may point to deleted/missing barbers, which populate as null.
+        // Ignore those records so the endpoint can still return valid barbers.
+        const barberIds = [...new Set(
+            assignments
+                .map((assignment) => assignment.barber?._id?.toString())
+                .filter((id): id is string => Boolean(id))
+        )];
+
+        const barbers = barberIds.length > 0
+            ? await Barber.find({ _id: { $in: barberIds } })
+            : [];
 
         res.status(200).json(barbers);
     } catch (error) {
