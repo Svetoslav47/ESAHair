@@ -4,6 +4,7 @@ import { setupDatabase } from './config/db.config';
 import { setupGoogleAuth } from './config/google.config';
 import { CalendarService } from './services/calendarService';
 import { setupRoutes } from './routes';
+import { ensureAdminUser } from './utils/ensureAdminUser';
 import path from 'path';
 import dotenv from 'dotenv';
 import http from 'http';
@@ -20,6 +21,7 @@ const startServer = async () => {
 
     // Setup database connection
     await setupDatabase();
+    await ensureAdminUser();
 
     // Setup Google OAuth
     const calendarEnabled = !!process.env.GOOGLE_CLIENT_ID && !!process.env.GOOGLE_CLIENT_SECRET && !!process.env.GOOGLE_REFRESH_TOKEN;
