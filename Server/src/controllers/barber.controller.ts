@@ -146,6 +146,7 @@ export const deleteBarber = async (req: Request, res: Response) => {
         if (!barber) {
             return res.status(404).json({ error: 'Barber not found' });
         }
+        await BarberAssignment.deleteMany({ barber: id });
         res.status(200).json({ message: 'Barber deleted' });
     } catch (error) {
         console.error('Error deleting barber:', error);
