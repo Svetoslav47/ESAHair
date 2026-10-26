@@ -69,12 +69,15 @@ export class TimeSlotService {
 
         const slots: TimeSlot[] = [];
         
+        // Current Sofia wall-clock time; toZonedTime handles DST (UTC+2 in winter, UTC+3 in summer)
+        const sofiaNow = toZonedTime(new Date(), "Europe/Sofia");
+
         let dayStart = isAfter(new Date(Date.UTC(
-            new Date().getFullYear(),
-            new Date().getMonth(),
-            new Date().getDate(),
-            new Date().getHours() + 3,
-            new Date().getMinutes(),
+            sofiaNow.getFullYear(),
+            sofiaNow.getMonth(),
+            sofiaNow.getDate(),
+            sofiaNow.getHours(),
+            sofiaNow.getMinutes(),
             0
         )), new Date(Date.UTC(
             zonedDate.getFullYear(),
@@ -87,8 +90,8 @@ export class TimeSlotService {
             zonedDate.getFullYear(),
             zonedDate.getMonth(),
             zonedDate.getDate(),
-            new Date().getHours() + 3,
-            new Date().getMinutes(),
+            sofiaNow.getHours(),
+            sofiaNow.getMinutes(),
             0
         )) : new Date(Date.UTC(
             zonedDate.getFullYear(),
